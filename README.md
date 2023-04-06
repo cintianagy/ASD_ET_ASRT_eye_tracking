@@ -1,4 +1,4 @@
-# Project ET Zero
+# Child ASRT eye-tracking
 
 A script used for testing learning in an oculomotor activated ASRT experiment design.
 
