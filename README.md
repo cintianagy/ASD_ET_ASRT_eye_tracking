@@ -1,9 +1,6 @@
 # Child ASRT eye-tracking
 
-A script used for testing learning in an oculomotor activated ASRT experiment design.
-
-The core ASRT script is implemented here:
-https://github.com/tzolnai/asrt_core
+This script was used for testing statistical learning in an oculomotor activated ASRT experiment recorded with children.
 
 ### Prerequisites
 Running ASRT script requires all of the following and their dependencies.
