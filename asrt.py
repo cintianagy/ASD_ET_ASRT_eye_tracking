@@ -4,6 +4,7 @@
 #    ASRT script in Psychopy
 #    Copyright (C) <2018>  <Emese Szegedi-Hallgató>
 #                  <2019-2021>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
+#                  <2023>  <Orsolya Pesthy>  <pesthy.orsolya@gmail.com>
 
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
