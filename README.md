@@ -6,7 +6,7 @@ This script was used for testing statistical learning in an oculomotor activated
 Running ASRT script requires all of the following and their dependencies. In parentheses you can find the version which was used to run the specific experiment.
 
 * [Python (3.6)](https://www.python.org/downloads/)
-* [Tobii Pro SDK (1.7.0)](https://pypi.org/project/tobii-research/) (only for eye-tracking)
+* [Tobii Pro SDK (1.7.0)](https://pypi.org/project/tobii-research/)
 * [PsychoPy (3.2.3)](https://www.psychopy.org/download.html)
 * [pyglet (1.3.2)](https://pyglet.readthedocs.io/en/stable/)
 
