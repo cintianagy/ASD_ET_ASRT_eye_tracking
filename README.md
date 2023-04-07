@@ -8,7 +8,7 @@ Running ASRT script requires all of the following and their dependencies. In par
 * [Python (3.6)](https://www.python.org/downloads/)
 * [Tobii Pro SDK (1.7.0)](https://pypi.org/project/tobii-research/)
 * [PsychoPy (3.2.3)](https://www.psychopy.org/download.html)
-* [pyglet (1.3.2)](https://pyglet.readthedocs.io/en/stable/)
+* [pyglet (1.3.2)](https://pyglet.readthedocs.io/en/latest/)
 
 After Python 3.6 and pip is intalled, you can install psychopy, tobii_research and pyglet packages using `pip install`.
 For example:
