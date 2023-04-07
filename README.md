@@ -26,7 +26,7 @@ You can run the script by `python asrt.py` command or by running the `asrt.py` f
 
 This code is forked from this github repository: https://github.com/tzolnai/project_ET_zero.
 
-**Orsolya Pesthy** Adapted the code for the specific experiment and added a possibility for more frequent calibration.
+**Orsolya Pesthy** ([OrsPesthy](https://github.com/OrsPesthy)) Adapted the code for the specific experiment and added a possibility for more frequent calibration.
 
 **Tamás Zolnai** ([tzolnai](https://github.com/tzolnai)) reworked the original code and extended it with eye-tracking capabilities.
 
