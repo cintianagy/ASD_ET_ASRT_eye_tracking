@@ -3,55 +3,35 @@
 This script was used for testing statistical learning in an oculomotor activated ASRT experiment recorded with children.
 
 ### Prerequisites
-Running ASRT script requires all of the following and their dependencies.
+Running ASRT script requires all of the following and their dependencies. In parentheses you can find the version which was used to run the specific experiment.
 
-* [Python 3.6](https://www.python.org/downloads/)
-* [Tobii Pro SDK](https://pypi.org/project/tobii-research/) (only for eye-tracking)
-* [PsychoPy](https://www.psychopy.org/download.html)
-* [pyglet](https://pyglet.readthedocs.io/en/stable/)
+* [Python (3.6)](https://www.python.org/downloads/)
+* [Tobii Pro SDK (1.7.0)](https://pypi.org/project/tobii-research/) (only for eye-tracking)
+* [PsychoPy (3.2.3)](https://www.psychopy.org/download.html)
+* [pyglet (1.3.2)](https://pyglet.readthedocs.io/en/stable/)
 
 After Python 3.6 and pip is intalled, you can install psychopy, tobii_research and pyglet packages using `pip install`.
-This ASRT script uses an older version of pyglet (<=1.3.2) so for pyglet you need to specify the version explicitely:
+For example:
 ```
 pip install pyglet==1.3.2
 ```
-
-Additional dependencies (for development):
-* [pytest](https://docs.pytest.org/en/latest/): For running tests under test folder
-* [pynput](https://pypi.org/project/pynput/): For running ET_simulation script (dev_tools folder)
-* [autopep8](https://pypi.org/project/autopep8/): For running autoformat script (dev_tools folder)
 
 ### Setup
 
 After all prerequisites are installed you need to download the content of this repository.
 
-Before running the ASRT script you need to place an instruction file in the same folder where the `asrt.py` is.
-The instruction file should have the name `inst_and_feedback.txt`. You can find example instruction files under `inst_examples` folder.
-
-When instruction file is in place you can run the script by `python asrt.py` command or by running the `asrt.py` file from PsychoPy.
+You can run the script by `python asrt.py` command or by running the `asrt.py` file from PsychoPy.
 
 ### Credits
 
-Maintainer: **Tamás Zolnai** ([tzolnai](https://github.com/tzolnai))
+This code is forked from this github repository: https://github.com/tzolnai/project_ET_zero.
 
-This code is forked from this github repository: https://github.com/tzolnai/asrt_core.
+**Orsolya Pesthy** Adapted the code for the specific experiment and added a possibility for more frequent calibration.
 
-The original codes' author is **Emese Szegedi-Hallgató** ([hallgatoemese](https://github.com/hallgatoemese))
+**Tamás Zolnai** ([tzolnai](https://github.com/tzolnai)) reworked the original code and extended it with eye-tracking capabilities.
 
-The code was rewritten and was extended with eye-tracker capabilities by **Tamás Zolnai** ([tzolnai](https://github.com/tzolnai))
+**Emese Szegedi-Hallgató** ([hallgatoemese](https://github.com/hallgatoemese)) wrote the initial ASRT script used for registering reaction times based on keyboard input.
 
-### Citation
-
-Project ET Zero Developers (2021). Project ET Zero (Version 0.1.1) [Source code].
-
-### Example data
-
-Recorded data by this experiment script (2022):
-https://osf.io/wu8a6/
-
-### Study conducted based on this script 
-
-* [Zolnai, T., Dávid, D., Pesthy, O., Nemeth, M., Kiss, M., Nagy, M., & Nemeth, D. (2022). Measuring statistical learning by eye-tracking. Experimental Results, 3, E10. doi:10.1017/exp.2022.8](https://www.cambridge.org/core/journals/experimental-results/article/measuring-statistical-learning-by-eyetracking/03CE0A705EAB7708AB087554A74A29F1)
 
 ### References
 
@@ -62,6 +42,10 @@ ASRT (alternating SRT, alternating serial reaction time task)
 * [Kóbor, A., Janacsek, K., Takács, Á., & Nemeth, D. (2017). Statistical learning leads to persistent memory: Evidence for one-year consolidation. Scientific reports, 7(1), 1-10.](https://www.nature.com/articles/s41598-017-00807-3?WT.feed_name=subjects_biological-sciences)
 
 * [Simor, P., Zavecz, Z., Horvath, K., Éltető, N., Török, C., Pesthy, O., ... & Nemeth, D. (2019). Deconstructing procedural memory: Different learning trajectories and consolidation of sequence and statistical learning. Frontiers in psychology, 9, 2708.](https://www.frontiersin.org/articles/10.3389/fpsyg.2018.02708/full)
+
+Oculomotor version of ASRT
+
+* [Zolnai, T., Dávid, D., Pesthy, O., Nemeth, M., Kiss, M., Nagy, M., & Nemeth, D. (2022). Measuring statistical learning by eye-tracking. Experimental Results, 3, E10. doi:10.1017/exp.2022.8](https://www.cambridge.org/core/journals/experimental-results/article/measuring-statistical-learning-by-eyetracking/03CE0A705EAB7708AB087554A74A29F1)
 
 I-DT: Dispersion-Threshold identification of fixations
 
@@ -81,14 +65,6 @@ Fixation duration threshold
 Linear interpolation of missing data
 
 * [Olsen, A. (2012). The Tobii I-VT fixation filter. Tobii Technology, 1-21.](https://stemedhub.org/resources/2173/download/Tobii_WhitePaper_TobiiIVTFixationFilter.pdf)
-
-Jacobi PDP test
-
-* [Jacoby, L. L. (1991). A process dissociation framework: Separating automatic from intentional uses of memory. Journal of memory and language, 30(5), 513-541.](https://www.sciencedirect.com/science/article/abs/pii/0749596X9190025F)
-
-* [Destrebecqz, A., & Cleeremans, A. (2001). Can sequence learning be implicit? New evidence with the process dissociation procedure. Psychonomic bulletin & review, 8(2), 343-350.](https://link.springer.com/article/10.3758/BF03196171)
-
-* [Kóbor, A., Janacsek, K., Takács, Á., & Nemeth, D. (2017). Statistical learning leads to persistent memory: Evidence for one-year consolidation. Scientific reports, 7(1), 1-10.](https://www.nature.com/articles/s41598-017-00807-3?WT.feed_name=subjects_biological-sciences)
 
 Oculomotor activation
 
