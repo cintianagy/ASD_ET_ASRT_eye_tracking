@@ -61,7 +61,7 @@ class ExperimentSettings:
        These settings apply to all subjects in the specific experiment.
     """
 
-    def __init__(self, settings_file_path, reminder_file_path, project_ET_zero=False):
+    def __init__(self, settings_file_path, reminder_file_path, project_ET_zero=True):
         # type of the experiment (reaction time or eyetracking
         self.experiment_type = None
         # number of sessions (e.g. 10)
@@ -129,6 +129,8 @@ class ExperimentSettings:
         self.sessionstarts = None
         # list of trial numbers indicating the first trials of the different blocks (calulcated number, e.g [1, 86, 171])
         self.blockstarts = None
+        #for validation: list of trial nr indicating the first ele of each epoch e.g [1, 86, 171])
+        self.epochstarts = None
 
         # settings shelve file's path
         self.settings_file_path = settings_file_path
@@ -173,6 +175,7 @@ class ExperimentSettings:
                     self.stim_fixation_threshold = settings_file['stim_fixation_threshold']
                     self.instruction_fixation_threshold = settings_file['instruction_fixation_threshold']
                     self.dispersion_threshold = settings_file['dispersion_threshold']
+                    self.validation_trialN = settings_file['validation_trialN']
 
                 if self.experiment_type == 'reaction-time':
                     self.key1 = settings_file['key1']
@@ -219,6 +222,7 @@ class ExperimentSettings:
                 settings_file['stim_fixation_threshold'] = self.stim_fixation_threshold
                 settings_file['instruction_fixation_threshold'] = self.instruction_fixation_threshold
                 settings_file['dispersion_threshold'] = self.dispersion_threshold
+                settings_file['validation_trialN'] = self.validation_trialN
 
             if self.experiment_type == 'reaction-time':
                 settings_file['key1'] = self.key1
@@ -263,7 +267,8 @@ class ExperimentSettings:
                 reminder += str('AOI size:' + '\t' + str(self.AOI_size).replace('.', ',') + '\n' +
                                 'Fixation threshold for stimulus:' + '\t' + str(self.stim_fixation_threshold) + '\n' +
                                 'Fixation threshold for instructions:' + '\t' + str(self.instruction_fixation_threshold) + '\n' +
-                                'Dispersion threshold:' + '\t' + str(self.dispersion_threshold).replace('.', ',') + '\n')
+                                'Dispersion threshold:' + '\t' + str(self.dispersion_threshold).replace('.', ',') + '\n' +
+                                'Nr of validation trials:' + '\t' + str(self.validation_trialN).replace('.', ',') + '\n')
 
             reminder += str('\n' +
                             'Az alábbi beállítások minden személyre érvényesek és irányadóak\n\n' +
@@ -317,6 +322,25 @@ class ExperimentSettings:
                         i * (self.blocklengthN + self.blockprepN) + 1)
 
         return self.blockstarts
+
+    def get_epoch_starts(self):
+        """returns a list of the epoch-starter trials besides the 1st epoch. Works only with project ET zero setup"""
+
+        if self.epochstarts is None:
+            self.epochstarts = []
+
+        if len(self.epochstarts) == 0:
+            sessions_starts = self.get_session_starts()
+            for i in range(len(sessions_starts) - 1):
+                # calculating the last trials of each epoch, for the endepoch calibration validation test
+                for j in range(1, self.epochs[i] + 1):
+                    self.epochstarts.append(
+                        sessions_starts[i] + self.validation_trialN + j * (
+                                    self.blockprepN + self.blocklengthN) * self.block_in_epochN)
+        else:
+            return self.epochstarts
+
+        return self.epochstarts
 
     def get_session_starts(self):
         """Return with a list of numbers indicating the first trials of the different sessions."""
@@ -427,7 +451,9 @@ class ExperimentSettings:
         for i in range(self.numsessions):
             settings_dialog.addField(u'Session ' + str(i + 1) + u' ASRT tipusa',
                                      choices=["implicit", "explicit", "noASRT"])
+        settings_dialog.addField(u'Hány validation triallel ellenőrizzük a kalibrációt?', 20)
         returned_data = settings_dialog.show()
+        print(returned_data)
         if settings_dialog.OK:
             self.blockprepN = returned_data[0]
             self.blocklengthN = returned_data[1]
@@ -449,6 +475,7 @@ class ExperimentSettings:
                         self.asrt_types[epoch_number] = "noASRT"
                     else:
                         self.asrt_types[epoch_number] = returned_data[3 + (2 * self.numsessions) + k]
+            self.validation_trialN = returned_data[-1]
         else:
             core.quit()
 
@@ -472,7 +499,7 @@ class ExperimentSettings:
         settings_dialog.addField(u'Ingerek sugara (cm)', 1.0)
 
         settings_dialog.addField(u'ASRT inger szine (elsodleges, R)',
-                                 choices=possible_colors, initial="Orange")
+                                 choices=possible_colors, initial="DarkBlue")
         settings_dialog.addField(
             u'ASRT inger szine (masodlagos, P, explicit asrtnel)', choices=possible_colors, initial="Green")
         settings_dialog.addField(u'Hatter szine', choices=possible_colors, initial="Ivory")
@@ -511,6 +538,7 @@ class ExperimentSettings:
 
     def show_key_and_feedback_settings_dialog(self):
         """Ask the user to specify the keys used during the experiement and also set options related to the displayed feedback."""
+        #todo this function is not really set to RT/ET: it won't even be used if it's ET. Do sg about it
 
         settings_dialog = gui.Dlg(title=u'Beállítások')
         if self.experiment_type == 'reaction-time':
@@ -525,6 +553,7 @@ class ExperimentSettings:
         settings_dialog.addField(u'Figyelmeztetes sebessegre ezen pontossag felett (%):', 93)
         settings_dialog.addField(u'Figyelmeztetes pontosságra ezen pontossag alatt (%):', 91)
         returned_data = settings_dialog.show()
+        print(returned_data)
         if settings_dialog.OK:
             self.key1 = returned_data[0]
             self.key2 = returned_data[1]
@@ -731,7 +760,7 @@ class InstructionHelper:
         """
         feedback = "A teszt blokknak vége. Szólj a kísérletvezetőnek!\n\n"
         feedback += "A blokkban mért extrém reakciódidők száma: " + str(extreme_RT_count) + ".\n\n"
-        feedback += "Kísérletvezető: folytatás (c) vagy újrakalibráció (r)." + "\n"
+        feedback += "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q)." + "\n"
 
         self.__print_to_screen(feedback, experiment.mywindow)
 
@@ -740,6 +769,23 @@ class InstructionHelper:
             return 'quit'
         else:
             return 'continue'
+
+    def feedback_ET_endepoch_validation(self, experiment, endepoch_extreme_RT_count):
+        """Display feedback screen in the end of validation block.
+        """
+
+        feedback = "Az epoch végén mért extrém reakciódidők száma: " + str(endepoch_extreme_RT_count) + ".\n\n"
+        feedback += "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q)." + "\n"
+
+        self.__print_to_screen(feedback, experiment.mywindow)
+
+        tempkey = event.waitKeys(keyList=['c', 'r', 'q'])
+        if 'r' in tempkey or 'q' in tempkey:
+            print(f'{tempkey} pressed.')
+            return 'quit'
+        else:
+            return 'continue'
+
 
 
 class PersonDataHandler:
@@ -1371,7 +1417,7 @@ class PersonDataHandler:
 class Experiment:
     """ Class for running the ASRT experiment."""
 
-    def __init__(self, workdir_path, project_ET_zero=False):
+    def __init__(self, workdir_path, project_ET_zero=True):
         # working directory of the experiment, the script reads settings and writer output under this directory
         self.workdir_path = workdir_path
 
@@ -1520,6 +1566,7 @@ class Experiment:
         """
 
         if self.last_N + 1 <= self.settings.get_maxtrial():
+            print(f'This is trial nr {self.last_N + 1}, out of the {self.settings.get_maxtrial()}')
             expstart11 = gui.Dlg(title=u'Feladat indítása...')
             expstart11.addText(u'A személy adatait beolvastam.')
             expstart11.addText(u'Folytatás innen...')
@@ -1558,6 +1605,7 @@ class Experiment:
                     if self.settings.asrt_types[i + 1] == 'noASRT':
                         PCode = 'noPattern'
                     elif i == self.settings.epochs[0] + 1:
+                        print(f"interferencia_epoch: {self.settings.epochs[0] + 1}")
                         PCode = returned_data[3]
                     else:
                         PCode = returned_data[2]
@@ -1951,7 +1999,7 @@ class Experiment:
         assert (len(expected_eye_pos_list) == 1 or len(expected_eye_pos_list) == 4)
 
         while (True):
-            if 'q' in event.getKeys():
+            if 'q' in event.getKeys() or 'r' in event.getKeys():
                 if self.main_loop_lock.locked():
                     self.main_loop_lock.release()
                 return -1
@@ -2098,12 +2146,13 @@ class Experiment:
 
         return whatnow
 
-    def show_feedback_ET(self, RT_all_list, end_of_session):
+    def show_feedback_ET(self, RT_all_list, end_of_session, end_of_epoch):
         """ Display feedback in the end of the blocks, showing some data about reaction time."""
 
         rt_mean = float(sum(RT_all_list)) / len(RT_all_list)
         rt_mean_str = str(rt_mean)[:5].replace('.', ',')
         self.last_block_RTs.append(rt_mean_str)
+
 
         whatnow = self.instructions.feedback_ET(self)
 
@@ -2111,6 +2160,13 @@ class Experiment:
         core.wait(10.0)
 
         if not end_of_session:
+            print()
+            if end_of_epoch:
+                endepoch_extreme_RT_count = 0
+                for rt in RT_all_list[-(self.settings.validation_trialN):]:
+                    if rt > 1.0:  # 1 sec
+                        endepoch_extreme_RT_count += 1
+                return self.instructions.feedback_ET_endepoch_validation(experiment, endepoch_extreme_RT_count)
             self.fixation_cross.draw()
             self.print_to_screen("A következő blokkra lépéshez néz a keresztre!")
             response = self.wait_for_eye_response([self.fixation_cross_pos], self.settings.instruction_fixation_threshold)
@@ -2364,7 +2420,8 @@ class Experiment:
                             self.last_N = self.settings.get_block_starts()[index - 1] - 1
                     self.person_data.save_person_settings(self)
                     if not validation_block:
-                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1])
+                        print(f'Epoch ends {self.settings.get_epoch_starts()}, epoch_end is {N in self.settings.get_epoch_starts()}')
+                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts())
 
                 else:  # keep original code
                     self.person_data.save_person_settings(self)
@@ -2372,7 +2429,7 @@ class Experiment:
                         whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
                                                         accs_in_block, RT_all_list, RT_pattern_list)
                     else:
-                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1])
+                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts()) #end of epoch here
 
                 if whatnow == 'quit':
                     if N >= 1:

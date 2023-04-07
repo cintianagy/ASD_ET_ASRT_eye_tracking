@@ -8,7 +8,7 @@
 'epochs', (3584, 12)
 'asrt_types', (4096, 64)
 'monitor_width', (4608, 12)
-'computer_name', (5120, 15)
+'computer_name', (5120, 17)
 'asrt_distance', (5632, 12)
 'asrt_size', (6144, 12)
 'asrt_rcolor', (6656, 18)
@@ -19,3 +19,4 @@
 'stim_fixation_threshold', (9216, 5)
 'instruction_fixation_threshold', (9728, 5)
 'dispersion_threshold', (10240, 12)
+'validation_trialN', (10752, 5)

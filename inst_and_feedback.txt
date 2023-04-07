@@ -2,29 +2,23 @@
 
 Üdvözlünk a feladatban!
 
-A képernyőn négy üres kört fogsz látni, az egyik kör időnként kék színűvé válik.
+A képernyőn négy a közepén üres kört fogsz látni, az egyik kör időnként kap egy töltő színt.
 
-Az a feladatod, hogy a kék kör megjelenési helyére fókuszáld a tekinteted.
-
-A további instrukciók megtekintéséhez néz a sarokban taláható keresztre!
-
-***
-
-inst#
+Az a feladatod, hogy a beszínezett kör megjelenési helyének megfelelő helyre vidd a tekinteted.
 
 Minél pontosabban és gyorsabban kövesd a szemeddel a megjelenő ingereket!
 
-A kék kör egymás után többször ugyanazon a helyen is megjelenhet.
+A beszínezett kör egymás után többször ugyanazon a helyen is megjelenhet.
 
-A további instrukciók megtekintéséhez néz a keresztre!
+A további instrukciók megtekintéséhez néz a sarokban taláható keresztre!
+
 
 ***
 
 inst#
 
-A kísérlet blokkokra oszlik. Kb. percenként fut le egy blokk, melynek a végén visszajelzést fogsz kapni arról, hogy mennyire voltál gyors az előző blokkokban.
-
-A kísérlet elején lesz egy rövidebb teszt blokk, mely arra szolgál, hogy teszteljük az eye-tracker megfelelő működését. A teszt blokk végén szólj a kísérletvezetőnek.
+Kb. percenként fogsz visszajelzést kapni arról,
+hogy mennyire voltál gyors az előző blokkokban, ez alapján tudsz módosítani.
 
 A feladat indításához néz a keresztre!
 
@@ -32,12 +26,13 @@ A feladat indításához néz a keresztre!
 
 ending#
 
-Vége a kísérlet ezen szakaszának!
+Vége a kísérletnek!
+Köszönjük a részvételt!
 
 ***
 
 unexpected quit#
 
-Váratlan kilépés történt a feladatból. Folytatás...
+Váratlan kilépés történt a feladatból. Folytatás onnan, ahol abbahagytuk...
 
 A feladat indításához néz a keresztre.
