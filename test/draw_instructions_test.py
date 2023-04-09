@@ -941,6 +941,81 @@ class drawInstructionsTest(unittest.TestCase):
                                                       "A blokkban mért extrém reakciódidők száma: 2.\n\n"
                                                       "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
 
+    @pytest.mark.skipif(not asrt.g_tobii_available, reason="Can't run without tobii package")
+    def testShowFeedbackETEndEpochValidationSimple(self):
+        inst_and_feedback_path = self.constructFilePath("default.txt")
+        instruction_helper = asrt.InstructionHelper(inst_and_feedback_path)
+        instruction_helper.read_insts_from_file()
+
+        experiment = asrt.Experiment("", True)
+        self.initWindow()
+        experiment.mywindow = self.mywindow
+        experiment.settings = asrt.ExperimentSettings("", "", True)
+        experiment.person_data = asrt.PersonDataHandler("", "", "", "", "", "eye-tracking", "", "")
+        experiment.settings.experiment_type = 'eye-tracking'
+        experiment.settings.key_quit = 'q'
+        extreme_RT_count = 2
+
+        visual_mock = pvm.PsychoPyVisualMock()
+        visual_mock.setReturnKeyList(['c'])
+        return_value = instruction_helper.feedback_ET_endepoch_validation(experiment, extreme_RT_count)
+        self.assertEqual(return_value, "continue")
+
+        drawing_list = visual_mock.getListOfDrawings()
+        self.assertEqual(len(drawing_list), 1)
+        self.assertEqualWithEOL(drawing_list[0].text, "Az epoch végén mért extrém reakciódidők száma: 2.\n\n"
+                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
+
+    @pytest.mark.skipif(not asrt.g_tobii_available, reason="Can't run without tobii package")
+    def testShowFeedbackETEndEpochValidationRecalibration(self):
+        inst_and_feedback_path = self.constructFilePath("default.txt")
+        instruction_helper = asrt.InstructionHelper(inst_and_feedback_path)
+        instruction_helper.read_insts_from_file()
+
+        experiment = asrt.Experiment("", True)
+        self.initWindow()
+        experiment.mywindow = self.mywindow
+        experiment.settings = asrt.ExperimentSettings("", "", True)
+        experiment.person_data = asrt.PersonDataHandler("", "", "", "", "", "eye-tracking", "", "")
+        experiment.settings.experiment_type = 'eye-tracking'
+        experiment.settings.key_quit = 'q'
+        extreme_RT_count = 2
+
+        visual_mock = pvm.PsychoPyVisualMock()
+        visual_mock.setReturnKeyList(['r'])
+        return_value = instruction_helper.feedback_ET_endepoch_validation(experiment, extreme_RT_count)
+        self.assertEqual(return_value, "quit")
+
+        drawing_list = visual_mock.getListOfDrawings()
+        self.assertEqual(len(drawing_list), 1)
+        self.assertEqualWithEOL(drawing_list[0].text, "Az epoch végén mért extrém reakciódidők száma: 2.\n\n"
+                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
+
+    @pytest.mark.skipif(not asrt.g_tobii_available, reason="Can't run without tobii package")
+    def testShowFeedbackETEndEpochValidationQuit(self):
+        inst_and_feedback_path = self.constructFilePath("default.txt")
+        instruction_helper = asrt.InstructionHelper(inst_and_feedback_path)
+        instruction_helper.read_insts_from_file()
+
+        experiment = asrt.Experiment("", True)
+        self.initWindow()
+        experiment.mywindow = self.mywindow
+        experiment.settings = asrt.ExperimentSettings("", "", True)
+        experiment.person_data = asrt.PersonDataHandler("", "", "", "", "", "eye-tracking", "", "")
+        experiment.settings.experiment_type = 'eye-tracking'
+        experiment.settings.key_quit = 'q'
+        extreme_RT_count = 2
+
+        visual_mock = pvm.PsychoPyVisualMock()
+        visual_mock.setReturnKeyList(['q'])
+        return_value = instruction_helper.feedback_ET_endepoch_validation(experiment, extreme_RT_count)
+        self.assertEqual(return_value, "quit")
+
+        drawing_list = visual_mock.getListOfDrawings()
+        self.assertEqual(len(drawing_list), 1)
+        self.assertEqualWithEOL(drawing_list[0].text, "Az epoch végén mért extrém reakciódidők száma: 2.\n\n"
+                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
+
 
 if __name__ == "__main__":
     unittest.main()  # run all tests
