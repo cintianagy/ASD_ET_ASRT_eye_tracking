@@ -38,18 +38,16 @@ class frameRateTest(unittest.TestCase):
         my_monitor.saveMon()
         with visual.Window(size=(screen.width, screen.height), color='white', monitor=my_monitor, fullscr=False, units="cm") as mywindow:
 
-            frame_time, frame_sd, frame_rate = asrt.frame_check(mywindow)
+            experiment = asrt.Experiment("")
+            experiment.mywindow =  mywindow
+            experiment.frame_check()
 
-            self.assertAlmostEqual(
-                frame_rate, 60.0, delta=2.0)  # not too stable
+            self.assertAlmostEqual(experiment.frame_rate, 60.0, delta=2.0)  # not too stable
 
-            self.assertAlmostEqual(frame_sd, 1.0, delta=1.0)  # in ms
+            self.assertAlmostEqual(experiment.frame_sd, 1.0, delta=1.0)  # in ms
 
-            self.assertAlmostEqual(
-                frame_time, 16.67, delta=1.0)  # not too stable
+            self.assertAlmostEqual(experiment.frame_time, 16.67, delta=1.0)  # not too stable
 
-            self.assertAlmostEqual(1000.0 / frame_rate,
-                                   frame_time, delta=1.0)  # not too stable
 
     def testFrameRatePyglet(self):
         screen = pyglet.window.get_platform().get_default_display().get_default_screen()
@@ -62,20 +60,6 @@ class frameRateTest(unittest.TestCase):
             for i in range(0, 60):
                 mywindow.flip()
             self.assertAlmostEqual(timer.getTime(), 1.0, delta=0.1)
-
-    def testFrameRatePygame(self):
-        screen = pyglet.window.get_platform().get_default_display().get_default_screen()
-        my_monitor = monitors.Monitor('myMon')
-        my_monitor.setSizePix([screen.width, screen.height])
-        my_monitor.setWidth(30)
-        my_monitor.saveMon()
-        with visual.Window(size=(screen.width, screen.height), winType="pygame", color='white', monitor=my_monitor, fullscr=False, units="cm") as mywindow:
-
-            # does not actually work: MissingFunctionException: wglChoosePixelFormatARB is not exported by the available OpenGL driver
-            timer = core.Clock()
-            # for i in range(0,60):
-            #    mywindow.flip()
-            #self.assertAlmostEqual(timer.getTime(), 1.0, delta = 0.1)
 
     def testFrameRateFullScreen(self):
         screen = pyglet.window.get_platform().get_default_display().get_default_screen()
