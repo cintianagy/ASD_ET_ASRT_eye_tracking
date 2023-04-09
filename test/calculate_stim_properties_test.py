@@ -28,8 +28,8 @@ import asrt
 class calculateStimpropertiesTest(unittest.TestCase):
 
     def testImplicitASRT(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 10
         experiment.settings.epochs = [5, 5]
         experiment.settings.block_in_epochN = 5
@@ -124,8 +124,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
                 self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testExplicitASRT(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 10
         experiment.settings.epochs = [5, 5]
         experiment.settings.block_in_epochN = 5
@@ -222,8 +222,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
                 self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testNoASRT(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 5
         experiment.settings.epochs = [5]
         experiment.settings.block_in_epochN = 5
@@ -310,8 +310,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
             self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testASRTWithoutPractice(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 5
         experiment.settings.epochs = [5]
         experiment.settings.block_in_epochN = 5
@@ -399,8 +399,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
                 self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testASRTWithoutReal(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 5
         experiment.settings.epochs = [5]
         experiment.settings.block_in_epochN = 5
@@ -462,8 +462,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
             self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testWithEvenPracticeTrials(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 5
         experiment.settings.epochs = [5]
         experiment.settings.block_in_epochN = 5
@@ -551,8 +551,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
                 self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testWithOddRealTrials(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 5
         experiment.settings.epochs = [5]
         experiment.settings.block_in_epochN = 5
@@ -641,8 +641,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
                 self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testMoreSessionsWithDifferentProperties(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 10
         experiment.settings.epochs = [2, 5, 4]
         experiment.settings.block_in_epochN = 5
@@ -777,8 +777,8 @@ class calculateStimpropertiesTest(unittest.TestCase):
                 self.assertEqual(experiment.stimpr[i + 1], "random")
 
     def testNoASRTAtTheBeginningOfSession(self):
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment = asrt.Experiment("", False)
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.epochN = 5
         experiment.settings.epochs = [5]
         experiment.settings.block_in_epochN = 5
