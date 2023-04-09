@@ -66,10 +66,6 @@ Linear interpolation of missing data
 
 * [Olsen, A. (2012). The Tobii I-VT fixation filter. Tobii Technology, 1-21.](https://stemedhub.org/resources/2173/download/Tobii_WhitePaper_TobiiIVTFixationFilter.pdf)
 
-Oculomotor activation
-
-* [Vakil, E., Bloch, A., & Cohen, H. (2017). Anticipation measures of sequence learning: manual versus oculomotor versions of the serial reaction time task. The Quarterly Journal of Experimental Psychology, 70(3), 579-589.](https://journals.sagepub.com/doi/pdf/10.1080/17470218.2016.1172095?casa_token=YLxCT1H_B8cAAAAA:6kFyQ1yW1qfe2NZP-mSdfLnAVxLDIal-QaF4siYPOz5wRb-d9zgr5IyrYGS44O47wOImxUf_PEMZ1Q)
-
 Technical documentation
 
 * [Tobii Pro Python SDK reference](http://developer.tobiipro.com/python/python-sdk-reference-guide.html)
