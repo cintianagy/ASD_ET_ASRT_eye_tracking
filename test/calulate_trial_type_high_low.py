@@ -35,6 +35,7 @@ class calculateTripletTypeHighLowTest(unittest.TestCase):
     def testNoPattern(self):
         experiment = asrt.Experiment("")
         experiment.stim_sessionN = {1: 1}
+        experiment.stimepoch = {1: 1}
         experiment.PCodes = {1: 'noPattern'}
 
         triplet_type = experiment.calulate_trial_type_high_low(1)
@@ -43,6 +44,7 @@ class calculateTripletTypeHighLowTest(unittest.TestCase):
     def testFirstTwoTrials(self):
         experiment = asrt.Experiment("")
         experiment.stimtrial = {1: 1, 2: 2}
+        experiment.stimepoch = {1: 1, 2: 1}
         experiment.stim_sessionN = {1: 1, 2: 1}
         experiment.PCodes = {1: '1st - 1234'}
 
@@ -55,9 +57,11 @@ class calculateTripletTypeHighLowTest(unittest.TestCase):
     def testHighPattern(self):
         experiment = asrt.Experiment("")
         experiment.stimtrial = {1: 1, 2: 2, 3: 3}
+        experiment.stimepoch = {1: 1, 2: 1, 3: 1}
         experiment.stim_sessionN = {1: 1, 2: 1, 3: 1}
         experiment.stimpr = {1: "pattern", 2: "random", 3: "pattern"}
         experiment.PCodes = {1: '1st - 1234'}
+        experiment.stimlist = {1: 1, 2: 2, 3: 2}
 
         triplet_type = experiment.calulate_trial_type_high_low(3)
         self.assertEqual(triplet_type, "high")
@@ -65,6 +69,7 @@ class calculateTripletTypeHighLowTest(unittest.TestCase):
     def testLowRandom(self):
         experiment = asrt.Experiment("")
         experiment.stim_sessionN = {1: 1, 2: 1, 3: 1, 4: 1}
+        experiment.stimepoch = {1: 1, 2: 1, 3: 1, 4: 1}
         experiment.PCodes = {1: '1st - 1234'}
         experiment.stimtrial = {1: 1, 2: 2, 3: 3, 4: 4}
         experiment.stimpr = {1: "pattern", 2: "random", 3: "pattern", 4: "random"}
@@ -76,6 +81,7 @@ class calculateTripletTypeHighLowTest(unittest.TestCase):
     def testHighRandom(self):
         experiment = asrt.Experiment("")
         experiment.stim_sessionN = {1: 1, 2: 1, 3: 1, 4: 1}
+        experiment.stimepoch = {1: 1, 2: 1, 3: 1, 4: 1}
         experiment.PCodes = {1: '1st - 1234'}
         experiment.stimtrial = {1: 1, 2: 2, 3: 3, 4: 4}
         experiment.stimpr = {1: "pattern", 2: "random", 3: "pattern", 4: "random"}
