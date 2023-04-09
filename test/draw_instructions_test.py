@@ -887,7 +887,7 @@ class drawInstructionsTest(unittest.TestCase):
         self.assertEqual(len(drawing_list), 1)
         self.assertEqualWithEOL(drawing_list[0].text, "A teszt blokknak vége. Szólj a kísérletvezetőnek!\n\n"
                                                       "A blokkban mért extrém reakciódidők száma: 2.\n\n"
-                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r).\n")
+                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
 
     @pytest.mark.skipif(not asrt.g_tobii_available, reason="Can't run without tobii package")
     def testShowFeedbackETValidationRecalibration(self):
@@ -913,7 +913,7 @@ class drawInstructionsTest(unittest.TestCase):
         self.assertEqual(len(drawing_list), 1)
         self.assertEqualWithEOL(drawing_list[0].text, "A teszt blokknak vége. Szólj a kísérletvezetőnek!\n\n"
                                                       "A blokkban mért extrém reakciódidők száma: 2.\n\n"
-                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r).\n")
+                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
 
     @pytest.mark.skipif(not asrt.g_tobii_available, reason="Can't run without tobii package")
     def testShowFeedbackETValidationQuit(self):
@@ -939,7 +939,7 @@ class drawInstructionsTest(unittest.TestCase):
         self.assertEqual(len(drawing_list), 1)
         self.assertEqualWithEOL(drawing_list[0].text, "A teszt blokknak vége. Szólj a kísérletvezetőnek!\n\n"
                                                       "A blokkban mért extrém reakciódidők száma: 2.\n\n"
-                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r).\n")
+                                                      "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q).\n")
 
 
 if __name__ == "__main__":
