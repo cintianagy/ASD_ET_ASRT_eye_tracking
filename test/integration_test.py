@@ -74,7 +74,7 @@ class integrationTest(unittest.TestCase):
         self.copyFilesToWorkdir()
 
         # override this method to get the stimlist to be able to generate the keylist
-        self.experiment = asrt.Experiment(self.work_dir)
+        self.experiment = asrt.Experiment(self.work_dir, False)
         self.calculate_stim_properties = self.experiment.calculate_stim_properties
         self.experiment.calculate_stim_properties = self.calculate_stim_properties_override
         self.frame_check = self.experiment.frame_check
