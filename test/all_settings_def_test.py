@@ -101,6 +101,7 @@ class allSettingsDefTest(unittest.TestCase):
                                                                   2591, 2676, 2761, 2846, 2931, 3016, 3101, 3186, 3271, 3356,
                                                                   3441, 3526, 3611, 3696, 3781, 3866, 3951, 4036, 4121, 4206,
                                                                   4291, 4376])
+        self.assertEqual(experiment.settings.get_epoch_starts(), [446, 871, 1296, 1721, 2146, 2591, 3016, 3441, 3866, 4291])
         self.assertEqual(experiment.settings.validation_trialN, 20)
 
         # output file exists
@@ -145,6 +146,7 @@ class allSettingsDefTest(unittest.TestCase):
                                                                   2591, 2676, 2761, 2846, 2931, 3016, 3101, 3186, 3271, 3356,
                                                                   3441, 3526, 3611, 3696, 3781, 3866, 3951, 4036, 4121, 4206,
                                                                   4291, 4376])
+        self.assertEqual(experiment.settings.get_epoch_starts(), [446, 871, 1296, 1721, 2146, 2591, 3016, 3441, 3866, 4291])
         self.assertEqual(experiment.settings.validation_trialN, 20)
 
     def testSettingsDialogsCustomValues(self):
@@ -195,6 +197,7 @@ class allSettingsDefTest(unittest.TestCase):
                                                                   5456, 5541, 5626, 5711, 5796, 5881, 5966, 6051, 6136,
                                                                   6221, 6306, 6391, 6476, 6561, 6646, 6731, 6816, 6901,
                                                                   6986, 7071, 7156, 7241])
+        self.assertEqual(experiment.settings.get_epoch_starts(), [611, 1206, 1801, 2396, 2991, 3586, 4181, 4776, 5371, 5966, 6561, 7156])
         self.assertEqual(experiment.settings.validation_trialN, 15)
 
         # output file exists
