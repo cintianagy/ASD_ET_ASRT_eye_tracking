@@ -400,7 +400,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "reaction-time", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
 
         experiment.settings.computer_name = "Laposka"
         experiment.subject_group = "group1"
@@ -452,7 +452,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -519,7 +519,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -581,7 +581,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -648,7 +648,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -715,7 +715,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "reaction-time", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
 
         experiment.settings.computer_name = "Laposka"
         experiment.subject_group = "group1"
@@ -788,7 +788,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -880,7 +880,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "reaction-time", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
 
         experiment.settings.computer_name = "I. Richárd"
         experiment.subject_group = "group1"
@@ -932,7 +932,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -999,7 +999,7 @@ class personDataHandlerTest(unittest.TestCase):
             "subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.settings.computer_name = "Laposka"
         experiment.settings.monitor_width = 47.6
         experiment.settings.blockprepN = 5
@@ -1065,7 +1065,7 @@ class personDataHandlerTest(unittest.TestCase):
         output_file_path = self.constructFilePath("testNormalEyeDataCallback.txt")
 
         experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings("", "")
+        experiment.settings = asrt.ExperimentSettings("", "", False)
         experiment.person_data = asrt.PersonDataHandler("subject_333_group1", "", "", "", output_file_path, "eye-tracking", "", "")
         experiment.current_sampling_window = 24
         experiment.settings.computer_name = "Laposka"
