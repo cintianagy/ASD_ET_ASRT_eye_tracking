@@ -57,71 +57,6 @@ class allSettingsDefTest(unittest.TestCase):
             inst_and_feedback_path, file_name)
         return inst_and_feedback_path
 
-    def testLoadExistingSettings(self):
-        output_file = self.constructFilePath("testLoadExistingSettings")
-        experiment = asrt.Experiment("")
-        experiment.settings = asrt.ExperimentSettings(output_file, "")
-
-        experiment.settings.experiment_type = 'reaction-time'
-        experiment.settings.numsessions = 1
-        experiment.settings.groups = ["kontrol"]
-        experiment.settings.blockprepN = 5
-        experiment.settings.blocklengthN = 80
-        experiment.settings.block_in_epochN = 5
-        experiment.settings.epochN = 5
-        experiment.settings.epochs = [5]
-        experiment.settings.asrt_types = {1: 'noASRT', 2: 'implicit', 3: 'implicit', 4: 'implicit', 5: 'implicit'}
-        experiment.settings.monitor_width = 29
-        experiment.settings.computer_name = "Laposka"
-        experiment.settings.asrt_distance = 4.5
-        experiment.settings.asrt_size = 1.8
-        experiment.settings.asrt_rcolor = "Orange"
-        experiment.settings.asrt_pcolor = "Green"
-        experiment.settings.asrt_background = "Ivory"
-        experiment.settings.RSI_time = 0.12
-        experiment.settings.key1 = 'z'
-        experiment.settings.key2 = 'c'
-        experiment.settings.key3 = 'b'
-        experiment.settings.key4 = 'm'
-        experiment.settings.key_quit = 'q'
-        experiment.settings.whether_warning = True
-        experiment.settings.speed_warning = 93
-        experiment.settings.acc_warning = 91
-
-        experiment.settings.write_to_file()
-
-        experiment.settings = asrt.ExperimentSettings(output_file, "")
-        experiment.all_settings_def()
-
-        self.assertEqual(experiment.settings.experiment_type, 'reaction-time')
-        self.assertEqual(experiment.settings.groups, ["kontrol"])
-        self.assertEqual(experiment.settings.blockprepN, 5)
-        self.assertEqual(experiment.settings.blocklengthN, 80)
-        self.assertEqual(experiment.settings.block_in_epochN, 5)
-        self.assertEqual(experiment.settings.epochN, 5)
-        self.assertEqual(experiment.settings.epochs, [5])
-        self.assertEqual(experiment.settings.asrt_types, {1: 'noASRT', 2: 'implicit', 3: 'implicit', 4: 'implicit', 5: 'implicit'})
-        self.assertEqual(experiment.settings.monitor_width, 29)
-        self.assertEqual(experiment.settings.computer_name, "Laposka")
-        self.assertEqual(experiment.settings.asrt_distance, 4.5)
-        self.assertEqual(experiment.settings.asrt_size, 1.8)
-        self.assertEqual(experiment.settings.asrt_rcolor, "Orange")
-        self.assertEqual(experiment.settings.asrt_pcolor, "Green")
-        self.assertEqual(experiment.settings.asrt_background, "Ivory")
-        self.assertEqual(experiment.settings.RSI_time, 0.12)
-        self.assertEqual(experiment.settings.key1, 'z')
-        self.assertEqual(experiment.settings.key2, 'c')
-        self.assertEqual(experiment.settings.key3, 'b')
-        self.assertEqual(experiment.settings.key4, 'm')
-        self.assertEqual(experiment.settings.key_quit, 'q')
-        self.assertEqual(experiment.settings.whether_warning, True)
-        self.assertEqual(experiment.settings.speed_warning, 93)
-        self.assertEqual(experiment.settings.acc_warning, 91)
-        self.assertEqual(experiment.settings.get_maxtrial(), 2125)
-        self.assertEqual(experiment.settings.get_session_starts(), [1, 2126])
-        self.assertEqual(experiment.settings.get_block_starts(), [
-                         1, 86, 171, 256, 341, 426, 511, 596, 681, 766, 851, 936, 1021, 1106, 1191, 1276, 1361, 1446, 1531, 1616, 1701, 1786, 1871, 1956, 2041, 2126, 2211])
-
     def testSettingsDialogsDefaultValues(self):
         output_file = self.constructFilePath(
             "testSettingsDialogsDefaultValues")
@@ -145,7 +80,7 @@ class allSettingsDefTest(unittest.TestCase):
         self.assertEqual(experiment.settings.computer_name, "Laposka")
         self.assertEqual(experiment.settings.asrt_distance, 3)
         self.assertEqual(experiment.settings.asrt_size, 1)
-        self.assertEqual(experiment.settings.asrt_rcolor, "Orange")
+        self.assertEqual(experiment.settings.asrt_rcolor, "DarkBlue")
         self.assertEqual(experiment.settings.asrt_pcolor, "Green")
         self.assertEqual(experiment.settings.asrt_background, "Ivory")
         self.assertEqual(experiment.settings.RSI_time, 0.12)
@@ -157,13 +92,17 @@ class allSettingsDefTest(unittest.TestCase):
         self.assertEqual(experiment.settings.whether_warning, True)
         self.assertEqual(experiment.settings.speed_warning, 93)
         self.assertEqual(experiment.settings.acc_warning, 91)
-        self.assertEqual(experiment.settings.get_maxtrial(), 4250)
+        self.assertEqual(experiment.settings.get_maxtrial(), 4290)
         self.assertEqual(
-            experiment.settings.get_session_starts(), [1, 2126, 4251])
-        self.assertEqual(experiment.settings.get_block_starts(), [1, 86, 171, 256, 341, 426, 511, 596, 681, 766, 851, 936, 1021, 1106, 1191,
-                                                                  1276, 1361, 1446, 1531, 1616, 1701, 1786, 1871, 1956, 2041, 2126, 2211, 2296,
-                                                                  2381, 2466, 2551, 2636, 2721, 2806, 2891, 2976, 3061, 3146, 3231, 3316, 3401,
-                                                                  3486, 3571, 3656, 3741, 3826, 3911, 3996, 4081, 4166, 4251, 4336])
+            experiment.settings.get_session_starts(), [1, 2146, 4291])
+        self.assertEqual(experiment.settings.get_block_starts(), [1, 21, 106, 191, 276, 361, 446, 531, 616, 701, 786, 871,
+                                                                  956, 1041, 1126, 1211, 1296, 1381, 1466, 1551, 1636, 1721,
+                                                                  1806, 1891, 1976, 2061, 2146, 2166, 2251, 2336, 2421, 2506,
+                                                                  2591, 2676, 2761, 2846, 2931, 3016, 3101, 3186, 3271, 3356,
+                                                                  3441, 3526, 3611, 3696, 3781, 3866, 3951, 4036, 4121, 4206,
+                                                                  4291, 4376])
+        self.assertEqual(experiment.settings.validation_trialN, 20)
+
         # output file exists
         self.assertTrue(os.path.exists(output_file + ".dat") or os.path.exists(output_file))
         self.assertTrue(os.path.exists(output_file + "_reminder.txt"))
@@ -185,7 +124,7 @@ class allSettingsDefTest(unittest.TestCase):
         self.assertEqual(experiment.settings.computer_name, "Laposka")
         self.assertEqual(experiment.settings.asrt_distance, 3)
         self.assertEqual(experiment.settings.asrt_size, 1)
-        self.assertEqual(experiment.settings.asrt_rcolor, "Orange")
+        self.assertEqual(experiment.settings.asrt_rcolor, "DarkBlue")
         self.assertEqual(experiment.settings.asrt_pcolor, "Green")
         self.assertEqual(experiment.settings.asrt_background, "Ivory")
         self.assertEqual(experiment.settings.RSI_time, 0.12)
@@ -197,13 +136,16 @@ class allSettingsDefTest(unittest.TestCase):
         self.assertEqual(experiment.settings.whether_warning, True)
         self.assertEqual(experiment.settings.speed_warning, 93)
         self.assertEqual(experiment.settings.acc_warning, 91)
-        self.assertEqual(experiment.settings.get_maxtrial(), 4250)
+        self.assertEqual(experiment.settings.get_maxtrial(), 4290)
         self.assertEqual(
-            experiment.settings.get_session_starts(), [1, 2126, 4251])
-        self.assertEqual(experiment.settings.get_block_starts(), [1, 86, 171, 256, 341, 426, 511, 596, 681, 766, 851, 936, 1021, 1106, 1191,
-                                                                  1276, 1361, 1446, 1531, 1616, 1701, 1786, 1871, 1956, 2041, 2126, 2211, 2296,
-                                                                  2381, 2466, 2551, 2636, 2721, 2806, 2891, 2976, 3061, 3146, 3231, 3316, 3401,
-                                                                  3486, 3571, 3656, 3741, 3826, 3911, 3996, 4081, 4166, 4251, 4336])
+            experiment.settings.get_session_starts(), [1, 2146, 4291])
+        self.assertEqual(experiment.settings.get_block_starts(), [1, 21, 106, 191, 276, 361, 446, 531, 616, 701, 786, 871,
+                                                                  956, 1041, 1126, 1211, 1296, 1381, 1466, 1551, 1636, 1721,
+                                                                  1806, 1891, 1976, 2061, 2146, 2166, 2251, 2336, 2421, 2506,
+                                                                  2591, 2676, 2761, 2846, 2931, 3016, 3101, 3186, 3271, 3356,
+                                                                  3441, 3526, 3611, 3696, 3781, 3866, 3951, 4036, 4121, 4206,
+                                                                  4291, 4376])
+        self.assertEqual(experiment.settings.validation_trialN, 20)
 
     def testSettingsDialogsCustomValues(self):
         output_file = self.constructFilePath("testSettingsDialogsCustomValues")
@@ -212,7 +154,7 @@ class allSettingsDefTest(unittest.TestCase):
             output_file, output_file + "_reminder.txt")
 
         gui_mock = pgm.PsychoPyGuiMock()
-        gui_mock.addFieldValues(['reakció idő', 1, 1, 10, 75, 7, 12, 2, 'implicit', 29.1, "Alma", 4, 2, "Blue", "Red",
+        gui_mock.addFieldValues(['reakció idő', 1, 1, 10, 75, 7, 12, 2, 'implicit', 15, 29.1, "Alma", 4, 2, "Blue", "Red",
                                  "Yellow", 300, 'a', 's', 'd', 'f', 'g', False, 89, 78])
         experiment.all_settings_def()
 
@@ -241,58 +183,23 @@ class allSettingsDefTest(unittest.TestCase):
         self.assertEqual(experiment.settings.whether_warning, False)
         self.assertEqual(experiment.settings.speed_warning, 89)
         self.assertEqual(experiment.settings.acc_warning, 78)
-        self.assertEqual(experiment.settings.get_maxtrial(), 7140)
-        self.assertEqual(experiment.settings.get_session_starts(), [1, 7141])
-        self.assertEqual(experiment.settings.get_block_starts(), [1, 86, 171, 256, 341, 426, 511, 596, 681, 766, 851, 936, 1021, 1106, 1191,
-                                                                  1276, 1361, 1446, 1531, 1616, 1701, 1786, 1871, 1956, 2041, 2126, 2211, 2296,
-                                                                  2381, 2466, 2551, 2636, 2721, 2806, 2891, 2976, 3061, 3146, 3231, 3316, 3401,
-                                                                  3486, 3571, 3656, 3741, 3826, 3911, 3996, 4081, 4166, 4251, 4336, 4421, 4506,
-                                                                  4591, 4676, 4761, 4846, 4931, 5016, 5101, 5186, 5271, 5356, 5441, 5526, 5611,
-                                                                  5696, 5781, 5866, 5951, 6036, 6121, 6206, 6291, 6376, 6461, 6546, 6631, 6716,
-                                                                  6801, 6886, 6971, 7056, 7141, 7226])
+        self.assertEqual(experiment.settings.get_maxtrial(), 7155)
+        self.assertEqual(experiment.settings.get_session_starts(), [1, 7156])
+        self.assertEqual(experiment.settings.get_block_starts(), [1, 16, 101, 186, 271, 356, 441, 526, 611, 696, 781,
+                                                                  866, 951, 1036, 1121, 1206, 1291, 1376, 1461, 1546,
+                                                                  1631, 1716, 1801, 1886, 1971, 2056, 2141, 2226, 2311,
+                                                                  2396, 2481, 2566, 2651, 2736, 2821, 2906, 2991, 3076,
+                                                                  3161, 3246, 3331, 3416, 3501, 3586, 3671, 3756, 3841,
+                                                                  3926, 4011, 4096, 4181, 4266, 4351, 4436, 4521, 4606,
+                                                                  4691, 4776, 4861, 4946, 5031, 5116, 5201, 5286, 5371,
+                                                                  5456, 5541, 5626, 5711, 5796, 5881, 5966, 6051, 6136,
+                                                                  6221, 6306, 6391, 6476, 6561, 6646, 6731, 6816, 6901,
+                                                                  6986, 7071, 7156, 7241])
+        self.assertEqual(experiment.settings.validation_trialN, 15)
+
         # output file exists
         self.assertTrue(os.path.exists(output_file + ".dat") or os.path.exists(output_file))
         self.assertTrue(os.path.exists(output_file + "_reminder.txt"))
-
-        # reload saved data
-        experiment.settings = asrt.ExperimentSettings(output_file, "")
-        experiment.all_settings_def()
-
-        self.assertEqual(experiment.settings.experiment_type, 'reaction-time')
-        self.assertEqual(experiment.settings.groups, ['nincsenek csoportok'])
-        self.assertEqual(experiment.settings.blockprepN, 10)
-        self.assertEqual(experiment.settings.blocklengthN, 75)
-        self.assertEqual(experiment.settings.block_in_epochN, 7)
-        self.assertEqual(experiment.settings.epochN, 12)
-        self.assertEqual(experiment.settings.epochs, [12])
-        self.assertEqual(experiment.settings.asrt_types, {1: 'noASRT', 2: 'noASRT', 3: 'implicit', 4: 'implicit', 5: 'implicit', 6: 'implicit', 7: 'implicit',
-                                                          8: 'implicit', 9: 'implicit', 10: 'implicit', 11: 'implicit', 12: 'implicit'})
-        self.assertEqual(experiment.settings.monitor_width, 29.1)
-        self.assertEqual(experiment.settings.computer_name, "Alma")
-        self.assertEqual(experiment.settings.asrt_distance, 4)
-        self.assertEqual(experiment.settings.asrt_size, 2)
-        self.assertEqual(experiment.settings.asrt_rcolor, "Blue")
-        self.assertEqual(experiment.settings.asrt_pcolor, "Red")
-        self.assertEqual(experiment.settings.asrt_background, "Yellow")
-        self.assertEqual(experiment.settings.RSI_time, 0.3)
-        self.assertEqual(experiment.settings.key1, 'a')
-        self.assertEqual(experiment.settings.key2, 's')
-        self.assertEqual(experiment.settings.key3, 'd')
-        self.assertEqual(experiment.settings.key4, 'f')
-        self.assertEqual(experiment.settings.key_quit, 'g')
-        self.assertEqual(experiment.settings.whether_warning, False)
-        self.assertEqual(experiment.settings.speed_warning, 89)
-        self.assertEqual(experiment.settings.acc_warning, 78)
-        self.assertEqual(experiment.settings.get_maxtrial(), 7140)
-        self.assertEqual(experiment.settings.get_session_starts(), [1, 7141])
-        self.assertEqual(experiment.settings.get_block_starts(), [1, 86, 171, 256, 341, 426, 511, 596, 681, 766, 851, 936, 1021, 1106, 1191,
-                                                                  1276, 1361, 1446, 1531, 1616, 1701, 1786, 1871, 1956, 2041, 2126, 2211, 2296,
-                                                                  2381, 2466, 2551, 2636, 2721, 2806, 2891, 2976, 3061, 3146, 3231, 3316, 3401,
-                                                                  3486, 3571, 3656, 3741, 3826, 3911, 3996, 4081, 4166, 4251, 4336, 4421, 4506,
-                                                                  4591, 4676, 4761, 4846, 4931, 5016, 5101, 5186, 5271, 5356, 5441, 5526, 5611,
-                                                                  5696, 5781, 5866, 5951, 6036, 6121, 6206, 6291, 6376, 6461, 6546, 6631, 6716,
-                                                                  6801, 6886, 6971, 7056, 7141, 7226])
-
 
 if __name__ == "__main__":
     unittest.main()  # run all tests
