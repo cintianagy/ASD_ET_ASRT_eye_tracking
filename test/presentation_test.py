@@ -86,11 +86,11 @@ class presentationTest(unittest.TestCase):
     def testSimpleTestCase(self):
         visual_mock = pvm.PsychoPyVisualMock()
         thispath = os.path.join(self.constructFilePath("testSimpleTestCase"))
-        experiment = asrt.Experiment(thispath)
+        experiment = asrt.Experiment(thispath, False)
         # load settings
         settings_path = os.path.join(
             self.constructFilePath("testSimpleTestCase"), "settings")
-        experiment.settings = asrt.ExperimentSettings(settings_path, "")
+        experiment.settings = asrt.ExperimentSettings(settings_path, "", False)
         experiment.all_settings_def()
 
         # load instructions
@@ -226,11 +226,11 @@ class presentationTest(unittest.TestCase):
     def testExplixitASRT(self):
         visual_mock = pvm.PsychoPyVisualMock()
         thispath = os.path.join(self.constructFilePath("testExplixitASRT"))
-        experiment = asrt.Experiment(thispath)
+        experiment = asrt.Experiment(thispath, False)
         # load settings
         settings_path = os.path.join(
             self.constructFilePath("testExplixitASRT"), "settings")
-        experiment.settings = asrt.ExperimentSettings(settings_path, "")
+        experiment.settings = asrt.ExperimentSettings(settings_path, "", False)
         experiment.all_settings_def()
 
         # load instructions
@@ -372,11 +372,11 @@ class presentationTest(unittest.TestCase):
     def testQuitInsideABlock(self):
         visual_mock = pvm.PsychoPyVisualMock()
         thispath = os.path.join(self.constructFilePath("testQuitInsideABlock"))
-        experiment = asrt.Experiment(thispath)
+        experiment = asrt.Experiment(thispath, False)
         # load settings
         settings_path = os.path.join(self.constructFilePath(
             "testQuitInsideABlock"), "settings")
-        experiment.settings = asrt.ExperimentSettings(settings_path, "")
+        experiment.settings = asrt.ExperimentSettings(settings_path, "", False)
         experiment.all_settings_def()
 
         # load instructions
@@ -510,11 +510,11 @@ class presentationTest(unittest.TestCase):
         visual_mock = pvm.PsychoPyVisualMock()
         thispath = os.path.join(
             self.constructFilePath("testWrongPressedButton"))
-        experiment = asrt.Experiment(thispath)
+        experiment = asrt.Experiment(thispath, False)
         # load settings
         settings_path = os.path.join(self.constructFilePath(
             "testWrongPressedButton"), "settings")
-        experiment.settings = asrt.ExperimentSettings(settings_path, "")
+        experiment.settings = asrt.ExperimentSettings(settings_path, "", False)
         experiment.all_settings_def()
 
         # load instructions
@@ -672,11 +672,11 @@ class presentationTest(unittest.TestCase):
         visual_mock = pvm.PsychoPyVisualMock()
         thispath = os.path.join(
             self.constructFilePath("testQuitOnFeedbackScreen"))
-        experiment = asrt.Experiment(thispath)
+        experiment = asrt.Experiment(thispath, False)
         # load settings
         settings_path = os.path.join(self.constructFilePath(
             "testQuitOnFeedbackScreen"), "settings")
-        experiment.settings = asrt.ExperimentSettings(settings_path, "")
+        experiment.settings = asrt.ExperimentSettings(settings_path, "", False)
         experiment.all_settings_def()
 
         # load instructions
