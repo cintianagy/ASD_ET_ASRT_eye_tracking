@@ -23,7 +23,11 @@ from utils import strToFloat, floatToStr
 
 def generateOutput(raw_file_name, new_file_name, RT_data, anticipation_data):
     # use the input data headers
-    input_data = pandas.read_csv(raw_file_name, sep='\t')
+    input_data = pandas.read_csv(raw_file_name, sep='\t',
+                                dtype={
+                                    'PCode': str,
+                                    'quit_log': str
+                                })
     output_data = pandas.DataFrame(columns=input_data.columns)
 
     # remove some useless fields
@@ -59,7 +63,11 @@ def generateOutput(raw_file_name, new_file_name, RT_data, anticipation_data):
     output_data.to_csv(new_file_name, sep='\t', index=False)
 
 def calcRTColumn(raw_file_name):
-    input_data = pandas.read_csv(raw_file_name, sep='\t')
+    input_data = pandas.read_csv(raw_file_name, sep='\t',
+                                dtype={
+                                    'PCode': str,
+                                    'quit_log': str
+                                })
 
     last_trial = "1"
     start_time = 0
@@ -136,7 +144,11 @@ def getAOI(row):
         return 4
 
 def calcAnticipationColumn(raw_file_name):
-    input_data = pandas.read_csv(raw_file_name, sep='\t')
+    input_data = pandas.read_csv(raw_file_name, sep='\t',
+                                dtype={
+                                    'PCode': str,
+                                    'quit_log': str
+                                })
 
     anticipation_data = []
     last_AOI = -1
