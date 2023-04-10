@@ -47,17 +47,20 @@ def setupOutputDir(dir_path):
         print("Could not make the output folder: " + dir_path)
         exit(1)
 
+def extract_subject_id(subject_file_name):
+    subject_id = subject_file_name[len('subject_'):]
+    subject_id = subject_id[:subject_id.find('_')]
+    return subject_id
+
 def compute_trial_data(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     for root, dirs, files in os.walk(input_dir):
-        for subject_dir in dirs:
-            if subject_dir.startswith('.'):
-                continue
-
-            print("Compute RT and anticipatory eye-movements data for subject: " + subject_dir)
-            raw_data_path = os.path.join(root, subject_dir, 'subject_' + subject_dir + '__log.txt')
-            RT_data_path = os.path.join(output_dir, 'subject_' + subject_dir + '__trial_log.csv')
+        for subject_file in files:
+            subject_id = extract_subject_id(subject_file)
+            print("Compute RT and anticipatory eye-movements data for subject: " + subject_id)
+            raw_data_path = os.path.join(root, subject_file)
+            RT_data_path = os.path.join(output_dir, 'subject_' + subject_id + '__trial_log.csv')
             ctd.computeTrialData(raw_data_path, RT_data_path)
 
         break
