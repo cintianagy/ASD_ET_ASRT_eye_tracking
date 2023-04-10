@@ -58,7 +58,7 @@ def compute_trial_data(input_dir, output_dir):
     for root, dirs, files in os.walk(input_dir):
         for subject_file in files:
             subject_id = extract_subject_id(subject_file)
-            print("Compute RT and anticipatory eye-movements data for subject: " + subject_id)
+            print("Compute trial level data for subject: " + subject_id)
             raw_data_path = os.path.join(root, subject_file)
             RT_data_path = os.path.join(output_dir, 'subject_' + subject_id + '__trial_log.csv')
             ctd.computeTrialData(raw_data_path, RT_data_path)
@@ -71,7 +71,7 @@ def validate_trial_data(input_dir, output_dir):
             if subject_dir.startswith('.'):
                 continue
 
-            print("Validate RT and anticipatory eye-movements data for subject: " + subject_dir)
+            print("Validate trial level data for subject: " + subject_dir)
             raw_data_path = os.path.join(root, subject_dir, 'subject_' + subject_dir + '__log.txt')
             RT_data_path = os.path.join(output_dir, 'subject_' + subject_dir + '__trial_log.csv')
             vtd.validateTrialData(raw_data_path, RT_data_path)
