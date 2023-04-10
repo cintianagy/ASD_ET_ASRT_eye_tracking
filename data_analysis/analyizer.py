@@ -21,7 +21,7 @@ import sys
 import shutil
 import time
 
-import calc_trial_data as ctd
+import compute_trial_level_data as ctd
 import validate_trial_data as vtd
 import extend_data as ed
 import validate_extended_data as ved
