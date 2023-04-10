@@ -190,7 +190,7 @@ def calcLastAOIColumn(raw_file_name):
 
     return anticipation_data
 
-def computeTrialData(raw_file_name, new_file_name):
+def computeTrialLevelData(raw_file_name, new_file_name):
     RT_data = calcRTColumn(raw_file_name)
     last_AOI_data = calcLastAOIColumn(raw_file_name)
     generateOutput(raw_file_name, new_file_name, RT_data, last_AOI_data)

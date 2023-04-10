@@ -21,7 +21,7 @@ import sys
 import shutil
 import time
 
-import compute_trial_level_data as ctd
+from compute_trial_level_data import computeTrialLevelData
 import validate_trial_data as vtd
 import extend_data as ed
 import validate_extended_data as ved
@@ -61,7 +61,7 @@ def compute_trial_data(input_dir, output_dir):
             print("Compute trial level data for subject: " + subject_id)
             raw_data_path = os.path.join(root, subject_file)
             RT_data_path = os.path.join(output_dir, 'subject_' + subject_id + '__trial_log.csv')
-            ctd.computeTrialData(raw_data_path, RT_data_path)
+            computeTrialLevelData(raw_data_path, RT_data_path)
 
         break
 
