@@ -103,7 +103,7 @@ def computeLearntAnticipationColumn(data_table):
 
     return learnt_anticipation_data
 
-def extendTrialData(input_file, output_file):
+def extendTrialLevelData(input_file, output_file):
     data_table = pandas.read_csv(input_file, sep='\t')
 
     # previous trial has the stimulus at the same position -> repetition.
