@@ -74,30 +74,7 @@ def computeBinocularDistanceImpl(input):
 
     return epoch_summary
 
-def computeBinocularDistanceJacobiImpl(input):
-    data_table = pandas.read_csv(input, sep='\t')
-
-    trial_column = data_table["trial"]
-    trial_phase_column = data_table["trial_phase"]
-    test_type_column = data_table["test_type"]
-
-    phase_rmss = {}
-    for i in range(len(trial_column) - 1):
-        if int(trial_column[i]) > 2:
-
-            if (trial_phase_column[i] == "before_reaction" and
-                trial_phase_column[i + 1] == "after_reaction"): # end of fixation (100ms)
-                all_distances = clacDistancesForFixation(i - 11, i, data_table)
-                if len(all_distances) > 0:
-                    test_type = test_type_column[i]
-                    if test_type in phase_rmss.keys():
-                        phase_rmss[test_type].append(calcRMS(all_distances))
-                    else:
-                        phase_rmss[test_type] = [calcRMS(all_distances)]
-
-    return floatToStr(numpy.median(phase_rmss["inclusion"])), floatToStr(numpy.median(phase_rmss["exclusion"]))
-
-def computeBinocularDistance(input_dir, output_file, jacobi = False):
+def computeBinocularDistance(input_dir, output_file):
 
     median_rms = []
     epochs_phases = []
@@ -106,29 +83,15 @@ def computeBinocularDistance(input_dir, output_file, jacobi = False):
             if subject.startswith('.'):
                 continue
 
-            if not jacobi:
-                print("Compute eye-eye distance data for subject (ASRT): " + subject)
-                input_file = os.path.join(root, subject, 'subject_' + subject + '__log.txt')
+            print("Compute eye-eye distance data for subject (ASRT): " + subject)
+            input_file = os.path.join(root, subject, 'subject_' + subject + '__log.txt')
 
-                for i in range(1,9):
-                    epochs_phases.append("subject_" + subject + "_" + str(i))
+            for i in range(1,9):
+                epochs_phases.append("subject_" + subject + "_" + str(i))
 
-                result = computeBinocularDistanceImpl(input_file)
-                median_rms += result
-            else:
-                print("Compute eye-eye distance data for subject (jacobi): " + subject)
-                input_file = os.path.join(root, subject, 'subject_' + subject + '__jacobi_ET_log.txt')
-
-                epochs_phases.append("subject_" + subject + "_inclusion")
-                epochs_phases.append("subject_" + subject + "_exclusion")
-   
-                inclusion_median, exclusion_median = computeBinocularDistanceJacobiImpl(input_file)
-                median_rms.append(inclusion_median)
-                median_rms.append(exclusion_median)
+            result = computeBinocularDistanceImpl(input_file)
+            median_rms += result
         break
 
-    if not jacobi:
-        binocular_distance_data = pandas.DataFrame({'epoch' : epochs_phases, 'RMS(E2E)_median' : median_rms})
-    else:
-        binocular_distance_data = pandas.DataFrame({'phase' : epochs_phases, 'RMS(E2E)_median' : median_rms})
+    binocular_distance_data = pandas.DataFrame({'epoch' : epochs_phases, 'RMS(E2E)_median' : median_rms})
     binocular_distance_data.to_csv(output_file, sep='\t', index=False)

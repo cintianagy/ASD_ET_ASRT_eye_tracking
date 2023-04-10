@@ -29,8 +29,6 @@ import compute_learning as cl
 import validate_learning as vl
 import compute_interference as ci
 import validate_interference as vi
-import compute_jacobi as cj
-import validate_jacobi as vj
 import compute_anticipatory as ca
 import validate_anticipatory as va
 import compute_missing_data_ratio as cmd
@@ -142,20 +140,6 @@ def validate_interference_data(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'interference_HL_LL_LH.csv')
     vi.validateInterferenceData(input_dir, output_file)
 
-def compute_jacobi_data(input_dir, output_dir):
-    setupOutputDir(output_dir)
-
-    output_file = os.path.join(output_dir, 'jacobi_results.csv')
-    cj.computeJacobiTestData(input_dir, output_file)
-
-def validate_jacobi_data(input_dir, output_dir):
-    output_file = os.path.join(output_dir, 'jacobi_results.csv')
-    vj.validateJacobiTestData(input_dir, output_file)
-
-def compute_jacobi_filter(input_dir, output_dir):
-    output_file = os.path.join(output_dir, 'jacobi_filter.csv')
-    cj.computeJacobiFilterCriteria(input_dir, output_file)
-
 def compute_anticipatory_data(input_dir, output_dir):
     setupOutputDir(output_dir)
 
@@ -167,23 +151,23 @@ def validate_anticipatory_data(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'anticipatory_data.csv')
     va.validateAnticipatoryData(input_dir, output_file)
 
-def compute_missing_data_ratio(input_dir, output_dir, jacobi = False):
+def compute_missing_data_ratio(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'missing_data_ratio.csv')
-    cmd.computeMissingDataRatio(input_dir, output_file, jacobi)
+    cmd.computeMissingDataRatio(input_dir, output_file)
 
-def compute_distance(input_dir, output_dir, jacobi = False):
+def compute_distance(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'screen_eye_distance_data.csv')
-    cd.computeDistance(input_dir, output_file, jacobi)
+    cd.computeDistance(input_dir, output_file)
 
-def compute_binocular_distance(input_dir, output_dir, jacobi = False):
+def compute_binocular_distance(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'RMS(E2E)_data.csv')
-    cbd.computeBinocularDistance(input_dir, output_file, jacobi)
+    cbd.computeBinocularDistance(input_dir, output_file)
 
 def compute_extreme_RT(input_dir, output_dir):
     setupOutputDir(output_dir)
@@ -191,11 +175,11 @@ def compute_extreme_RT(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'extreme_RT_averages.csv')
     cert.computeExtremeRTAverages(input_dir, output_file)
 
-def compute_RMS(input_dir, output_dir, jacobi = False):
+def compute_RMS(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'RMS(S2S)_data.csv')
-    crms.computeRMS(input_dir, output_file, jacobi)
+    crms.computeRMS(input_dir, output_file)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -231,14 +215,6 @@ if __name__ == "__main__":
 
     # validate_interference_data(extended_trial_data_dir, interference_dir)
 
-    jacobi_result_dir = os.path.join(script_dir, 'data', 'jacobi_test')
-
-    compute_jacobi_data(sys.argv[1], jacobi_result_dir)
-
-    # validate_jacobi_data(sys.argv[1], jacobi_result_dir)
-
-    # compute_jacobi_filter(sys.argv[1], jacobi_result_dir)
-
     anticipatory_dir = os.path.join(script_dir, 'data', 'anticipatory_movements')
 
     compute_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
@@ -249,30 +225,14 @@ if __name__ == "__main__":
 
     compute_missing_data_ratio(sys.argv[1], missing_data_dir)
 
-    #jacobi_missing_data_dir = os.path.join(script_dir, 'data', 'jacobi_missing_data')
-
-    #compute_missing_data_ratio(sys.argv[1], jacobi_missing_data_dir, True)
-
     distance_dir = os.path.join(script_dir, 'data', 'distance_data')
 
     compute_distance(sys.argv[1], distance_dir)
-
-    #jacobi_distance_dir = os.path.join(script_dir, 'data', 'jacobi_distance_data')
-
-    #compute_distance(sys.argv[1], jacobi_distance_dir, True)
 
     binocular_distance_dir = os.path.join(script_dir, 'data', 'binocular_distance_data')
 
     compute_binocular_distance(sys.argv[1], binocular_distance_dir)
 
-    #jacobi_binocular_distance_dir = os.path.join(script_dir, 'data', 'jacobi_binocular_distance_data')
-
-    #compute_binocular_distance(sys.argv[1], jacobi_binocular_distance_dir, True)
-
     RMS_dir = os.path.join(script_dir, 'data', 'RMS')
 
     compute_RMS(sys.argv[1], RMS_dir)
-
-    #jacobi_RMS_dir = os.path.join(script_dir, 'data', 'jacobi_RMS')
-
-    #compute_RMS(sys.argv[1], jacobi_RMS_dir, True)

@@ -61,39 +61,7 @@ def computeDistanceImpl(input):
 
     return epoch_summary
 
-def computeDistanceImplJacobi(input):
-    data_table = pandas.read_csv(input, sep='\t')
-
-    trial_column = data_table["trial"]
-    left_gaze_validity = data_table["left_gaze_validity"]
-    right_gaze_validity = data_table["right_gaze_validity"]
-    left_eye_distance = data_table["left_eye_distance"]
-    right_eye_distance = data_table["right_eye_distance"]
-    test_type_column = data_table["test_type"]
-
-    phase_distances = {}
-    for i in range(len(trial_column)):
-        if int(trial_column[i]) <= 2:
-            continue
-
-        distance = -1.0
-        if bool(left_gaze_validity[i]) and bool(right_gaze_validity[i]):
-            distance = (strToFloat(left_eye_distance[i]) + strToFloat(right_eye_distance[i])) / 2.0
-        elif bool(left_gaze_validity[i]):
-            distance = strToFloat(left_eye_distance[i])
-        elif bool(right_gaze_validity[i]):
-            distance = strToFloat(right_eye_distance[i])
-
-        if distance > 0.0:
-            test_type = test_type_column[i]
-            if test_type in phase_distances.keys():
-                phase_distances[test_type].append(distance)
-            else:
-                phase_distances[test_type] = [distance]
-
-    return floatToStr(numpy.median(phase_distances["inclusion"])), floatToStr(numpy.median(phase_distances["exclusion"]))
-
-def computeDistance(input_dir, output_file, jacobi = False):
+def computeDistance(input_dir, output_file):
     median_ditances = []
     epochs_phases = []
     for root, dirs, files in os.walk(input_dir):
@@ -101,29 +69,15 @@ def computeDistance(input_dir, output_file, jacobi = False):
             if subject.startswith('.'):
                 continue
 
-            if not jacobi:
-                print("Compute eye-screen distance data for subject (ASRT): " + subject)
-                input_file = os.path.join(root, subject, 'subject_' + subject + '__log.txt')
+            print("Compute eye-screen distance data for subject (ASRT): " + subject)
+            input_file = os.path.join(root, subject, 'subject_' + subject + '__log.txt')
 
-                for i in range(1,9):
-                    epochs_phases.append("subject_" + subject + "_" + str(i))
+            for i in range(1,9):
+                epochs_phases.append("subject_" + subject + "_" + str(i))
 
-                epoch_medians = computeDistanceImpl(input_file)
-                median_ditances += epoch_medians
-            else:
-                print("Compute eye-screen distance data for subject (jacobi): " + subject)
-                input_file = os.path.join(root, subject, 'subject_' + subject + '__jacobi_ET_log.txt')
-
-                epochs_phases.append("subject_" + subject + "_inclusion")
-                epochs_phases.append("subject_" + subject + "_exclusion")
-
-                inclusion_median, exclusion_median = computeDistanceImplJacobi(input_file)
-                median_ditances.append(inclusion_median)
-                median_ditances.append(exclusion_median)
+            epoch_medians = computeDistanceImpl(input_file)
+            median_ditances += epoch_medians
         break
 
-    if not jacobi:
-        distance_data = pandas.DataFrame({'epoch' : epochs_phases, 'median_distance_mm' : median_ditances})
-    else:
-        distance_data = pandas.DataFrame({'phase' : epochs_phases, 'median_distance_mm' : median_ditances})
+    distance_data = pandas.DataFrame({'epoch' : epochs_phases, 'median_distance_mm' : median_ditances})
     distance_data.to_csv(output_file, sep='\t', index=False)
