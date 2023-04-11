@@ -43,7 +43,7 @@ def computeMissingDataRatioImpl(input, preparatory_trial_number):
         if int(trial_column[i]) <= preparatory_trial_number:
             continue
 
-        # We ignore calibration validation trials.
+        # We ignore calibration validation blocks.
         if str(block_column[i]) == '0':
             continue
 
