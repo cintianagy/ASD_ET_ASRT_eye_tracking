@@ -108,7 +108,7 @@ def compute_statistical_learning(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'statistical_learning_RT.csv')
-    cl.computeStatisticalLearning(input_dir, output_file)
+    computeStatisticalLearning(input_dir, output_file)
 
 def validate_implicit_learning(input_dir, output_dir):
 
@@ -182,9 +182,9 @@ if __name__ == "__main__":
     
     # validate_extended_trial_data(extended_trial_data_dir)
 
-    implicit_learning_dir = os.path.join(script_dir, 'data', 'implicit_learning')
+    statistical_learning_dir = os.path.join(script_dir, 'data', 'statistical_learning')
 
-    compute_implicit_learning(extended_trial_data_dir, implicit_learning_dir)
+    compute_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
     # validate_implicit_learning(extended_trial_data_dir, implicit_learning_dir)
 
@@ -208,10 +208,10 @@ if __name__ == "__main__":
 
     compute_distance(sys.argv[1], distance_dir)
 
-    binocular_distance_dir = os.path.join(script_dir, 'data', 'binocular_distance_data')
+    RMS_E2E_dir = os.path.join(script_dir, 'data', 'RMS_E2E')
 
-    compute_binocular_distance(sys.argv[1], binocular_distance_dir)
+    compute_RMS_E2E(sys.argv[1], RMS_E2E_dir)
 
-    RMS_dir = os.path.join(script_dir, 'data', 'RMS')
+    RMS_S2S_dir = os.path.join(script_dir, 'data', 'RMS_S2S')
 
-    compute_RMS(sys.argv[1], RMS_dir)
+    compute_RMS_S2S(sys.argv[1], RMS_S2S_dir)
