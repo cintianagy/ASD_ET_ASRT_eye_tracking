@@ -54,7 +54,7 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
 
         current_epoch = epoch_column[i]
 
-        # we ignore the first two trials, repetitions and trills
+        # we ignore the preparatory trials, repetitions and trills
         if trial_column[i] <= preparatory_trial_number or repetition_column[i] == "True" or trill_column[i] == "True":
             continue
 
