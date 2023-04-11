@@ -84,13 +84,13 @@ def computeMissingDataRatio(input_dir, output_file):
     subject_epochs = []
     for root, dirs, files in os.walk(input_dir):
         for subject_file in files:
-            subject = int(subject_file.split('_')[1])
+            subject = subject_file.split('_')[1]
 
-            print("Compute missing data ratio for subject: " + str(subject))
+            print("Compute missing data ratio for subject: " + subject)
             input_file = os.path.join(root, subject_file)
 
             for i in range(1,9):
-                subject_epochs.append("subject_" + str(subject) + "_" + str(i))
+                subject_epochs.append("subject_" + subject + "_" + str(i))
 
             result = computeMissingDataRatioImpl(input_file, settings.blockprepN)
 
