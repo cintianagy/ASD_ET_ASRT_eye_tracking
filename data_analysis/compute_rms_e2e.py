@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#    Copyright (C) <2019-2021>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
+#    Copyright (C) <2019-2023>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
 
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,14 +17,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import pandas
 import numpy
 import math
 from utils import strToFloat, floatToStr, calcRMS, convertToAngle
 
-def clacDistancesForFixation(j, k, data_table):
+# Add the local path to the main script and external scripts so we can import them.
+sys.path = [".."] + sys.path
+from asrt import ExperimentSettings
 
-    all_binocular_distances = []
+def calcDistancesForFixation(j, k, data_table):
+
+    all_eye_to_eye_distances = []
     left_gaze_validity = data_table["left_gaze_validity"]
     right_gaze_validity = data_table["right_gaze_validity"]
     left_gaze_data_X_PCMCS = data_table["left_gaze_data_X_PCMCS"]
@@ -33,7 +38,7 @@ def clacDistancesForFixation(j, k, data_table):
     right_gaze_data_Y_PCMCS = data_table["right_gaze_data_Y_PCMCS"]
 
     for i in range(j, k + 1):
-        binocular_distance = -1.0
+        eye_to_eye_distance = -1.0
         if bool(left_gaze_validity[i]) and bool(right_gaze_validity[i]):
             left_X = strToFloat(left_gaze_data_X_PCMCS[i])
             left_Y = strToFloat(left_gaze_data_Y_PCMCS[i])
@@ -41,43 +46,66 @@ def clacDistancesForFixation(j, k, data_table):
             right_Y = strToFloat(right_gaze_data_Y_PCMCS[i])
             X_distance = abs(left_X - right_X)
             Y_distance = abs(left_Y - right_Y)
-            binocular_distance = math.sqrt(pow(X_distance, 2) + pow(Y_distance, 2))
+            eye_to_eye_distance = math.sqrt(pow(X_distance, 2) + pow(Y_distance, 2))
 
-        if binocular_distance > 0.0:
-            all_binocular_distances.append(convertToAngle(binocular_distance))
-    return all_binocular_distances
+        if eye_to_eye_distance > 0.0:
+            all_eye_to_eye_distances.append(convertToAngle(eye_to_eye_distance))
 
-def computeBinocularDistanceImpl(input):
-    data_table = pandas.read_csv(input, sep='\t')
+    return all_eye_to_eye_distances
+
+def computeRMSEyeToEyeImpl(input, preparatory_trial_number, fixation_duration_threshold):
+    data_table = pandas.read_csv(input, sep='\t',
+                                 usecols=['block', 'trial', 'epoch', 'left_gaze_validity', 'right_gaze_validity',
+                                          'left_gaze_data_X_PCMCS', 'left_gaze_data_Y_PCMCS', 'right_gaze_data_X_PCMCS', 'right_gaze_data_Y_PCMCS'])
 
     trial_column = data_table["trial"]
     block_column = data_table["block"]
     epoch_column = data_table["epoch"]
 
-    rmss = []
     epoch_rmss= {}
     for i in range(len(trial_column) - 1):
-        if int(block_column[i]) > 0 and int(trial_column[i]) > 2:
-            if trial_column[i] != trial_column[i + 1]: # end of trial -> 100 ms fixation
-                all_distances = clacDistancesForFixation(i - 11, i, data_table)
-                if len(all_distances) > 0:
-                    current_epoch = int(epoch_column[i])
-                    new_RMS = calcRMS(all_distances)
-                    if current_epoch in epoch_rmss.keys():
-                        epoch_rmss[current_epoch].append(new_RMS)
-                    else:
-                        epoch_rmss[current_epoch] = [new_RMS]
+        # We ignore preparatory trials.
+        if int(trial_column[i]) <= preparatory_trial_number:
+            continue
 
+        # We ignore calibration validation blocks.
+        if str(block_column[i]) == '0':
+            continue
+
+        # end of trial -> check samples of the last fixation (duration threshold shows the number of samples)
+        if trial_column[i] != trial_column[i + 1]:
+            # Distance values for the fixation samples.
+            all_distances = calcDistancesForFixation(i - fixation_duration_threshold + 1, i, data_table)
+            if len(all_distances) > 0:
+                current_epoch = int(epoch_column[i])
+
+                # Calc RMS of all collected distances.
+                new_RMS = calcRMS(all_distances)
+                if current_epoch in epoch_rmss.keys():
+                    epoch_rmss[current_epoch].append(new_RMS)
+                else:
+                    epoch_rmss[current_epoch] = [new_RMS]
+
+    # We compute median RMS(E2E) for all epochs.
     epoch_summary = numpy.zeros(8).tolist()
     for epoch in epoch_rmss.keys():
         epoch_summary[epoch - 1] = floatToStr(numpy.median(epoch_rmss[epoch]))
 
+    if len(epoch_summary) != 8:
+        print("Error: The input data should contain exactly 8 epochs for this data analysis.")
+
     return epoch_summary
 
 def computeRMSEyeToEye(input_dir, output_file):
+    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    try:
+            settings.read_from_file()
+    except:
+        print('Error: Could not read settings file to get the number of preparatory trials.')
+        return
 
     median_rms = []
-    epochs_phases = []
+    subject_epochs = []
     for root, dirs, files in os.walk(input_dir):
         for subject_file in files:
             subject = subject_file.split('_')[1]
@@ -86,11 +114,11 @@ def computeRMSEyeToEye(input_dir, output_file):
             input_file = os.path.join(root, subject_file)
 
             for i in range(1,9):
-                epochs_phases.append("subject_" + subject + "_" + str(i))
+                subject_epochs.append("subject_" + subject + "_" + str(i))
 
-            result = computeBinocularDistanceImpl(input_file)
+            result = computeRMSEyeToEyeImpl(input_file, settings.blockprepN, settings.stim_fixation_threshold)
             median_rms += result
         break
 
-    binocular_distance_data = pandas.DataFrame({'epoch' : epochs_phases, 'RMS(E2E)_median' : median_rms})
-    binocular_distance_data.to_csv(output_file, sep='\t', index=False)
+    RMS_E2E_data = pandas.DataFrame({'epoch' : subject_epochs, 'RMS(E2E)_median' : median_rms})
+    RMS_E2E_data.to_csv(output_file, sep='\t', index=False)
