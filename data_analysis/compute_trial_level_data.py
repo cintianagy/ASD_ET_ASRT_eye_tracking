@@ -52,7 +52,7 @@ def generateOutput(raw_file_name, new_file_name, RT_data, last_AOI_data):
 
     output_data.to_csv(new_file_name, sep='\t', index=False)
 
-def calcRTTrial(start_time_found, start_time, end_time_found, end_time, last_row_of_trial):
+def calcRTTrial(start_time_found, start_time, end_time_found, end_time, last_time_stamp_of_trial):
     # We calculate the elapsed time during the stimulus was on the screen.
     if start_time_found and end_time_found:
         RT_ms = (end_time - start_time) / 1000.0
@@ -62,7 +62,7 @@ def calcRTTrial(start_time_found, start_time, end_time_found, end_time, last_row
     # on to the next trial instantly after the stimulus was hidden. In this case
     # we use the last row of the given trial.
     elif start_time_found:
-        end_time = int(last_row_of_trial['gaze_data_time_stamp'])
+        end_time = last_time_stamp_of_trial
         RT_ms = (end_time - start_time) / 1000.0
         return floatToStr(RT_ms)
 
@@ -71,59 +71,53 @@ def calcRTTrial(start_time_found, start_time, end_time_found, end_time, last_row
         return "0"
 
 def calcRTColumn(raw_file_name):
-    input_data = pandas.read_csv(raw_file_name, sep='\t',
+    data_table = pandas.read_csv(raw_file_name, sep='\t',
                                 usecols=['block', 'trial', 'trial_phase', 'gaze_data_time_stamp'])
+
+    RT_data = []
+    trial_column = data_table["trial"]
+    block_column = data_table["block"]
+    trial_phase_column = data_table["trial_phase"]
+    time_stamp_column = data_table["gaze_data_time_stamp"]
 
     start_time = 0
     end_time = 0
     start_time_found = False
     end_time_found = False
-    RT_data = []
-    previous_row = -1
 
-    for index, row in input_data.iterrows():
+    for i in range(len(trial_column)):
 
         # we reached the next trial's first data (we compute the previous trial's reaction time).
-        if index == 0:
+        if i == 0:
             reached_next_trial = False
         else:
-            reached_next_trial = previous_row['trial'] != row['trial']
+            reached_next_trial = trial_column[i] != trial_column[i - 1]
         if reached_next_trial:
-            # we dont compute RT for 0 indexed blocks, which are calibration validation blocks.
-            if str(previous_row['block']) != "0":
-                RT_data.append(calcRTTrial(start_time_found, start_time, end_time_found, end_time, previous_row))
+            # we don't compute RT for 0 indexed blocks, which are calibration validation blocks.
+            if str(block_column[i - 1]) != "0":
+                RT_data.append(calcRTTrial(start_time_found, start_time, end_time_found, end_time, int(time_stamp_column[i - 1])))
 
             start_time_found = False
             end_time_found = False
 
         # stimulus appears on the screen -> start time
-        if row['trial_phase'] == "stimulus_on_screen" and not start_time_found:
-            start_time = int(row['gaze_data_time_stamp'])
+        if trial_phase_column[i] == "stimulus_on_screen" and not start_time_found:
+            start_time = int(time_stamp_column[i])
             start_time_found = True
 
         # stimulus disappear from the screen -> end time
-        if row['trial_phase'] == "after_reaction" and not end_time_found:
-            end_time = int(previous_row['gaze_data_time_stamp'])
+        if trial_phase_column[i] == "after_reaction" and not end_time_found:
+            end_time = int(time_stamp_column[i - 1])
             end_time_found = True
 
         # we need to handle the last trial differently at the end of the data file.
-        reached_end_of_file = index == len(input_data.index) - 1
+        reached_end_of_file = (i == len(trial_column) - 1)
         if reached_end_of_file:
-            RT_data.append(calcRTTrial(start_time_found, start_time, end_time_found, end_time, row))
-
-        previous_row = row
+            RT_data.append(calcRTTrial(start_time_found, start_time, end_time_found, end_time, int(time_stamp_column[i])))
 
     return RT_data
 
-def getAOI(row):
-    left_gaze_validity = bool(row['left_gaze_validity'])
-    right_gaze_validity = bool(row['right_gaze_validity'])
-
-    left_gaze_X = strToFloat(row['left_gaze_data_X_ADCS'])
-    left_gaze_Y = strToFloat(row['left_gaze_data_Y_ADCS'])
-    right_gaze_X = strToFloat(row['right_gaze_data_X_ADCS'])
-    right_gaze_Y = strToFloat(row['right_gaze_data_Y_ADCS'])
-
+def getAOI(left_gaze_validity, right_gaze_validity, left_gaze_X, left_gaze_Y, right_gaze_X, right_gaze_Y):
     if left_gaze_validity and right_gaze_validity:
         X = (left_gaze_X + right_gaze_X) / 2.0
         Y = (left_gaze_Y + right_gaze_Y) / 2.0
@@ -146,23 +140,31 @@ def getAOI(row):
         return 4
 
 def calcLastAOIColumn(raw_file_name):
-    input_data = pandas.read_csv(raw_file_name, sep='\t',
+    data_table = pandas.read_csv(raw_file_name, sep='\t',
                                 usecols=['block', 'trial', 'trial_phase', 'left_gaze_validity', 'right_gaze_validity',
                                          'left_gaze_data_X_ADCS', 'left_gaze_data_Y_ADCS', 'right_gaze_data_X_ADCS', 'right_gaze_data_Y_ADCS'])
 
     anticipation_data = []
-    last_AOI = -1
-    previous_row = -1
+    trial_column = data_table["trial"]
+    block_column = data_table["block"]
+    trial_phase_column = data_table["trial_phase"]
+    left_gaze_validity_column = data_table["left_gaze_validity"]
+    right_gaze_validity_column = data_table["right_gaze_validity"]
+    left_gaze_data_X_column = data_table["left_gaze_data_X_ADCS"]
+    left_gaze_data_Y_column = data_table["left_gaze_data_Y_ADCS"]
+    right_gaze_data_X_column = data_table["right_gaze_data_X_ADCS"]
+    right_gaze_data_Y_column = data_table["right_gaze_data_Y_ADCS"]
 
-    for index, row in input_data.iterrows():
+    last_AOI = -1
+    for i in range(len(trial_column)):
         # we reached the next trial's first data (we compute the previous trial's last visited AOI).
-        if index == 0:
+        if i == 0:
             reached_next_trial = False
         else:
-            reached_next_trial = previous_row['trial'] != row['trial']
+            reached_next_trial = trial_column[i] != trial_column[i - 1]
         if reached_next_trial:
             # we don't compute last AOI data for 0 indexed blocks, which are calibration validation blocks.
-            if str(previous_row['block']) != "0":
+            if str(block_column[i - 1]) != "0":
                 if last_AOI == -1:
                     anticipation_data.append('none')
                 else:
@@ -170,21 +172,21 @@ def calcLastAOIColumn(raw_file_name):
             last_AOI = -1
 
         # get AOI during RSI
-        if row['trial_phase'] == 'before_stimulus':
-            current_AOI = getAOI(row)
+        if trial_phase_column[i] == 'before_stimulus':
+            current_AOI = getAOI(bool(left_gaze_validity_column[i]), bool(right_gaze_validity_column[i]),
+                                 strToFloat(left_gaze_data_X_column[i]), strToFloat(left_gaze_data_Y_column[i]),
+                                 strToFloat(right_gaze_data_X_column[i]), strToFloat(right_gaze_data_Y_column[i]))
             if current_AOI != -1:
                 last_AOI = current_AOI
 
         # we need to handle the last trial differently at the end of the data file.
-        reached_end_of_file = index == len(input_data.index) - 1
+        reached_end_of_file = (i == len(trial_column) - 1)
         if reached_end_of_file:
             if last_AOI == -1:
                 anticipation_data.append('none')
             else:
                 anticipation_data.append(last_AOI)
             last_AOI = -1
-
-        previous_row = row
 
     return anticipation_data
 
