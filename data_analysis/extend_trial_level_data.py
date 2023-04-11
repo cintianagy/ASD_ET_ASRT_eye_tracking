@@ -23,8 +23,12 @@ def computeRepetitionColumn(data_table):
     stimulus_column = data_table["stimulus"]
     trial_column = data_table["trial"]
 
+    # A trial is repetition if the previous trial has the same stimulus
     for i in range(len(stimulus_column)):
-        if trial_column[i] > 1 and stimulus_column[i] == stimulus_column[i - 1]:
+        # Can't calculate for the first trial of the block, because there is no previous trial.
+        if trial_column[i] <= 1:
+            repetition_column.append(False)
+        elif stimulus_column[i] == stimulus_column[i - 1]:
             repetition_column.append(True)
         else:
             repetition_column.append(False)
@@ -36,15 +40,30 @@ def computeTrillColumn(data_table):
     stimulus_column = data_table["stimulus"]
     trial_column = data_table["trial"]
 
+    # A trial is a trill if the first and third item of the current triplet has the same
+    # stimulus, but the middle item of the triplet is different.
     for i in range(len(stimulus_column)):
-        if ( trial_column[i] > 2 and
-            stimulus_column[i] != stimulus_column[i - 1] and
-            stimulus_column[i] == stimulus_column[i - 2] ):
+        # Can't calculate for the first two trials of the block, because there is no triplet we can use.
+        if trial_column[i] <= 2:
+            trill_column.append(False)
+        elif ( stimulus_column[i] != stimulus_column[i - 1] and
+             stimulus_column[i] == stimulus_column[i - 2] ):
             trill_column.append(True)
         else:
             trill_column.append(False)
 
     return trill_column
+
+def findLearningSequence(data_table):
+    PCode_colum = data_table["PCode"]
+
+    # We find the first valid PCode, that will be the learning sequence.
+    for i in range(len(PCode_colum)):
+        if str(PCode_colum[i]) != "noPattern":
+            return str(PCode_colum[i])
+
+    print("Error: Could not find a valid learning sequence in the data.")
+    return ""
 
 def computeHighLowBasedOnLearningSequence(data_table):
     high_low_column = []
@@ -52,17 +71,18 @@ def computeHighLowBasedOnLearningSequence(data_table):
     trial_column = data_table["trial"]
 
     # get the learning sequence
-    learning_sequence = data_table["PCode"][5 * 82]
+    learning_sequence = findLearningSequence(data_table)
     learning_sequence += learning_sequence[0]
 
+    # We calculate wether the current triplet is a high or low triplet based on the learning sequence.
     for i in range(len(stimulus_column)):
-        if trial_column[i] > 2:
-            if (str(stimulus_column[i - 2]) + str(stimulus_column[i])) in learning_sequence:
-                high_low_column.append('high')
-            else:
-                high_low_column.append('low')
-        else:
+        # Can't calculate for the first two trials of the block, because there is no triplet we can use.
+        if trial_column[i] <= 2:
             high_low_column.append('none')
+        elif (str(stimulus_column[i - 2]) + str(stimulus_column[i])) in learning_sequence:
+            high_low_column.append('high')
+        else:
+            high_low_column.append('low')
 
     return high_low_column
 
@@ -72,8 +92,14 @@ def computeAnticipationColumn(data_table):
     last_AOI_column = data_table["last_AOI_before_stimulus"]
     trial_column = data_table["trial"]
 
+    # We calculate wether the last AOI during the current RSI was different from the
+    # AOI of the last trial. So the the eye was moved after the last trial.
     for i in range(len(stimulus_column)):
-        if trial_column[i] <= 1 or last_AOI_column[i] == 'none':
+        # Can't calculate for the first trial of the block, because there is no previous trial.
+        if trial_column[i] <= 1:
+            anticipation_column.append(False)
+        # There is no valid AOI data recorded during RSI.
+        elif last_AOI_column[i] == 'none':
             anticipation_column.append(False)
         elif int(last_AOI_column[i]) != int(stimulus_column[i - 1]):
             anticipation_column.append(True)
@@ -86,16 +112,22 @@ def computeLearntAnticipationColumn(data_table):
     learnt_anticipation_data = []
     stimulus_column = data_table["stimulus"]
     last_AOI_column = data_table["last_AOI_before_stimulus"]
+    trial_column = data_table["trial"]
 
-    # get the learning sequence
-    learning_sequence = data_table["PCode"][5 * 82]
+    learning_sequence = findLearningSequence(data_table)
     learning_sequence += learning_sequence[0]
 
     for i in range(len(stimulus_column)):
-        if last_AOI_column[i] == 'none' or i < 2:
+        # Can't calculate for the first two trials of the block, because there is no triplet we can use.
+        if trial_column[i] <= 2:
             learnt_anticipation_data.append(False)
+        # There is no valid AOI data recorded during RSI.
+        elif last_AOI_column[i] == 'none':
+            learnt_anticipation_data.append(False)
+        # No anticipation eye movement. Eye is in the same AOI where the previous stimulus was.
         elif int(last_AOI_column[i]) == int(stimulus_column[i - 1]):
             learnt_anticipation_data.append(False)
+        # The last registered AOI during RSI follows the learning sequence.
         elif str(stimulus_column[i - 2]) + str(last_AOI_column[i]) in learning_sequence:
             learnt_anticipation_data.append(True)
         else:
@@ -121,12 +153,12 @@ def extendTrialLevelData(input_file, output_file):
     assert(len(high_low_data) == len(data_table.index))
     data_table["high_low_learning"] = high_low_data
 
-    # calculate whether anticipatory eye-movement was happened
+    # calculate whether anticipatory eye-movement has happened
     anticipation_data = computeAnticipationColumn(data_table)
     assert(len(anticipation_data) == len(data_table.index))
     data_table["has_anticipation"] = anticipation_data
 
-    # calculate whether correct anticipatory eye-movement was happened
+    # calculate whether learning dependent anticipatory eye-movement has happened
     learnt_anticipation_data = computeLearntAnticipationColumn(data_table)
     assert(len(learnt_anticipation_data) == len(data_table.index))
     data_table["has_learnt_anticipation"] = learnt_anticipation_data
