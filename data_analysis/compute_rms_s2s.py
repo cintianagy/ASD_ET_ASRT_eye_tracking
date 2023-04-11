@@ -85,9 +85,13 @@ def computeRMSSampleToSampleImpl(input, preparatory_trial_number, fixation_durat
             continue
 
         # end of trial -> check samples of the last fixation (duration threshold shows the number of samples)
-        if trial_column[i] != trial_column[i + 1]:
+        if trial_column[i] != trial_column[i + 1] or i + 1 == len(trial_column) - 1:
             # Distance values for the fixation samples.
-            all_distances = calcDistancesForFixation(i - fixation_duration_threshold + 1, i, data_table)
+            if i + 1 == len(trial_column) - 1:
+                all_distances = calcDistancesForFixation(i - fixation_duration_threshold + 2, i + 1, data_table)
+            else:
+                all_distances = calcDistancesForFixation(i - fixation_duration_threshold + 1, i, data_table)
+
             if len(all_distances) > 0:
                 current_epoch = int(epoch_column[i])
 
