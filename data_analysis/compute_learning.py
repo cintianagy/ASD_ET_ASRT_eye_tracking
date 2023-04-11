@@ -37,7 +37,7 @@ def calcEpochMedianRTsLearning(input_file, subject):
     high_median_array = []
     low_median_array = []
     for i in range(len(RT_column) + 1):
-        # end of the epoch -> calc median for low and high trials
+        # End of the epoch -> calc median for low and high trials of the previous epoch.
         if i == len(RT_column) or previous_epoch != epoch_column[i]:
             assert(len(high_RT_list) > 0)
             assert(len(low_RT_list) > 0)
@@ -49,12 +49,19 @@ def calcEpochMedianRTsLearning(input_file, subject):
             low_median_array.append(floatToStr(low_median))
             low_RT_list = []
 
+            # We are at the end of the data (actually we run out of the data range).
+            # After we calculated the median RTs for the last epoch, we exit the loop.
             if i == len(RT_column):
                 break
+
+            previous_epoch = epoch_column[i]
 
         # we ignore the first two trials, repetitions and trills
         if trial_column[i] <= 2 or repetition_column[i] == "True" or trill_column[i] == "True":
             continue
+
+        assert(repetition_column[i] == "False")
+        assert(trill_column[i] == "False")
 
         # We collect the high and low reaction times.
         if trial_type_column[i] == 'high':
@@ -62,11 +69,8 @@ def calcEpochMedianRTsLearning(input_file, subject):
         elif trial_type_column[i] == 'low':
             low_RT_list.append(strToFloat(RT_column[i]))
 
-        previous_epoch = epoch_column[i]
-
-    # 8 epochs
-    assert(len(low_median_array) == 8)
-    assert(len(high_median_array) == 8)
+    if len(low_median_array) != 8 or len(high_median_array) != 8:
+        print("Error: The input data should contain exactly 8 epochs for this data analysis.")
     return low_median_array, high_median_array
 
 def computeStatisticalLearning(input_dir, output_file):
