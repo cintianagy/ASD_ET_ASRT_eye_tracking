@@ -25,7 +25,7 @@ from utils import strToFloat, floatToStr
 sys.path = [".."] + sys.path
 from asrt import ExperimentSettings
 
-def computeAnticipationDataForOneSubject(input_file, subject, preparatory_trial_number):
+def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
     anticipation_column = input_data_table["has_anticipation"]
@@ -87,11 +87,11 @@ def computeAnticipatoryData(input_dir, output_file):
         for file in files:
 
             input_file = os.path.join(input_dir, file)
-            subject = int(file.split('_')[1])
+            subject = file.split('_')[1]
 
-            print("Compute anticipatory data for subject: " + str(subject))
+            print("Compute anticipatory data for subject: " + subject)
 
-            learnt_anticipation_ratios = computeAnticipationDataForOneSubject(input_file, subject, settings.blockprepN)
+            learnt_anticipation_ratios = computeAnticipationDataForOneSubject(input_file, settings.blockprepN)
             anticipation_data.loc[len(anticipation_data)] = [subject] + learnt_anticipation_ratios
         break
 

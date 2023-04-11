@@ -26,7 +26,7 @@ from utils import strToFloat, floatToStr
 sys.path = [".."] + sys.path
 from asrt import ExperimentSettings
 
-def calcEpochMedianRTsLearning(input_file, subject, preparatory_trial_number):
+def calcEpochMedianRTsLearning(input_file, preparatory_trial_number):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
     RT_column = input_data_table["RT (ms)"]
@@ -95,11 +95,11 @@ def computeStatisticalLearning(input_dir, output_file):
         for file in files:
 
             input_file = os.path.join(input_dir, file)
-            subject = int(file.split('_')[1])
+            subject = file.split('_')[1]
 
-            print("Compute statistical learning for subject: " + str(subject))
+            print("Compute statistical learning for subject: " + subject)
 
-            low_medians, high_medians = calcEpochMedianRTsLearning(input_file, subject, settings.blockprepN)
+            low_medians, high_medians = calcEpochMedianRTsLearning(input_file, settings.blockprepN)
             learning_data.loc[len(learning_data)] = [subject] + low_medians + high_medians
         break
 
