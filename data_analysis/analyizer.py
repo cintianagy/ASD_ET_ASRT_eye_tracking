@@ -26,6 +26,8 @@ from extend_trial_level_data import extendTrialLevelData
 from compute_learning import computeStatisticalLearning
 from compute_anticipatory import computeAnticipatoryData
 
+from compute_missing_data_ratio import computeMissingDataRatio
+
 import validate_trial_data as vtd
 import validate_extended_data as ved
 import compute_learning as cl
@@ -141,7 +143,7 @@ def compute_missing_data_ratio(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'missing_data_ratio.csv')
-    cmd.computeMissingDataRatio(input_dir, output_file)
+    computeMissingDataRatio(input_dir, output_file)
 
 def compute_distance(input_dir, output_dir):
     setupOutputDir(output_dir)

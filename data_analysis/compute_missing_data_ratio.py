@@ -17,12 +17,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import pandas
 import numpy
 from utils import strToFloat, floatToStr
 
-def computeMissingDataRatioImpl(input):
-    data_table = pandas.read_csv(input, sep='\t')
+# Add the local path to the main script and external scripts so we can import them.
+sys.path = [".."] + sys.path
+from asrt import ExperimentSettings
+
+def computeMissingDataRatioImpl(input, preparatory_trial_number):
+    data_table = pandas.read_csv(input, sep='\t',
+                                 usecols=['block', 'trial', 'epoch', 'left_gaze_validity', 'right_gaze_validity'])
 
     trial_column = data_table["trial"]
     block_column = data_table["block"]
@@ -30,47 +36,66 @@ def computeMissingDataRatioImpl(input):
     left_gaze_validity = data_table["left_gaze_validity"]
     right_gaze_validity = data_table["right_gaze_validity"]
 
-    epoch_all = {}
-    epoch_missing = {}
+    epoch_all_data = {}
+    epoch_missing_data = {}
     for i in range(len(trial_column)):
-        if int(trial_column[i]) > 2 and int(block_column[i]) > 0:
-            current_epoch = int(epoch_column[i])
-            if current_epoch in epoch_all.keys():
-                epoch_all[current_epoch] += 1
+        # We ignore preparatory trials.
+        if int(trial_column[i]) <= preparatory_trial_number:
+            continue
+
+        # We ignore calibration validation trials.
+        if str(block_column[i]) == '0':
+            continue
+
+        current_epoch = int(epoch_column[i])
+
+        # We count all eye-tracking samples for the current epoch.
+        if current_epoch in epoch_all_data.keys():
+            epoch_all_data[current_epoch] += 1.0
+        else:
+            epoch_all_data[current_epoch] = 1.0
+
+        # We count all missing eye-tracking data for the current epoch.
+        if not bool(left_gaze_validity[i]) and not bool(right_gaze_validity[i]):
+            if current_epoch in epoch_missing_data.keys():
+                epoch_missing_data[current_epoch] += 1.0
             else:
-                epoch_all[current_epoch] = 1
+                epoch_missing_data[current_epoch] = 1.0
 
-            if not bool(left_gaze_validity[i]) and not bool(right_gaze_validity[i]):
-                if current_epoch in epoch_missing.keys():
-                    epoch_missing[current_epoch] += 1
-                else:
-                    epoch_missing[current_epoch] = 1
-
+    # We compute missing data ratio for all epochs.
     epoch_summary = numpy.zeros(8).tolist()
-    for epoch in epoch_all.keys():
-        epoch_summary[epoch - 1] = floatToStr((epoch_missing[epoch] / epoch_all[epoch]) * 100.0)
+    for epoch in epoch_all_data.keys():
+        epoch_summary[epoch - 1] = floatToStr((epoch_missing_data[epoch] / epoch_all_data[epoch]) * 100.0)
+
+    if len(epoch_summary) != 8:
+        print("Error: The input data should contain exactly 8 epochs for this data analysis.")
 
     return epoch_summary
 
 def computeMissingDataRatio(input_dir, output_file):
+    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    try:
+            settings.read_from_file()
+    except:
+        print('Error: Could not read settings file to get the number of preparatory trials.')
+        return
 
     missing_data_ratios = []
-    epochs_phases = []
+    subject_epochs = []
     for root, dirs, files in os.walk(input_dir):
-        for subject in dirs:
-            if subject.startswith('.'):
-                continue
+        for subject_file in files:
+            subject = int(subject_file.split('_')[1])
 
-            print("Compute missing data ratio for subject(ASRT): " + subject)
-            input_file = os.path.join(root, subject, 'subject_' + subject + '__log.txt')
+            print("Compute missing data ratio for subject: " + str(subject))
+            input_file = os.path.join(root, subject_file)
 
             for i in range(1,9):
-                epochs_phases.append("subject_" + subject + "_" + str(i))
+                subject_epochs.append("subject_" + str(subject) + "_" + str(i))
 
-            result = computeMissingDataRatioImpl(input_file)
+            result = computeMissingDataRatioImpl(input_file, settings.blockprepN)
 
             missing_data_ratios += result
         break
 
-    missing_data = pandas.DataFrame({'epoch' : epochs_phases, 'missing_data_ratio' : missing_data_ratios})
+    missing_data = pandas.DataFrame({'epoch' : subject_epochs, 'missing_data_ratio' : missing_data_ratios})
     missing_data.to_csv(output_file, sep='\t', index=False)
