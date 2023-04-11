@@ -56,12 +56,11 @@ def clacDistancesForFixation(j, k, data_table):
     
     return all_distances
 
-def computeRMSImpl(input):
+def computeRMSSampleToSampleImpl(input):
     data_table = pandas.read_csv(input, sep='\t')
 
     trial_column = data_table["trial"]
     block_column = data_table["block"]
-    epoch_column = data_table["epoch"]
     epoch_column = data_table["epoch"]
 
     rmss = []
@@ -85,7 +84,7 @@ def computeRMSImpl(input):
 
     return epoch_summary
 
-def computeRMS(input_dir, output_file):
+def computeRMSSampleToSample(input_dir, output_file):
 
     median_rmss = []
     epochs_phases = []
@@ -100,7 +99,7 @@ def computeRMS(input_dir, output_file):
             for i in range(1,9):
                 epochs_phases.append("subject_" + subject + "_" + str(i))
 
-            RMS = computeRMSImpl(input_file)
+            RMS = computeRMSSampleToSampleImpl(input_file)
             median_rmss += RMS
         break
 

@@ -28,6 +28,7 @@ from compute_anticipatory import computeAnticipatoryData
 
 from compute_missing_data_ratio import computeMissingDataRatio
 from compute_distance import computeDistance
+from compute_rms_s2s import computeRMSSampleToSample
 
 import validate_trial_data as vtd
 import validate_extended_data as ved
@@ -39,7 +40,6 @@ import validate_anticipatory as va
 import compute_missing_data_ratio as cmd
 import compute_binocular_distance as cbd
 import compute_extreme_RT as cert
-import compute_rms as crms
 
 def setupOutputDir(dir_path):
     if os.path.exists(dir_path):
@@ -163,11 +163,11 @@ def compute_extreme_RT(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'extreme_RT_averages.csv')
     cert.computeExtremeRTAverages(input_dir, output_file)
 
-def compute_RMS(input_dir, output_dir):
+def compute_RMS_S2S(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'RMS(S2S)_data.csv')
-    crms.computeRMS(input_dir, output_file)
+    computeRMSSampleToSample(input_dir, output_file)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
