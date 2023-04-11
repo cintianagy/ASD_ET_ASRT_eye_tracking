@@ -16,11 +16,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import os
 import pandas
 from utils import strToFloat, floatToStr
 
-def computeAnticipationDataForOneSubject(input_file, subject):
+# Add the local path to the main script and external scripts so we can import them.
+sys.path = [".."] + sys.path
+from asrt import ExperimentSettings
+
+def computeAnticipationDataForOneSubject(input_file, subject, preparatory_trial_number):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
     anticipation_column = input_data_table["has_anticipation"]
@@ -50,7 +55,7 @@ def computeAnticipationDataForOneSubject(input_file, subject):
         current_epoch = epoch_column[i]
 
         # we ignore the first two trials, repetitions and trills
-        if trial_column[i] <= 2 or repetition_column[i] == "True" or trill_column[i] == "True":
+        if trial_column[i] <= preparatory_trial_number or repetition_column[i] == "True" or trill_column[i] == "True":
             continue
 
         assert(repetition_column[i] == "False")
@@ -69,6 +74,13 @@ def computeAnticipatoryData(input_dir, output_file):
                                                   'epoch_1_learnt_anticip_ratio', 'epoch_2_learnt_anticip_ratio', 'epoch_3_learnt_anticip_ratio', 'epoch_4_learnt_anticip_ratio',
                                                   'epoch_5_learnt_anticip_ratio', 'epoch_6_learnt_anticip_ratio', 'epoch_7_learnt_anticip_ratio', 'epoch_8_learnt_anticip_ratio'])
 
+    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    try:
+            settings.read_from_file()
+    except:
+        print('Error: Could not read settings file to get the number of preparatory trials.')
+        return
+
     for root, dirs, files in os.walk(input_dir):
         for file in files:
 
@@ -77,7 +89,7 @@ def computeAnticipatoryData(input_dir, output_file):
 
             print("Compute anticipatory data for subject: " + str(subject))
 
-            learnt_anticipation_ratios = computeAnticipationDataForOneSubject(input_file, subject)
+            learnt_anticipation_ratios = computeAnticipationDataForOneSubject(input_file, subject, settings.blockprepN)
             anticipation_data.loc[len(anticipation_data)] = [subject] + learnt_anticipation_ratios
         break
 

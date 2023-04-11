@@ -17,11 +17,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import pandas
 import numpy
 from utils import strToFloat, floatToStr
 
-def calcEpochMedianRTsLearning(input_file, subject):
+# Add the local path to the main script and external scripts so we can import them.
+sys.path = [".."] + sys.path
+from asrt import ExperimentSettings
+
+def calcEpochMedianRTsLearning(input_file, subject, preparatory_trial_number):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
     RT_column = input_data_table["RT (ms)"]
@@ -57,7 +62,7 @@ def calcEpochMedianRTsLearning(input_file, subject):
             previous_epoch = epoch_column[i]
 
         # we ignore the first two trials, repetitions and trills
-        if trial_column[i] <= 2 or repetition_column[i] == "True" or trill_column[i] == "True":
+        if trial_column[i] <= preparatory_trial_number or repetition_column[i] == "True" or trill_column[i] == "True":
             continue
 
         assert(repetition_column[i] == "False")
@@ -79,6 +84,13 @@ def computeStatisticalLearning(input_dir, output_file):
                                               'epoch_1_high', 'epoch_2_high', 'epoch_3_high', 'epoch_4_high',
                                               'epoch_5_high', 'epoch_6_high', 'epoch_7_high', 'epoch_8_high'])
 
+    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    try:
+            settings.read_from_file()
+    except:
+        print('Error: Could not read settings file to get the number of preparatory trials.')
+        return
+
     for root, dirs, files in os.walk(input_dir):
         for file in files:
 
@@ -87,7 +99,7 @@ def computeStatisticalLearning(input_dir, output_file):
 
             print("Compute statistical learning for subject: " + str(subject))
 
-            low_medians, high_medians = calcEpochMedianRTsLearning(input_file, subject)
+            low_medians, high_medians = calcEpochMedianRTsLearning(input_file, subject, settings.blockprepN)
             learning_data.loc[len(learning_data)] = [subject] + low_medians + high_medians
         break
 
