@@ -37,7 +37,6 @@ import validate_extended_data as ved
 import validate_learning as vl
 import validate_interference as vi
 import validate_anticipatory as va
-import compute_extreme_RT as cert
 
 def setupOutputDir(dir_path):
     if os.path.exists(dir_path):
@@ -154,12 +153,6 @@ def compute_RMS_E2E(input_dir, output_dir):
 
     output_file = os.path.join(output_dir, 'RMS(E2E)_data.csv')
     computeRMSEyeToEye(input_dir, output_file)
-
-def compute_extreme_RT(input_dir, output_dir):
-    setupOutputDir(output_dir)
-
-    output_file = os.path.join(output_dir, 'extreme_RT_averages.csv')
-    cert.computeExtremeRTAverages(input_dir, output_file)
 
 def compute_RMS_S2S(input_dir, output_dir):
     setupOutputDir(output_dir)
