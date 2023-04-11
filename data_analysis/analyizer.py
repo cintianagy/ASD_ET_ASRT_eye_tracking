@@ -23,6 +23,7 @@ import time
 
 from compute_trial_level_data import computeTrialLevelData
 from extend_trial_level_data import extendTrialLevelData
+from compute_learning import computeStatisticalLearning
 
 import validate_trial_data as vtd
 import validate_extended_data as ved
@@ -104,38 +105,16 @@ def validate_extended_trial_data(input_dir):
 
         break
 
-def compute_implicit_learning(input_dir, output_dir):
+def compute_statistical_learning(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'statistical_learning_RT.csv')
-    cl.computeImplicitLearning(input_dir, output_file)
+    cl.computeStatisticalLearning(input_dir, output_file)
 
 def validate_implicit_learning(input_dir, output_dir):
 
     output_file = os.path.join(output_dir, 'statistical_learning_RT.csv')
     vl.validateImplicitLearning(input_dir, output_file)
-
-def compute_sequence_learning(input_dir, output_dir):
-    setupOutputDir(output_dir)
-
-    output_file = os.path.join(output_dir, 'sequence_learning.csv')
-    cl.computeSequenceLearning(input_dir, output_file)
-
-def validate_sequence_learning(input_dir, output_dir):
-
-    output_file = os.path.join(output_dir, 'sequence_learning.csv')
-    vl.validateSequenceLearning(input_dir, output_file)
-
-def compute_statistical_learning(input_dir, output_dir):
-    setupOutputDir(output_dir)
-
-    output_file = os.path.join(output_dir, 'statistical_learning.csv')
-    cl.computeStatisticalLearning(input_dir, output_file)
-
-def validate_statistical_learning(input_dir, output_dir):
-
-    output_file = os.path.join(output_dir, 'statistical_learning.csv')
-    vl.validateStatisticalLearning(input_dir, output_file)
 
 def compute_interference_data(input_dir, output_dir):
     setupOutputDir(output_dir)
