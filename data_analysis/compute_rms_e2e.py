@@ -74,17 +74,16 @@ def computeBinocularDistanceImpl(input):
 
     return epoch_summary
 
-def computeBinocularDistance(input_dir, output_file):
+def computeRMSEyeToEye(input_dir, output_file):
 
     median_rms = []
     epochs_phases = []
     for root, dirs, files in os.walk(input_dir):
-        for subject in dirs:
-            if subject.startswith('.'):
-                continue
+        for subject_file in files:
+            subject = subject_file.split('_')[1]
 
-            print("Compute eye-eye distance data for subject (ASRT): " + subject)
-            input_file = os.path.join(root, subject, 'subject_' + subject + '__log.txt')
+            print("Compute RMS(E2E) for subject:  " + subject)
+            input_file = os.path.join(root, subject_file)
 
             for i in range(1,9):
                 epochs_phases.append("subject_" + subject + "_" + str(i))

@@ -29,6 +29,7 @@ from compute_anticipatory import computeAnticipatoryData
 from compute_missing_data_ratio import computeMissingDataRatio
 from compute_distance import computeDistance
 from compute_rms_s2s import computeRMSSampleToSample
+from compute_rms_e2e import computeRMSEyeToEye
 
 import validate_trial_data as vtd
 import validate_extended_data as ved
@@ -38,7 +39,6 @@ import compute_interference as ci
 import validate_interference as vi
 import validate_anticipatory as va
 import compute_missing_data_ratio as cmd
-import compute_binocular_distance as cbd
 import compute_extreme_RT as cert
 
 def setupOutputDir(dir_path):
@@ -151,11 +151,11 @@ def compute_distance(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'screen_eye_distance_data.csv')
     computeDistance(input_dir, output_file)
 
-def compute_binocular_distance(input_dir, output_dir):
+def compute_RMS_E2E(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'RMS(E2E)_data.csv')
-    cbd.computeBinocularDistance(input_dir, output_file)
+    computeRMSEyeToEye(input_dir, output_file)
 
 def compute_extreme_RT(input_dir, output_dir):
     setupOutputDir(output_dir)
