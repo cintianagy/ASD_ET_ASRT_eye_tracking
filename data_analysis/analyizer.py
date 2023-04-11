@@ -24,6 +24,7 @@ import time
 from compute_trial_level_data import computeTrialLevelData
 from extend_trial_level_data import extendTrialLevelData
 from compute_learning import computeStatisticalLearning
+from compute_anticipatory import computeAnticipatoryData
 
 import validate_trial_data as vtd
 import validate_extended_data as ved
@@ -31,7 +32,6 @@ import compute_learning as cl
 import validate_learning as vl
 import compute_interference as ci
 import validate_interference as vi
-import compute_anticipatory as ca
 import validate_anticipatory as va
 import compute_missing_data_ratio as cmd
 import compute_distance as cd
@@ -130,7 +130,7 @@ def compute_anticipatory_data(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'anticipatory_data.csv')
-    ca.computeAnticipatoryData(input_dir, output_file)
+    computeAnticipatoryData(input_dir, output_file)
 
 def validate_anticipatory_data(input_dir, output_dir):
 
