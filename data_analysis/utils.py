@@ -34,6 +34,8 @@ def calcRMS(values):
     return math.sqrt(mean)
 
 def convertToAngle(value_cm):
+    # This eye distance is the optimal eye-distance for Tobii Pro X3–120 eye-tracking distance.
+    # We use this optimal value as an approximation of the actual screen distance.
     eye_screen_distance_cm = 65.0
     return math.degrees(math.atan(value_cm / eye_screen_distance_cm))
 
