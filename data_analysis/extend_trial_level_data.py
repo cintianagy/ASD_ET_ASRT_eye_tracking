@@ -27,7 +27,7 @@ def computeRepetitionColumn(data_table):
     for i in range(len(stimulus_column)):
         # Can't calculate for the first trial of the block, because there is no previous trial.
         if trial_column[i] <= 1:
-            repetition_column.append(False)
+            repetition_column.append('none')
         elif stimulus_column[i] == stimulus_column[i - 1]:
             repetition_column.append(True)
         else:
@@ -45,7 +45,7 @@ def computeTrillColumn(data_table):
     for i in range(len(stimulus_column)):
         # Can't calculate for the first two trials of the block, because there is no triplet we can use.
         if trial_column[i] <= 2:
-            trill_column.append(False)
+            trill_column.append('none')
         elif ( stimulus_column[i] != stimulus_column[i - 1] and
              stimulus_column[i] == stimulus_column[i - 2] ):
             trill_column.append(True)
@@ -97,7 +97,7 @@ def computeAnticipationColumn(data_table):
     for i in range(len(stimulus_column)):
         # Can't calculate for the first trial of the block, because there is no previous trial.
         if trial_column[i] <= 1:
-            anticipation_column.append(False)
+            anticipation_column.append('none')
         # There is no valid AOI data recorded during RSI.
         elif last_AOI_column[i] == 'none':
             anticipation_column.append(False)
@@ -120,7 +120,7 @@ def computeLearntAnticipationColumn(data_table):
     for i in range(len(stimulus_column)):
         # Can't calculate for the first two trials of the block, because there is no triplet we can use.
         if trial_column[i] <= 2:
-            learnt_anticipation_data.append(False)
+            learnt_anticipation_data.append('none')
         # There is no valid AOI data recorded during RSI.
         elif last_AOI_column[i] == 'none':
             learnt_anticipation_data.append(False)
