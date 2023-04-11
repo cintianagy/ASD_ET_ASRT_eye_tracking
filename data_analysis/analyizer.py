@@ -27,6 +27,7 @@ from compute_learning import computeStatisticalLearning
 from compute_anticipatory import computeAnticipatoryData
 
 from compute_missing_data_ratio import computeMissingDataRatio
+from compute_distance import computeDistance
 
 import validate_trial_data as vtd
 import validate_extended_data as ved
@@ -36,7 +37,6 @@ import compute_interference as ci
 import validate_interference as vi
 import validate_anticipatory as va
 import compute_missing_data_ratio as cmd
-import compute_distance as cd
 import compute_binocular_distance as cbd
 import compute_extreme_RT as cert
 import compute_rms as crms
@@ -149,7 +149,7 @@ def compute_distance(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'screen_eye_distance_data.csv')
-    cd.computeDistance(input_dir, output_file)
+    computeDistance(input_dir, output_file)
 
 def compute_binocular_distance(input_dir, output_dir):
     setupOutputDir(output_dir)
