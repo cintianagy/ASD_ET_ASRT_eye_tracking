@@ -73,7 +73,7 @@ def computeAnticipationColumn(data_table):
     trial_column = data_table["trial"]
 
     for i in range(len(stimulus_column)):
-        if trial_column[i] <= 2 or last_AOI_column[i] == 'none':
+        if trial_column[i] <= 1 or last_AOI_column[i] == 'none':
             anticipation_column.append(False)
         elif int(last_AOI_column[i]) != int(stimulus_column[i - 1]):
             anticipation_column.append(True)
