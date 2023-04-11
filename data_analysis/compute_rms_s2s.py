@@ -132,5 +132,5 @@ def computeRMSSampleToSample(input_dir, output_file):
             median_rmss += RMS
         break
 
-    distance_data = pandas.DataFrame({'epoch' : subject_epochs, 'RMS(S2S)_median' : median_rmss})
-    distance_data.to_csv(output_file, sep='\t', index=False)
+    RMS_S2S_data = pandas.DataFrame({'epoch' : subject_epochs, 'RMS(S2S)_median' : median_rmss})
+    RMS_S2S_data.to_csv(output_file, sep='\t', index=False)
