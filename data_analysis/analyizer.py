@@ -25,6 +25,7 @@ from compute_trial_level_data import computeTrialLevelData
 from extend_trial_level_data import extendTrialLevelData
 from compute_learning import computeStatisticalLearning
 from compute_anticipatory import computeAnticipatoryData
+from compute_interference import computeInterferenceData
 
 from compute_missing_data_ratio import computeMissingDataRatio
 from compute_distance import computeDistance
@@ -33,12 +34,9 @@ from compute_rms_e2e import computeRMSEyeToEye
 
 import validate_trial_data as vtd
 import validate_extended_data as ved
-import compute_learning as cl
 import validate_learning as vl
-import compute_interference as ci
 import validate_interference as vi
 import validate_anticipatory as va
-import compute_missing_data_ratio as cmd
 import compute_extreme_RT as cert
 
 def setupOutputDir(dir_path):
@@ -122,7 +120,7 @@ def compute_interference_data(input_dir, output_dir):
     setupOutputDir(output_dir)
 
     output_file = os.path.join(output_dir, 'interference_HL_LL_LH.csv')
-    ci.computeInterferenceData(input_dir, output_file)
+    computeInterferenceData(input_dir, output_file)
 
 def validate_interference_data(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'interference_HL_LL_LH.csv')
