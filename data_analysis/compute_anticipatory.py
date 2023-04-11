@@ -67,6 +67,8 @@ def computeAnticipationDataForOneSubject(input_file, subject, preparatory_trial_
         if str(correct_anticipation_column[i]) == 'True':
             learnt_anticipation += 1
 
+    if len(learnt_anticipation_ratios) != 8:
+        print("Error: The input data should contain exactly 8 epochs for this data analysis.")
     return learnt_anticipation_ratios
 
 def computeAnticipatoryData(input_dir, output_file):
