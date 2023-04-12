@@ -50,21 +50,22 @@ def computeDistanceImpl(input, preparatory_trial_number):
             continue
 
         # Use the distance from the valid eye data. If there is two, we use average.
-        distance = -1.0
+        distance_mm = -1.0
         if bool(left_gaze_validity[i]) and bool(right_gaze_validity[i]):
-            distance = (strToFloat(left_eye_distance[i]) + strToFloat(right_eye_distance[i])) / 2.0
+            distance_mm = (strToFloat(left_eye_distance[i]) + strToFloat(right_eye_distance[i])) / 2.0
         elif bool(left_gaze_validity[i]):
-            distance = strToFloat(left_eye_distance[i])
+            distance_mm = strToFloat(left_eye_distance[i])
         elif bool(right_gaze_validity[i]):
-            distance = strToFloat(right_eye_distance[i])
+            distance_mm = strToFloat(right_eye_distance[i])
 
         # Collect all distances of all epochs,
-        if distance > 0.0:
+        if distance_mm > 0.0:
+            distance_cm = distance_mm / 10.0
             current_epoch = int(epoch_column[i])
             if current_epoch in epoch_distances.keys():
-                epoch_distances[current_epoch].append(distance)
+                epoch_distances[current_epoch].append(distance_cm)
             else:
-                epoch_distances[current_epoch] = [distance]
+                epoch_distances[current_epoch] = [distance_cm]
 
     # Compute median distance of subject eyes for all epochs.
     epoch_summary = numpy.zeros(8).tolist()
@@ -100,5 +101,5 @@ def computeDistance(input_dir, output_file):
             median_distances += epoch_medians
         break
 
-    distance_data = pandas.DataFrame({'epoch' : subject_epochs, 'median_distance_mm' : median_distances})
+    distance_data = pandas.DataFrame({'epoch' : subject_epochs, 'median_distance_cm' : median_distances})
     distance_data.to_csv(output_file, sep='\t', index=False)
