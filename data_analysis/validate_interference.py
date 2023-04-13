@@ -92,6 +92,8 @@ def validateInterferenceData(input_dir, output_file):
             input_file = os.path.join(input_dir, file)
             subject = int(file.split('_')[1])
 
+            print("Validate interference data for subject: " + str(subject))
+
             high_low_median, low_low_median, low_high_median = readEpochMedianData(output_file, subject)
             validateSubjectInterferenceData(input_file, high_low_median, low_low_median, low_high_median)
         break
