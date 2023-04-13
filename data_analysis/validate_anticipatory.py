@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#    Copyright (C) <2019-2021>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
+#    Copyright (C) <2019-2023>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
 
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,53 +21,72 @@ import pandas
 import numpy
 from utils import strToFloat, floatToStr
 
-def computeAnticipDataForOneSubject(input_file):
+def computeAnticipationDataForOneSubject(input_file):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
-    anticip_column = input_data_table["is_anticipation"]
-    correct_anticip_column = input_data_table["correct_anticipation"]
+    anticipation_column = input_data_table["has_anticipation"]
+    learnt_anticipation_column = input_data_table["has_learnt_anticipation"]
     epoch_column = input_data_table["epoch"]
+    trial_column = input_data_table["trial"]
+    repetition_column = input_data_table["repetition"]
+    trill_column = input_data_table["trill"]
 
-    all_aniticip = 0.0
-    correct_aniticip = 0.0
-    for i in range(len(anticip_column)):
-        if str(anticip_column[i]) == 'True':
-            all_aniticip += 1
+    false_anticipation_ratios = []
+    all_anticipation = 0.0
+    false_anticipation = 0.0
+    current_epoch = epoch_column[0]
 
-        if str(correct_anticip_column[i]) == 'True':
-            correct_aniticip += 1
+    for i in range(len(anticipation_column) + 1):
+        # end of the epoch -> calc summary data
+        if i == len(anticipation_column) or current_epoch != epoch_column[i]:
+            assert(false_anticipation <= all_anticipation)
+            false_ratio = false_anticipation / all_anticipation * 100.0
+            false_anticipation_ratios.append(false_ratio)
+            all_anticipation = 0.0
+            false_anticipation = 0.0
 
-    correct_anticip_ratio = (correct_aniticip / all_aniticip) * 100.0
-    return all_aniticip, correct_anticip_ratio
+        if i == len(anticipation_column):
+            break
 
-def checkAnticipData(output_file, subject, all_aniticip, correct_anticip_ratio_all):
+        current_epoch = epoch_column[i]
+
+        if trial_column[i] <= 5 or repetition_column[i] == "True" or trill_column[i] == "True":
+            continue
+
+        if str(anticipation_column[i]) == 'True':
+            all_anticipation += 1
+
+        if str(anticipation_column[i]) == 'True' and str(learnt_anticipation_column[i]) == 'False':
+            false_anticipation += 1
+
+    return false_anticipation_ratios
+
+def checkAnticipationData(output_file, subject, false_anticipation_ratios):
     input_data = pandas.read_csv(output_file, sep='\t')
 
     for index, row in input_data.iterrows():
-        if row["subject"] == int(subject):
+        if str(row["subject"]) == subject:
             subject_row = row
+            break
 
-    output_all_anticip = 0
-    output_correct_anticip_ratios = []
+    learnt_anticipation_ratios = []
     for i in range(0,8):
-        anticip_count_label = "epoch_" + str(i + 1) + "_anticip_count";
-        output_all_anticip += strToFloat(subject_row[anticip_count_label])
+        learnt_anticipation_ratio_label = "epoch_" + str(i + 1) + "_learnt_anticip_ratio";
+        learnt_anticipation_ratios += [strToFloat(subject_row[learnt_anticipation_ratio_label])]
 
-        correct_anticip_ratio_label = "epoch_" + str(i + 1) + "_correct_anticip_ratio";
-        output_correct_anticip_ratios.append(strToFloat(subject_row[correct_anticip_ratio_label]))
-
-    assert(output_all_anticip == all_aniticip)
-    assert(abs(correct_anticip_ratio_all - numpy.median(output_correct_anticip_ratios)) < 10.0)
+    assert(len(learnt_anticipation_ratios) == len(false_anticipation_ratios))
+    for i in range(len(learnt_anticipation_ratios)):
+        assert(abs(learnt_anticipation_ratios[i] + false_anticipation_ratios[i] - 100.0) < 0.00000001)
 
 def validateAnticipatoryData(input_dir, output_file):
     for root, dirs, files in os.walk(input_dir):
         for file in files:
 
             input_file = os.path.join(input_dir, file)
-            subject = int(file.split('_')[1])
+            subject = file.split('_')[1]
 
-            print("Validate anticipatory data for subject: " + str(subject))
+            print("Validate anticipatory data for subject: " + subject)
 
-            all_aniticip, correct_anticip_ratio = computeAnticipDataForOneSubject(input_file)
-            checkAnticipData(output_file, subject, all_aniticip, correct_anticip_ratio)
+            false_anticipation_ratios = computeAnticipationDataForOneSubject(input_file)
+            checkAnticipationData(output_file, subject, false_anticipation_ratios)
         break
