@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#    Copyright (C) <2019-2021>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
+#    Copyright (C) <2019-2023>  <Tamás Zolnai>  <zolnaitamas2000@gmail.com>
 
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,10 +16,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import pandas
 
 def validateRepetition(data_table):
-    print("Validate repetition column")
 
     repetition_column = []
     stimulus_column = data_table["stimulus"]
@@ -27,32 +27,42 @@ def validateRepetition(data_table):
     repetition_column = data_table["repetition"]
 
     for i in range(len(stimulus_column)):
-        if trial_column[i] == 1:
-            assert(repetition_column[i] == False)
-        elif repetition_column[i]:
+        if repetition_column[i] == 'none':
+            assert(trial_column[i] == 1)
+        elif repetition_column[i] == 'True':
             assert(stimulus_column[i - 1] == stimulus_column[i])
         else:
-            assert(repetition_column[i] == False)
+            assert(repetition_column[i] == "False")
             assert(stimulus_column[i - 1] != stimulus_column[i])
 
 def validateTrill(data_table):
-    print("Validate trill column")
 
     stimulus_column = data_table["stimulus"]
     trial_column = data_table["trial"]
     trill_column = data_table["trill"]
 
     for i in range(len(stimulus_column)):
-        if trial_column[i] <= 2:
-            assert(trill_column[i] == False)
-        elif trill_column[i]:
+        if trill_column[i] == 'none':
+            assert(trial_column [i] <= 2)
+        elif trill_column[i] == 'True':
             assert(stimulus_column[i - 2] == stimulus_column[i])
+            assert(stimulus_column[i - 1] != stimulus_column[i])
         else:
-            assert(trill_column[i] == False)
-            assert(stimulus_column[i - 2] != stimulus_column[i])
+            assert(trill_column[i] == 'False')
+            assert(stimulus_column[i - 2] != stimulus_column[i] or stimulus_column[i - 1] == stimulus_column[i])
+
+def findLearningSequence(data_table):
+    PCode_colum = data_table["PCode"]
+
+    # We find the first valid PCode, that will be the learning sequence.
+    for i in range(len(PCode_colum)):
+        if str(PCode_colum[i]) != "noPattern":
+            return str(PCode_colum[i])
+
+    print("Error: Could not find a valid learning sequence in the data.")
+    return ""
 
 def validateHighLowBasedOnLearningSequence(data_table):
-    print("Validate high_low_learning column")
 
     high_low_column = []
     stimulus_column = data_table["stimulus"]
@@ -60,12 +70,12 @@ def validateHighLowBasedOnLearningSequence(data_table):
     high_low_column = data_table["high_low_learning"]
 
     # get the learning sequence
-    learning_sequence = data_table["PCode"][5 * 82]
+    learning_sequence = findLearningSequence(data_table)
     learning_sequence += learning_sequence[0]
 
     for i in range(len(stimulus_column)):
-        if trial_column[i] <= 2:
-            assert(high_low_column[i] == "none")
+        if high_low_column[i] == 'none':
+            assert(trial_column[i] <= 2)
         elif high_low_column[i] == "high":
             assert(str(stimulus_column[i - 2]) + str(stimulus_column[i]) in learning_sequence)
         else:
@@ -73,55 +83,57 @@ def validateHighLowBasedOnLearningSequence(data_table):
             assert(str(stimulus_column[i - 2]) + str(stimulus_column[i]) not in learning_sequence)         
 
 def validateAnticipationColumn(data_table):
-    print("Validate anticipation column")
 
-    anticipation_column = data_table["is_anticipation"]
+    anticipation_column = data_table["has_anticipation"]
     stimulus_column = data_table["stimulus"]
     last_AOI_column = data_table["last_AOI_before_stimulus"]
     trial_column = data_table["trial"]
 
     for i in range(len(stimulus_column)):
-        if last_AOI_column[i] == 'none':
-            assert(anticipation_column[i] == False)
-        elif anticipation_column[i]:
+        if anticipation_column[i] == 'none':
+            assert(trial_column[i] <= 1)
+        elif anticipation_column[i] == 'True':
             assert(trial_column[i] >= 1)
             assert(int(last_AOI_column[i]) != int(stimulus_column[i - 1]))
         else:
-            assert(anticipation_column[i] == False)
+            assert(anticipation_column[i] == 'False')
             assert(trial_column[i] >= 1)
-            assert(int(last_AOI_column[i]) == int(stimulus_column[i - 1]))
+            assert(trial_column[i] >= 1)
+            assert(last_AOI_column[i] == 'none' or int(last_AOI_column[i]) == int(stimulus_column[i - 1]))
 
-def validateCorrectAnticipationColumn(data_table):
-    print("Validate correct anticipation column")
+def validateLearntAnticipationColumn(data_table):
 
-    correct_anticipation_column = data_table["correct_anticipation"]
+    learnt_anticipation_column = data_table["has_learnt_anticipation"]
     stimulus_column = data_table["stimulus"]
     last_AOI_column = data_table["last_AOI_before_stimulus"]
-    anticipation_column = data_table["is_anticipation"]
+    anticipation_column = data_table["has_anticipation"]
     trial_column = data_table["trial"]
 
     # get the learning sequence
-    learning_sequence = data_table["PCode"][5 * 82]
+    learning_sequence = findLearningSequence(data_table)
     learning_sequence += learning_sequence[0]
 
     for i in range(len(stimulus_column)):
-        if last_AOI_column[i] == 'none':
-            assert(correct_anticipation_column[i] == False)
-        elif correct_anticipation_column[i]:
+        if learnt_anticipation_column[i] == 'none':
+            assert(trial_column[i] <= 2)
+        elif learnt_anticipation_column[i] == 'True':
             assert(trial_column[i] >= 2)
-            assert(anticipation_column[i] == True)
+            assert(anticipation_column[i] == 'True')
             assert(str(stimulus_column[i - 2]) + str(last_AOI_column[i]) in learning_sequence)
         else:
-            assert(correct_anticipation_column[i] == False)
-            assert(anticipation_column[i] == False or
+            assert(learnt_anticipation_column[i] == 'False')
+            assert(trial_column[i] >= 2)
+            assert(anticipation_column[i] == 'False' or
                    str(stimulus_column[i - 2]) + str(last_AOI_column[i]) not in learning_sequence)
 
 def validateExtendedTrialData(input_file):
-    print("Validate trial data extension for file: " + input_file)
     data_table = pandas.read_csv(input_file, sep='\t')
+
+    subject = os.path.basename(input_file).split('_')[1]
+    print("Validate trial level data extension for subject: " + subject)
 
     validateRepetition(data_table)
     validateTrill(data_table)
     validateHighLowBasedOnLearningSequence(data_table)
     validateAnticipationColumn(data_table)
-    validateCorrectAnticipationColumn(data_table)
+    validateLearntAnticipationColumn(data_table)
