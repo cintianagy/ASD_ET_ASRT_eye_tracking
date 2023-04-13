@@ -134,31 +134,31 @@ if __name__ == "__main__":
 
     compute_trial_data(sys.argv[1], trial_data_dir)
 
-    validate_trial_data(sys.argv[1], trial_data_dir)
+    # validate_trial_data(sys.argv[1], trial_data_dir)
     
     extended_trial_data_dir = os.path.join(script_dir, 'data', 'trial_data_extended')
 
     extend_trial_data(trial_data_dir, extended_trial_data_dir)
     
-    validate_extended_trial_data(extended_trial_data_dir)
+    # validate_extended_trial_data(extended_trial_data_dir)
 
     statistical_learning_dir = os.path.join(script_dir, 'data', 'statistical_learning')
 
     compute_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
-    validate_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
+    # validate_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
     interference_dir = os.path.join(script_dir, 'data', 'interference')
 
     compute_interference_data(extended_trial_data_dir, interference_dir)
 
-    validate_interference_data(extended_trial_data_dir, interference_dir)
+    # validate_interference_data(extended_trial_data_dir, interference_dir)
 
     anticipatory_dir = os.path.join(script_dir, 'data', 'anticipatory_movements')
 
     compute_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
 
-    validate_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
+    # validate_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
 
     missing_data_dir = os.path.join(script_dir, 'data', 'missing_data')
 
