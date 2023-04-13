@@ -20,68 +20,70 @@ import os
 import pandas
 from utils import strToFloat, floatToStr
 
-def computeMinMaxOneSubject(input_file):
+def validateSubjectInterferenceData(input_file, high_low_median, low_low_median, low_high_median):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
     RT_column = input_data_table["RT (ms)"]
     repetition_column = input_data_table["repetition"]
     trill_column = input_data_table["trill"]
     epoch_column = input_data_table["epoch"]
-    block_column = input_data_table["block"]
     trial_column = input_data_table["trial"]
-    trial_type_column = input_data_table["high_low_learning"]
-    trial_type_interfer_column = input_data_table["triplet_type_hl"]
+    trial_type_learning_column = input_data_table["high_low_learning"]
+    trial_type_hl_column = input_data_table["triplet_type_hl"]
 
-    high_low_max = -100000000
-    high_low_min = 100000000
-    low_low_max = -100000000
-    low_low_min = 100000000
-    low_high_max = -100000000
-    low_high_min = 100000000
+    smaller_low_low_count = 0
+    bigger_low_low_count = 0
+    smaller_high_low_count = 0
+    bigger_high_low_count = 0
+    smaller_low_high_count = 0
+    bigger_low_high_count = 0
     for i in range(len(RT_column)):
+        # we calculate only with the seven epoch
+        if epoch_column[i] != 7:
+            continue
 
-        # we ignore the first two trials, repetitions and trills
-        if (epoch_column[i] == 7 and trial_column[i] > 2
-           and repetition_column[i] == False and trill_column[i] == False):
-            RT = strToFloat(RT_column[i])
-            if trial_type_column[i] == 'high' and trial_type_interfer_column[i] == 'low':
-                if high_low_max < RT:
-                    high_low_max = RT
-                if high_low_min > RT:
-                    high_low_min = RT
-            elif trial_type_column[i] == 'low' and trial_type_interfer_column[i] == 'low':
-                if low_low_max < RT:
-                    low_low_max = RT
-                if low_low_min > RT:
-                    low_low_min = RT
-            elif trial_type_column[i] == 'low' and trial_type_interfer_column[i] == 'high':
-                if low_high_max < RT:
-                    low_high_max = RT
-                if low_high_min > RT:
-                    low_high_min = RT
+        # we ignore the five trials, repetitions and trills
+        if trial_column[i] <= 5 or repetition_column[i] == "True" or trill_column[i] == "True":
+            continue
 
-    return high_low_max, high_low_min, low_low_max, low_low_min, low_high_max, low_high_min
+        RT = strToFloat(RT_column[i])
+        if trial_type_learning_column[i] == 'high':
+            if trial_type_hl_column[i] == 'low':
+                if RT < high_low_median:
+                    smaller_high_low_count += 1
+                elif RT > high_low_median:
+                    bigger_high_low_count += 1
 
-def checkEpochMedian(input_file, subject, high_low_max, high_low_min, low_low_max, low_low_min, low_high_max, low_high_min):
-    print("Validate interference RTs for subject: " + str(subject))
+        elif trial_type_learning_column[i] == 'low':
+            if trial_type_hl_column[i] == 'low':
+                if RT < low_low_median:
+                    smaller_low_low_count += 1
+                elif RT > low_low_median:
+                    bigger_low_low_count += 1
+            elif trial_type_hl_column[i] == 'high':
+                if RT < low_high_median:
+                    smaller_low_high_count += 1
+                elif RT > low_high_median:
+                    bigger_low_high_count += 1
+
+    assert(abs(smaller_low_low_count - bigger_low_low_count) <= 1)
+    assert(abs(smaller_high_low_count - bigger_high_low_count) <= 1)
+    assert(abs(smaller_low_high_count - bigger_low_high_count) <= 1)
+
+def readEpochMedianData(input_file, subject):
 
     input_data = pandas.read_csv(input_file, sep='\t')
 
     for index, row in input_data.iterrows():
         if row["subject"] == subject:
             subject_row = row
+            break
 
-    high_low_value = strToFloat(subject_row["epoch_7_high_low"])
-    assert(high_low_value < high_low_max)
-    assert(high_low_value > high_low_min)
+    high_low_median = strToFloat(subject_row["epoch_7_high_low"])
+    low_low_median = strToFloat(subject_row['epoch_7_low_low'])
+    low_high_median = strToFloat(subject_row['epoch_7_low_high'])
 
-    low_low_value = strToFloat(subject_row['epoch_7_low_low'])
-    assert(low_low_value < low_low_max)
-    assert(low_low_value > low_low_min)
-
-    low_high_value = strToFloat(subject_row['epoch_7_low_high'])
-    assert(low_high_value < low_high_max)
-    assert(low_high_value > low_high_min)
+    return high_low_median, low_low_median, low_high_median
 
 def validateInterferenceData(input_dir, output_file):
     for root, dirs, files in os.walk(input_dir):
@@ -90,6 +92,6 @@ def validateInterferenceData(input_dir, output_file):
             input_file = os.path.join(input_dir, file)
             subject = int(file.split('_')[1])
 
-            high_low_max, high_low_min, low_low_max, low_low_min, low_high_max, low_high_min = computeMinMaxOneSubject(input_file)
-            checkEpochMedian(output_file, subject, high_low_max, high_low_min, low_low_max, low_low_min, low_high_max, low_high_min)
+            high_low_median, low_low_median, low_high_median = readEpochMedianData(output_file, subject)
+            validateSubjectInterferenceData(input_file, high_low_median, low_low_median, low_high_median)
         break
