@@ -20,7 +20,7 @@ import os
 import pandas
 from utils import strToFloat, floatToStr
 
-def calcEpochMinMaxRTsImplicit(input_file):
+def validateMedianData(input_file, epochs_data):
     input_data_table = pandas.read_csv(input_file, sep='\t')
 
     RT_column = input_data_table["RT (ms)"]
@@ -31,249 +31,75 @@ def calcEpochMinMaxRTsImplicit(input_file):
     trial_type_column = input_data_table["high_low_learning"]
 
     current_epoch = epoch_column[0]
-    high_max = -100000000
-    high_min = 100000000
-    low_max = -100000000
-    low_min = 100000000
-    high_max_array = []
-    high_min_array = []
-    low_max_array = []
-    low_min_array = []
+    current_epoch_median = epochs_data[current_epoch]
+    smaller_low_count = 0
+    bigger_low_count = 0
+    smaller_high_count = 0
+    bigger_high_count = 0
     for i in range(len(RT_column) + 1):
-        # end of the epoch -> calc median for low and high trials
+        # end of the epoch -> calc maximum / minimum for low and high trials
         if i == len(RT_column) or current_epoch != epoch_column[i]:
-            high_max_array.append(high_max)
-            high_min_array.append(high_min)
-            low_max_array.append(low_max)
-            low_min_array.append(low_min)
-            high_max = -100000000
-            high_min = 100000000
-            low_max = -100000000
-            low_min = 100000000
+            assert(abs(smaller_high_count - bigger_high_count) <= 1)
+            assert(abs(smaller_low_count - bigger_low_count) <= 1)
+
+            smaller_low_count = 0
+            bigger_low_count = 0
+            smaller_high_count = 0
+            bigger_high_count = 0
 
             if i == len(RT_column):
                 break
 
             current_epoch = epoch_column[i]
+            current_epoch_median = epochs_data[current_epoch]
 
-        # we ignore the first two trials, repetitions and trills
-        if trial_column[i] > 2 and repetition_column[i] == False and trill_column[i] == False:
-            RT = strToFloat(RT_column[i])
-            if trial_type_column[i] == 'high':
-                if high_max < RT:
-                    high_max = RT
-                if high_min > RT:
-                    high_min = RT
-            elif trial_type_column[i] == 'low':
-                if low_max < RT:
-                    low_max = RT
-                if low_min > RT:
-                    low_min = RT
+        # we ignore the five trials, repetitions and trills
+        if trial_column[i] <= 5 or repetition_column[i] == "True" or trill_column[i] == "True":
+            continue
 
-    # 8 epochs
-    assert(len(high_max_array) == 8)
-    assert(len(high_min_array) == 8)
-    assert(len(low_max_array) == 8)
-    assert(len(low_min_array) == 8)
-    return high_max_array, high_min_array, low_max_array, low_min_array
+        RT = strToFloat(RT_column[i])
+        if trial_type_column[i] == 'high':
+            if RT < current_epoch_median[0]:
+                smaller_high_count += 1
+            elif RT > current_epoch_median[0]:
+                bigger_high_count += 1
 
-def checkEpochMedianImplicit(input_file, subject, high_max_array, high_min_array, low_max_array, low_min_array):
-    print("Validate implicit learning data for subject: " + str(subject))
+        elif trial_type_column[i] == 'low':
+            if RT < current_epoch_median[1]:
+                smaller_low_count += 1
+            elif RT > current_epoch_median[1]:
+                bigger_low_count += 1
+
+def readEpochMedianData(input_file, subject):
 
     input_data = pandas.read_csv(input_file, sep='\t')
 
     for index, row in input_data.iterrows():
         if row["subject"] == subject:
             subject_row = row
+            break
 
+    epochs_data = {}
     for i in range(0,8):
         high_column_label = "epoch_" + str(i + 1) + "_high";
         high_value = strToFloat(subject_row[high_column_label])
-        assert(high_value < high_max_array[i])
-        assert(high_value > high_min_array[i])
-
         low_column_label = "epoch_" + str(i + 1) + "_low";
         low_value = strToFloat(subject_row[low_column_label])
-        assert(low_value < low_max_array[i])
-        assert(low_value > low_min_array[i])
 
-def calcEpochMinMaxRTsSequence(input_file):
-    input_data_table = pandas.read_csv(input_file, sep='\t')
+        epochs_data[i + 1] = [high_value, low_value]
+    
+    assert(len(epochs_data) == 8)
+    return epochs_data
 
-    RT_column = input_data_table["RT (ms)"]
-    repetition_column = input_data_table["repetition"]
-    trill_column = input_data_table["trill"]
-    epoch_column = input_data_table["epoch"]
-    trial_column = input_data_table["trial"]
-    trial_type_hl_column = input_data_table["high_low_learning"]
-    trial_type_pr_column = input_data_table["trial_type_pr"]
-
-    current_epoch = epoch_column[0]
-    pattern_high_max = -100000000
-    pattern_high_min = 100000000
-    random_high_max = -100000000
-    random_high_min = 100000000
-    pattern_high_max_array = []
-    pattern_high_min_array = []
-    random_high_max_array = []
-    random_high_min_array = []
-    for i in range(len(RT_column) + 1):
-        # end of the epoch -> calc median for low and high trials
-        if i == len(RT_column) or current_epoch != epoch_column[i]:
-            pattern_high_max_array.append(pattern_high_max)
-            pattern_high_min_array.append(pattern_high_min)
-            random_high_max_array.append(random_high_max)
-            random_high_min_array.append(random_high_min)
-            pattern_high_max = -100000000
-            pattern_high_min = 100000000
-            random_high_max = -100000000
-            random_high_min = 100000000
-
-            if i == len(RT_column):
-                break
-
-            current_epoch = epoch_column[i]
-
-        if trial_column[i] > 2 and repetition_column[i] == False and trill_column[i] == False and trial_type_hl_column[i] == 'high':
-            RT = strToFloat(RT_column[i])
-            if trial_type_pr_column[i] == 'pattern':
-                if pattern_high_max < RT:
-                    pattern_high_max = RT
-                if pattern_high_min > RT:
-                    pattern_high_min = RT
-            elif trial_type_pr_column[i] == 'random':
-                if random_high_max < RT:
-                    random_high_max = RT
-                if random_high_min > RT:
-                    random_high_min = RT
-
-    # 8 epochs
-    assert(len(pattern_high_max_array) == 8)
-    assert(len(pattern_high_min_array) == 8)
-    assert(len(random_high_max_array) == 8)
-    assert(len(random_high_min_array) == 8)
-    return pattern_high_max_array, pattern_high_min_array, random_high_max_array, random_high_min_array
-
-def checkEpochMedianSequence(input_file, subject, pattern_high_max_array, pattern_high_min_array, random_high_max_array, random_high_min_array):
-    print("Validate sequence learning data for subject: " + str(subject))
-
-    input_data = pandas.read_csv(input_file, sep='\t')
-
-    for index, row in input_data.iterrows():
-        if row["subject"] == subject:
-            subject_row = row
-
-    for i in [1, 2, 3, 4, 5, 7]:
-        pattern_high_column_label = "epoch_" + str(i + 1) + "_pattern_high";
-        pattern_high_value = strToFloat(subject_row[pattern_high_column_label])
-        assert(pattern_high_value < pattern_high_max_array[i])
-        assert(pattern_high_value > pattern_high_min_array[i])
-
-        random_high_column_label = "epoch_" + str(i + 1) + "_random_high";
-        random_high_value = strToFloat(subject_row[random_high_column_label])
-        assert(random_high_value < random_high_max_array[i])
-        assert(random_high_value > random_high_min_array[i])
-
-def calcEpochMinMaxRTsStatistical(input_file):
-    input_data_table = pandas.read_csv(input_file, sep='\t')
-
-    RT_column = input_data_table["RT (ms)"]
-    repetition_column = input_data_table["repetition"]
-    trill_column = input_data_table["trill"]
-    epoch_column = input_data_table["epoch"]
-    trial_column = input_data_table["trial"]
-    trial_type_hl_column = input_data_table["high_low_learning"]
-    trial_type_pr_column = input_data_table["trial_type_pr"]
-
-    current_epoch = epoch_column[0]
-    random_high_max = -100000000
-    random_high_min = 100000000
-    random_low_max = -100000000
-    random_low_min = 100000000
-    random_high_max_array = []
-    random_high_min_array = []
-    random_low_max_array = []
-    random_low_min_array = []
-    for i in range(len(RT_column) + 1):
-        # end of the epoch -> calc median for low and high trials
-        if i == len(RT_column) or current_epoch != epoch_column[i]:
-            random_high_max_array.append(random_high_max)
-            random_high_min_array.append(random_high_min)
-            random_low_max_array.append(random_low_max)
-            random_low_min_array.append(random_low_min)
-            random_high_max = -100000000
-            random_high_min = 100000000
-            random_low_max = -100000000
-            random_low_min = 100000000
-
-            if i == len(RT_column):
-                break
-
-            current_epoch = epoch_column[i]
-
-        if trial_column[i] > 2 and repetition_column[i] == False and trill_column[i] == False and trial_type_pr_column[i] == 'random':
-            RT = strToFloat(RT_column[i])
-            if trial_type_hl_column[i] == 'high':
-                if random_high_max < RT:
-                    random_high_max = RT
-                if random_high_min > RT:
-                    random_high_min = RT
-            elif trial_type_hl_column[i] == 'low':
-                if random_low_max < RT:
-                    random_low_max = RT
-                if random_low_min > RT:
-                    random_low_min = RT
-
-    # 8 epochs
-    assert(len(random_high_max_array) == 8)
-    assert(len(random_high_min_array) == 8)
-    assert(len(random_low_max_array) == 8)
-    assert(len(random_low_min_array) == 8)
-    return random_high_max_array, random_high_min_array, random_low_max_array, random_low_min_array
-
-def checkEpochMedianStatistical(input_file, subject, random_high_max_array, random_high_min_array, random_low_max_array, random_low_min_array):
-    print("Validate statistical learning data for subject: " + str(subject))
-
-    input_data = pandas.read_csv(input_file, sep='\t')
-
-    for index, row in input_data.iterrows():
-        if row["subject"] == subject:
-            subject_row = row
-
-    for i in [1, 2, 3, 4, 5, 7]:
-        random_high_column_label = "epoch_" + str(i + 1) + "_random_high";
-        random_high_value = strToFloat(subject_row[random_high_column_label])
-        assert(random_high_value < random_high_max_array[i])
-        assert(random_high_value > random_high_min_array[i])
-
-        random_low_column_label = "epoch_" + str(i + 1) + "_random_low";
-        random_low_value = strToFloat(subject_row[random_low_column_label])
-        assert(random_low_value < random_low_max_array[i])
-        assert(random_low_value > random_low_min_array[i])
-
-def validateLearning(input_dir, output_file, type):
+def validateLearning(input_dir, output_file):
     for root, dirs, files in os.walk(input_dir):
         for file in files:
 
             input_file = os.path.join(input_dir, file)
             subject = int(file.split('_')[1])
 
-            if type == 'implicit':
-                high_max_array, high_min_array, low_max_array, low_min_array = calcEpochMinMaxRTsImplicit(input_file)
-                checkEpochMedianImplicit(output_file, subject, high_max_array, high_min_array, low_max_array, low_min_array)
-            elif type == 'sequence':
-                pattern_high_max_array, pattern_high_min_array, random_high_max_array, random_high_min_array = calcEpochMinMaxRTsSequence(input_file)
-                checkEpochMedianSequence(output_file, subject, pattern_high_max_array, pattern_high_min_array, random_high_max_array, random_high_min_array)
-            elif type == 'statistical':
-                random_high_max_array, random_high_min_array, random_low_max_array, random_low_min_array = calcEpochMinMaxRTsStatistical(input_file)
-                checkEpochMedianStatistical(output_file, subject, random_high_max_array, random_high_min_array, random_low_max_array, random_low_min_array)
+            print("Validate statistical learning data for subject: " + str(subject))
+
+            epochs_data = readEpochMedianData(output_file, subject)
+            validateMedianData(input_file, epochs_data)
         break
-
-def validateImplicitLearning(input_dir, output_file):
-    validateLearning(input_dir, output_file, 'implicit')
-
-def validateSequenceLearning(input_dir, output_file):
-    validateLearning(input_dir, output_file, 'sequence')
-
-def validateStatisticalLearning(input_dir, output_file):
-    validateLearning(input_dir, output_file, 'statistical')
