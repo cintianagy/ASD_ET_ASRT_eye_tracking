@@ -16,6 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import pandas
 from utils import strToFloat, floatToStr
 
@@ -190,7 +191,19 @@ def calcLastAOIColumn(raw_file_name):
 
     return anticipation_data
 
-def computeTrialLevelData(raw_file_name, new_file_name):
-    RT_data = calcRTColumn(raw_file_name)
-    last_AOI_data = calcLastAOIColumn(raw_file_name)
-    generateOutput(raw_file_name, new_file_name, RT_data, last_AOI_data)
+def computeTrialLevelData(input_dir, output_dir):
+
+    for root, dirs, files in os.walk(input_dir):
+        for subject_file in files:
+            subject = subject_file.split('_')[1]
+
+            print("Compute trial level data for subject: " + subject)
+
+            raw_data_path = os.path.join(root, subject_file)
+            RT_data_path = os.path.join(output_dir, 'subject_' + subject + '__trial_log.csv')
+            computeTrialLevelData(raw_data_path, RT_data_path)
+            RT_data = calcRTColumn(raw_data_path)
+            last_AOI_data = calcLastAOIColumn(raw_data_path)
+            generateOutput(raw_data_path, RT_data_path, RT_data, last_AOI_data)
+
+        break

@@ -154,9 +154,19 @@ def validateLastAOIs(trial_file_name, last_AOIs):
         actual_last_AOI = row["last_AOI_before_stimulus"]
         assert(actual_last_AOI == last_AOIs[index])
 
-def validateTrialData(raw_file_name, trial_file_name):
-    RT_upper_limits = calcRTUpperLimits(raw_file_name)
-    validateRTOutput(trial_file_name, RT_upper_limits)
+def validateTrialData(input_dir, output_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for subject_file in files:
+            subject = subject_file.split('_')[1]
 
-    last_AOIs = calcLastAOIs(raw_file_name)
-    validateLastAOIs(trial_file_name, last_AOIs)
+            print("Validate trial level data for subject: " + subject)
+
+            raw_data_path = os.path.join(root, subject_file)
+            RT_data_path = os.path.join(output_dir, 'subject_' + subject + '__trial_log.csv')
+
+            RT_upper_limits = calcRTUpperLimits(raw_data_path)
+            validateRTOutput(RT_data_path, RT_upper_limits)
+            last_AOIs = calcLastAOIs(raw_data_path)
+            validateLastAOIs(RT_data_path, last_AOIs)
+
+        break

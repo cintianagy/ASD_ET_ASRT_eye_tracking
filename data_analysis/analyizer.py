@@ -48,59 +48,21 @@ def setupOutputDir(dir_path):
         print("Could not make the output folder: " + dir_path)
         exit(1)
 
-def extract_subject_id(subject_file_name):
-    subject_id = subject_file_name[len('subject_'):]
-    subject_id = subject_id[:subject_id.find('_')]
-    return subject_id
-
 def compute_trial_data(input_dir, output_dir):
     setupOutputDir(output_dir)
 
-    for root, dirs, files in os.walk(input_dir):
-        for subject_file in files:
-            subject_id = extract_subject_id(subject_file)
-            print("Compute trial level data for subject: " + subject_id)
-
-            raw_data_path = os.path.join(root, subject_file)
-            RT_data_path = os.path.join(output_dir, 'subject_' + subject_id + '__trial_log.csv')
-            computeTrialLevelData(raw_data_path, RT_data_path)
-
-        break
+    computeTrialLevelData(input_dir, output_dir)
 
 def validate_trial_data(input_dir, output_dir):
-    for root, dirs, files in os.walk(input_dir):
-        for subject_file in files:
-            subject_id = extract_subject_id(subject_file)
-
-            print("Validate trial level data for subject: " + subject_id)
-            raw_data_path = os.path.join(root, subject_file)
-            RT_data_path = os.path.join(output_dir, 'subject_' + subject_id + '__trial_log.csv')
-            validateTrialData(raw_data_path, RT_data_path)
-
-        break
+    validateTrialData(input_dir, output_dir)
 
 def extend_trial_data(input_dir, output_dir):
     setupOutputDir(output_dir)
 
-    for root, dirs, files in os.walk(input_dir):
-        for subject_file in files:
-            subject_id = extract_subject_id(subject_file)
-            print("Extend trial level data with additional fields for subject: " + subject_id)
-
-            input_file = os.path.join(input_dir, subject_file)
-            output_file = os.path.join(output_dir, 'subject_' + subject_id + '__trial_extended_log.csv')
-            extendTrialLevelData(input_file, output_file)
-
-        break
+    extendTrialLevelData(input_dir, output_dir)
 
 def validate_extended_trial_data(input_dir):
-    for root, dirs, files in os.walk(input_dir):
-        for file in files:
-
-            input_file = os.path.join(input_dir, file)
-            validateExtendedTrialData(input_file)
-
-        break
+    validateExtendedTrialData(input_dir)
 
 def compute_statistical_learning(input_dir, output_dir):
     setupOutputDir(output_dir)
@@ -172,31 +134,31 @@ if __name__ == "__main__":
 
     compute_trial_data(sys.argv[1], trial_data_dir)
 
-    # validate_trial_data(sys.argv[1], trial_data_dir)
+    validate_trial_data(sys.argv[1], trial_data_dir)
     
     extended_trial_data_dir = os.path.join(script_dir, 'data', 'trial_data_extended')
 
     extend_trial_data(trial_data_dir, extended_trial_data_dir)
     
-    # validate_extended_trial_data(extended_trial_data_dir)
+    validate_extended_trial_data(extended_trial_data_dir)
 
     statistical_learning_dir = os.path.join(script_dir, 'data', 'statistical_learning')
 
     compute_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
-    # validate_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
+    validate_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
     interference_dir = os.path.join(script_dir, 'data', 'interference')
 
     compute_interference_data(extended_trial_data_dir, interference_dir)
 
-    # validate_interference_data(extended_trial_data_dir, interference_dir)
+    validate_interference_data(extended_trial_data_dir, interference_dir)
 
     anticipatory_dir = os.path.join(script_dir, 'data', 'anticipatory_movements')
 
     compute_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
 
-    # validate_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
+    validate_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
 
     missing_data_dir = os.path.join(script_dir, 'data', 'missing_data')
 

@@ -16,6 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import pandas
 
 def computeRepetitionColumn(data_table):
@@ -135,7 +136,7 @@ def computeLearntAnticipationColumn(data_table):
 
     return learnt_anticipation_data
 
-def extendTrialLevelData(input_file, output_file):
+def extendTrialLevelDataForOneSubject(input_file, output_file):
     data_table = pandas.read_csv(input_file, sep='\t')
 
     # previous trial has the stimulus at the same position -> repetition.
@@ -164,3 +165,16 @@ def extendTrialLevelData(input_file, output_file):
     data_table["has_learnt_anticipation"] = learnt_anticipation_data
 
     data_table.to_csv(output_file, sep='\t', index=False)
+
+def extendTrialLevelData(input_dir, output_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for subject_file in files:
+            subject = subject_file.split('_')[1]
+
+            print("Extend trial level data with additional fields for subject: " + subject)
+
+            input_file = os.path.join(input_dir, subject_file)
+            output_file = os.path.join(output_dir, 'subject_' + subject + '__trial_extended_log.csv')
+            extendTrialLevelDataForOneSubject(input_file, output_file)
+
+        break

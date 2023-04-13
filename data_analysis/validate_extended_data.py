@@ -126,14 +126,20 @@ def validateLearntAnticipationColumn(data_table):
             assert(anticipation_column[i] == 'False' or
                    str(stimulus_column[i - 2]) + str(last_AOI_column[i]) not in learning_sequence)
 
-def validateExtendedTrialData(input_file):
-    data_table = pandas.read_csv(input_file, sep='\t')
+def validateExtendedTrialData(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
 
-    subject = os.path.basename(input_file).split('_')[1]
-    print("Validate trial level data extension for subject: " + subject)
+            input_file = os.path.join(input_dir, file)
 
-    validateRepetition(data_table)
-    validateTrill(data_table)
-    validateHighLowBasedOnLearningSequence(data_table)
-    validateAnticipationColumn(data_table)
-    validateLearntAnticipationColumn(data_table)
+            subject = os.path.basename(input_file).split('_')[1]
+            print("Validate trial level data extension for subject: " + subject)
+
+            data_table = pandas.read_csv(input_file, sep='\t')
+            validateRepetition(data_table)
+            validateTrill(data_table)
+            validateHighLowBasedOnLearningSequence(data_table)
+            validateAnticipationColumn(data_table)
+            validateLearntAnticipationColumn(data_table)
+
+        break
