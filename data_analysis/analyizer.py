@@ -32,11 +32,11 @@ from compute_distance import computeDistance
 from compute_rms_s2s import computeRMSSampleToSample
 from compute_rms_e2e import computeRMSEyeToEye
 
-import validate_trial_data as vtd
-import validate_extended_data as ved
-import validate_learning as vl
-import validate_interference as vi
-import validate_anticipatory as va
+from validate_learning import validateLearning
+from validate_anticipatory import validateAnticipatoryData
+from validate_interference import validateInterferenceData
+from validate_extended_data import validateExtendedTrialData
+from validate_trial_data import validateTrialData
 
 def setupOutputDir(dir_path):
     if os.path.exists(dir_path):
@@ -69,14 +69,13 @@ def compute_trial_data(input_dir, output_dir):
 
 def validate_trial_data(input_dir, output_dir):
     for root, dirs, files in os.walk(input_dir):
-        for subject_dir in dirs:
-            if subject_dir.startswith('.'):
-                continue
+        for subject_file in files:
+            subject_id = extract_subject_id(subject_file)
 
-            print("Validate trial level data for subject: " + subject_dir)
-            raw_data_path = os.path.join(root, subject_dir, 'subject_' + subject_dir + '__log.txt')
-            RT_data_path = os.path.join(output_dir, 'subject_' + subject_dir + '__trial_log.csv')
-            vtd.validateTrialData(raw_data_path, RT_data_path)
+            print("Validate trial level data for subject: " + subject_id)
+            raw_data_path = os.path.join(root, subject_file)
+            RT_data_path = os.path.join(output_dir, 'subject_' + subject_id + '__trial_log.csv')
+            validateTrialData(raw_data_path, RT_data_path)
 
         break
 
@@ -95,12 +94,11 @@ def extend_trial_data(input_dir, output_dir):
         break
 
 def validate_extended_trial_data(input_dir):
-
     for root, dirs, files in os.walk(input_dir):
         for file in files:
 
             input_file = os.path.join(input_dir, file)
-            ved.validateExtendedTrialData(input_file)
+            validateExtendedTrialData(input_file)
 
         break
 
@@ -110,10 +108,10 @@ def compute_statistical_learning(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'statistical_learning_RT.csv')
     computeStatisticalLearning(input_dir, output_file)
 
-def validate_implicit_learning(input_dir, output_dir):
+def validate_statistical_learning(input_dir, output_dir):
 
     output_file = os.path.join(output_dir, 'statistical_learning_RT.csv')
-    vl.validateImplicitLearning(input_dir, output_file)
+    validateLearning(input_dir, output_file)
 
 def compute_interference_data(input_dir, output_dir):
     setupOutputDir(output_dir)
@@ -123,7 +121,7 @@ def compute_interference_data(input_dir, output_dir):
 
 def validate_interference_data(input_dir, output_dir):
     output_file = os.path.join(output_dir, 'interference_HL_LL_LH.csv')
-    vi.validateInterferenceData(input_dir, output_file)
+    validateInterferenceData(input_dir, output_file)
 
 def compute_anticipatory_data(input_dir, output_dir):
     setupOutputDir(output_dir)
@@ -134,7 +132,7 @@ def compute_anticipatory_data(input_dir, output_dir):
 def validate_anticipatory_data(input_dir, output_dir):
 
     output_file = os.path.join(output_dir, 'anticipatory_data.csv')
-    va.validateAnticipatoryData(input_dir, output_file)
+    validateAnticipatoryData(input_dir, output_file)
 
 def compute_missing_data_ratio(input_dir, output_dir):
     setupOutputDir(output_dir)
@@ -186,7 +184,7 @@ if __name__ == "__main__":
 
     compute_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
-    # validate_implicit_learning(extended_trial_data_dir, implicit_learning_dir)
+    # validate_statistical_learning(extended_trial_data_dir, statistical_learning_dir)
 
     interference_dir = os.path.join(script_dir, 'data', 'interference')
 
@@ -198,7 +196,7 @@ if __name__ == "__main__":
 
     compute_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
 
-    #validate_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
+    # validate_anticipatory_data(extended_trial_data_dir, anticipatory_dir)
 
     missing_data_dir = os.path.join(script_dir, 'data', 'missing_data')
 
