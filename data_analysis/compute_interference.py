@@ -22,8 +22,8 @@ import pandas
 import numpy
 from utils import strToFloat, floatToStr
 
-# Add the local path to the main script and external scripts so we can import them.
-sys.path = [".."] + sys.path
+# Add the local path to the main script so we can import some class from it.
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from asrt import ExperimentSettings
 
 def computeInterferenceOneSubject(input_file, preparatory_trial_number):
@@ -64,7 +64,8 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
 def computeInterferenceData(input_dir, output_file):
     learning_data = pandas.DataFrame(columns=['subject', 'epoch_7_high_low', 'epoch_7_low_low', 'epoch_7_low_high'])
 
-    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)
     try:
             settings.read_from_file()
     except:

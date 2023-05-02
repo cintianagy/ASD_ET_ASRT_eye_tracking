@@ -23,8 +23,8 @@ import numpy
 import math
 from utils import strToFloat, floatToStr, calcRMS, convertToAngle
 
-# Add the local path to the main script and external scripts so we can import them.
-sys.path = [".."] + sys.path
+# Add the local path to the main script so we can import some class from it.
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from asrt import ExperimentSettings
 
 def getEyePos(data_table, i):
@@ -113,7 +113,8 @@ def computeRMSSampleToSampleImpl(input, preparatory_trial_number, fixation_durat
     return epoch_summary
 
 def computeRMSSampleToSample(input_dir, output_file):
-    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)
     try:
             settings.read_from_file()
     except:

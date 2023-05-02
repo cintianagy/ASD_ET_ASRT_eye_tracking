@@ -21,8 +21,8 @@ import os
 import pandas
 from utils import strToFloat, floatToStr
 
-# Add the local path to the main script and external scripts so we can import them.
-sys.path = [".."] + sys.path
+# Add the local path to the main script so we can import some class from it.
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from asrt import ExperimentSettings
 
 def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
@@ -34,6 +34,7 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
     repetition_column = input_data_table["repetition"]
     trill_column = input_data_table["trill"]
     trial_column = input_data_table["trial"]
+    trial_type_pr = input_data_table["trial_type_pr"]
 
     learnt_anticipation_ratios = []
     all_anticipation = 0.0
@@ -76,7 +77,8 @@ def computeAnticipatoryData(input_dir, output_file):
                                                   'epoch_1_learnt_anticip_ratio', 'epoch_2_learnt_anticip_ratio', 'epoch_3_learnt_anticip_ratio', 'epoch_4_learnt_anticip_ratio',
                                                   'epoch_5_learnt_anticip_ratio', 'epoch_6_learnt_anticip_ratio', 'epoch_7_learnt_anticip_ratio', 'epoch_8_learnt_anticip_ratio'])
 
-    settings = ExperimentSettings(os.path.join('..', 'settings', 'settings'), "", True)
+    parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)
     try:
             settings.read_from_file()
     except:
