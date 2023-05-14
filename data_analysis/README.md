@@ -4,7 +4,7 @@ The folder contains all code used for doing low level data computations.
 The scripts do to the following:
 - Extract reaction time and anticipatory eye movement data from raw eye-tracking data files.
 - Computes various data quality measures of the eye-tracking.
-- Computes aggregate data from the reaction time and the anticipatory eye movements data for the
+- Computes aggregated data from the reaction time and the anticipatory eye movements data for the
   latter hypothesis testing.
 
 # How to run
@@ -43,7 +43,7 @@ Dependencies:
 
 # Input structure
 
-The analyzer script has one command line argument, which is a path to a folder of the logs recorded
+The analyzer script has one command line argument, which is the folder of the logs recorded
 with the ASRT experiment script. This folder should contain separate files for all participants
 with a name like `subject_2__log.txt` where `2` is the identifier of the participant.
 
@@ -57,62 +57,62 @@ raw_data_child (folder)
 --> subject_6__log.txt
 ```
 
-The structure of the data files are managed by the experiment script, so that should be compatible
-with the analyzer script.
+The internal structure of the data files are managed by the experiment script, so that should be
+compatible with the analyzer script.
 
 # Steps of data analysis
 
 ## 1. Computing reaction times and anticipatory data from raw eye-tracking data.
-<u>Input</u>: Raw eye-tracking data files in the raw data folder passed as a command line argument.
+<b>Input</b>: Raw eye-tracking data files in the raw data folder passed as a command line argument.
 
-These data files contain the eye-tracking samples. Every line consist of one sample of recorded eye
+These data files contain the eye-tracking samples. Every line means one sample of recorded eye
 position and all the properties of the current trial, where that data was recorded (e.g. trial type,
 stimulus, trial number, etc).
 
 For more detailed description of the raw data fields check the related code book:
 [code_book_raw_data.txt](code_book_raw_data.txt)
 
-<u>Output</u>: Trial level data files under `data\trial_data` folder.
+<b>Output</b>: Trial level data files under `data\trial_data` folder.
 
 The output of this step contains one row for all trials. All the trial related properties are
 copied from the raw data to this aggregated data. Furthermore two additional fields are
-calculated during this step: the reaction time and the `last AOI before stimulus`. The reaction
-time indicates the time elapsed between the stimulus was first displayed and the participant
-fixated on the stimulus. The `last AOI before stimulus` field contains the identifier of the last
-AOI, where the participant looked before the stimulus appeared on the screen.
+calculated during this step:
+- `RT (ms)`: The time elapsed between the stimulus was first displayed and the participant
+    fixated on the stimulus.
+- `last_AOI_before_stimulus`: The identifier of the last AOI, where the participant looked
+    before the stimulus appeared on the screen.
 
-Note: This step will drop all data line, where the `block` field has a `0` value, because that
-block is a calibration validation block which is not used for data analyses.
+Note: This step will drop all data line, where the `block` field has a `0` value, because these
+blocks are calibration validation blocks which are not used for the final data analyses.
 
 ## 2. Extend trial level data with some additional fields.
-<u>Input</u>: Trial level data folder: `data\trial_data`.
+<b>Input</b>: Trial level data folder: `data\trial_data`.
 
 During this step we will work with the aggregated data which now contains one row for all trials.
 
-<u>Output</u>: Extended trial level data files under `data\trial_data_extended` folder.
+<b>Output</b>: Extended trial level data files under `data\trial_data_extended` folder.
 
 There are five additional fields computed by this step:
 - `repetition`: The current trial has the same stimulus as the previous trial.
-- `trill`: The trial before the previous trial is the same as the current trial (e.g. 1-3-1, 2-3-2).
-- `high_low_learning`: The current trial is a part of a low probability or a high probability
+- `trill`: The trial before the previous trial has the same stimulus as the current trial (e.g. 1-3-1, 2-3-2).
+- `high_low_learning`: The current trial is part of a low probability or a high probability
                        triplet (based on the learning sequence).
 - `has_anticipation`: The last recorded AOI before the stimulus was displayed, differs from the
                       stimulus of the previous trial.
-- `has_learnt_anticipation`: The anticipation followed the structure of the learning sequence.
+- `has_learnt_anticipation`: The anticipation follows the structure of the learning sequence.
 
 For more detailed description of the computed fields check the related code book:
 [code_book_computed_data](code_book_computed_data.txt)
 
 ## 3. Compute statistical learning related reaction time data.
 
-<u>Input</u>: Extended trial level data folder: `data\trial_data_extended`.
+<b>Input</b>: Extended trial level data folder: `data\trial_data_extended`.
 
-<u>Output</u>: Aggregated reaction time data files under `data\statistical_learning` folder.
+<b>Output</b>: Aggregated reaction time data files under `data\statistical_learning` folder.
 
-The aggregation is done based on the triplet type (high vs low (based on the learning sequence))
-and the epoch (1..8), since these properties can be used later for the actual data analysis.
-The reaction time difference between the high and low probability triplets might indicate
-statistical learning.
+The aggregation is done based on the triplet type (high vs low) and the epoch (1..8), since these
+properties can be used later for the actual data analysis. The reaction time difference between the
+high and low probability triplets might indicate statistical learning.
 
 The aggregation means a median calculation here. We also exclude some of the trials before computing
 the median of the related reaction times:
@@ -129,9 +129,9 @@ For more detailed description of the computed fields check the related code book
 
 ## 4. Compute learning data of the interference epoch alone (HL, LH, LL)
 
-<u>Input</u>: Extended trial level data folder: `data\trial_data_extended`.
+<b>Input</b>: Extended trial level data folder: `data\trial_data_extended`.
 
-<u>Output</u>: Aggregated reaction time data files under `data\interference` folder.
+<b>Output</b>: Aggregated reaction time data files under `data\interference` folder.
 
 In this case, we again compute median data of the different reaction times. However here we calculate
 the effect of both sequences (learning vs interference) during the interference epoch (epoch 7).
@@ -139,37 +139,37 @@ We've got the reaction times for low and high probability trials both based on t
 the interference sequence: LL, HL, LH.
 
 The trial exclusion is the same as in the statistical learning computation (e.g. repetition, trill,
-preparatory trials).
+preparatory trial).
 
 For more detailed description of the computed fields check the related code book:
 [code_book_computed_data](code_book_computed_data.txt)
 
 ## 5. Compute anticipatory eye-movements ratio.
 
-<u>Input</u>: Extended trial level data folder: `data\trial_data_extended`.
+<b>Input</b>: Extended trial level data folder: `data\trial_data_extended`.
 
-<u>Output</u>: Aggregated anticipatory eye-movement data files under `data\interference` folder.
+<b>Output</b>: Aggregated anticipatory eye-movement data files under `data\anticipatory_movements` folder.
 
 During this computation step we compute the number of trials where there were anticipatory
-eye-movements (see `has_anticipation` field) and where these eye movement followed the structure
+eye-movements (see `has_anticipation` field) and where these eye movements followed the structure
 of the learning sequence (see `has_learnt_anticipation` field). The ratio of these two values
 indicates how many learning dependant anticipatory eye-movements we could record, relative to
 all anticipatory eye-movements. Any increase in this value might indicate statistical learning.
 
 The trial exclusion is the same as in the statistical learning computation (e.g. repetition,
-trill, preparatory trials).
+trill, preparatory trial).
 
 For more detailed description of the computed fields check the related code book:
 [code_book_computed_data](code_book_computed_data.txt)
 
-## 5-8. Compute eye-tracking quality data.
+## 6-9. Compute eye-tracking quality data.
 
 There are four other computations which works on the raw eye-tracking data and shows the data
 quality of the eye-tracking in the different epochs.
 
-<u>Input</u>: Raw eye-tracking data files in the raw data folder passed as a command line argument.
+<b>Input</b>: Raw eye-tracking data files in the raw data folder passed as a command line argument.
 
-<u>Output</u>: Aggregated data quality measure for all participants and for all epochs.
+<b>Output</b>: Aggregated data quality measure for all participants and for all epochs.
 
 Following data quality measures are computed.
 - `missing_data_ratio`: The percentage of missing data inside the given epoch.
