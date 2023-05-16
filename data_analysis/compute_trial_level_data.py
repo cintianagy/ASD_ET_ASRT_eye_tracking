@@ -47,7 +47,7 @@ def generateOutput(raw_file_name, new_file_name, RT_data, last_AOI_data):
     assert(len(output_data.index) == len(RT_data))
     output_data['RT (ms)'] = RT_data
 
-    # Last AOI during RSI (useful for anticipation data calulation)
+    # Last AOI during RSI (useful for anticipation data calculation)
     assert(len(output_data.index) == len(last_AOI_data))
     output_data['last_AOI_before_stimulus'] = last_AOI_data
 
@@ -201,7 +201,6 @@ def computeTrialLevelData(input_dir, output_dir):
 
             raw_data_path = os.path.join(root, subject_file)
             RT_data_path = os.path.join(output_dir, 'subject_' + subject + '__trial_log.csv')
-            computeTrialLevelData(raw_data_path, RT_data_path)
             RT_data = calcRTColumn(raw_data_path)
             last_AOI_data = calcLastAOIColumn(raw_data_path)
             generateOutput(raw_data_path, RT_data_path, RT_data, last_AOI_data)
