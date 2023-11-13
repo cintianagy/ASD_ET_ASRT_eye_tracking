@@ -45,7 +45,11 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
         if i == len(anticipation_column) or current_epoch != epoch_column[i]:
             assert(learnt_anticipation <= all_anticipation)
 
-            learnt_ratio = learnt_anticipation / all_anticipation * 100.0
+            if all_anticipation == 0:
+                learnt_ratio = float('nan')
+            else:
+                learnt_ratio = learnt_anticipation / all_anticipation * 100.0
+
             learnt_anticipation_ratios.append(floatToStr(learnt_ratio))
             all_anticipation = 0.0
             learnt_anticipation = 0.0
