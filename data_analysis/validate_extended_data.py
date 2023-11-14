@@ -59,7 +59,7 @@ def findLearningSequence(data_table):
         if str(PCode_colum[i]) != "noPattern":
             return str(PCode_colum[i])
 
-    print("Error: Could not find a valid learning sequence in the data.")
+    raise Exception("Error: Could not find a valid learning sequence in the data.")
     return ""
 
 def validateHighLowBasedOnLearningSequence(data_table):

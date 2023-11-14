@@ -96,7 +96,7 @@ def computeRMSEyeToEyeImpl(input, preparatory_trial_number, fixation_duration_th
         epoch_summary[epoch - 1] = floatToStr(numpy.median(epoch_rmss[epoch]))
 
     if len(epoch_summary) != 8:
-        print("Error: The input data should contain exactly 8 epochs for this data analysis.")
+        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
 
     return epoch_summary
 
@@ -106,8 +106,7 @@ def computeRMSEyeToEye(input_dir, output_file):
     try:
             settings.read_from_file()
     except:
-        print('Error: Could not read settings file to get the number of preparatory trials.')
-        return
+        raise Exception('Error: Could not read settings file to get the number of preparatory trials.')
 
     median_rms = []
     subject_epochs = []

@@ -78,8 +78,7 @@ def computeInterferenceData(input_dir, output_file):
     try:
             settings.read_from_file()
     except:
-        print('Error: Could not read settings file to get the number of preparatory trials.')
-        return
+        raise Exception('Error: Could not read settings file to get the number of preparatory trials.')
 
     for root, dirs, files in os.walk(input_dir):
         for file in files:

@@ -74,7 +74,7 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
             learnt_anticipation += 1
 
     if len(learnt_anticipation_ratios) != 8:
-        print("Error: The input data should contain exactly 8 epochs for this data analysis.")
+        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
     return learnt_anticipation_ratios
 
 def computeAnticipatoryData(input_dir, output_file):
@@ -87,8 +87,7 @@ def computeAnticipatoryData(input_dir, output_file):
     try:
             settings.read_from_file()
     except:
-        print('Error: Could not read settings file to get the number of preparatory trials.')
-        return
+        raise Exception('Error: Could not read settings file to get the number of preparatory trials.')
 
     for root, dirs, files in os.walk(input_dir):
         for file in files:
