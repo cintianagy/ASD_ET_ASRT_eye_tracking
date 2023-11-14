@@ -114,7 +114,9 @@ def calcRTColumn(raw_file_name):
         # we need to handle the last trial differently at the end of the data file.
         reached_end_of_file = (i == len(trial_column) - 1)
         if reached_end_of_file:
-            RT_data.append(calcRTTrial(start_time_found, start_time, end_time_found, end_time, int(time_stamp_column[i])))
+            # we don't compute RT for 0 indexed blocks, which are calibration validation blocks.
+            if str(block_column[i - 1]) != "0":
+                RT_data.append(calcRTTrial(start_time_found, start_time, end_time_found, end_time, int(time_stamp_column[i])))
 
     return RT_data
 
@@ -183,11 +185,13 @@ def calcLastAOIColumn(raw_file_name):
         # we need to handle the last trial differently at the end of the data file.
         reached_end_of_file = (i == len(trial_column) - 1)
         if reached_end_of_file:
-            if last_AOI == -1:
-                anticipation_data.append('none')
-            else:
-                anticipation_data.append(last_AOI)
-            last_AOI = -1
+            # we don't compute last AOI data for 0 indexed blocks, which are calibration validation blocks.
+            if str(block_column[i - 1]) != "0":
+                if last_AOI == -1:
+                    anticipation_data.append('none')
+                else:
+                    anticipation_data.append(last_AOI)
+                last_AOI = -1
 
     return anticipation_data
 
