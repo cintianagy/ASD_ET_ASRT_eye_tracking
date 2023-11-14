@@ -59,6 +59,15 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
             elif trial_type_column[i] == 'low' and trial_type_interference_column[i] == 'high':
                 low_high_list.append(strToFloat(RT_column[i]))
 
+    if len(high_low_list) == 0:
+        raise Exception('Error: No HL data were found!')
+
+    if len(low_low_list) == 0:
+        raise Exception('Error: No LL data were found!')
+
+    if len(low_high_list) == 0:
+        raise Exception('Error: No LH data were found!')
+
     return numpy.median(high_low_list), numpy.median(low_low_list), numpy.median(low_high_list)
 
 def computeInterferenceData(input_dir, output_file):
