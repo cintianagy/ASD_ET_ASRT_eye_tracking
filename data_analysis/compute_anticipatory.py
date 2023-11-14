@@ -47,6 +47,7 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
 
             if all_anticipation == 0:
                 learnt_ratio = float('nan')
+                print("Warning: No anticipatory eye-movements were found in epoch " + str(current_epoch) + ".")
             else:
                 learnt_ratio = learnt_anticipation / all_anticipation * 100.0
 
