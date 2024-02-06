@@ -63,14 +63,27 @@ def computeMissingDataRatioImpl(input, preparatory_trial_number):
                 epoch_missing_data[current_epoch] = 1.0
 
     # We compute missing data ratio for all epochs.
-    epoch_summary = numpy.zeros(8).tolist()
+    epoch_number = epoch_column.max()
+    epoch_summary = numpy.zeros(epoch_number).tolist()
     for epoch in epoch_all_data.keys():
         epoch_summary[epoch - 1] = floatToStr((epoch_missing_data[epoch] / epoch_all_data[epoch]) * 100.0)
-
-    if len(epoch_summary) != 8:
-        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
+    # we don't need this
+    # if len(epoch_summary) != 8:
+    #     raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
 
     return epoch_summary
+
+def get_number_of_epochs(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+
+            input_file = os.path.join(input_dir, file)
+
+            input_data_table = pandas.read_csv(input_file, sep='\t')
+            epoch_column = input_data_table["epoch"]
+            epoch_number = epoch_column.max()
+
+    return epoch_number
 
 def computeMissingDataRatio(input_dir, output_file):
     parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -82,14 +95,15 @@ def computeMissingDataRatio(input_dir, output_file):
 
     missing_data_ratios = []
     subject_epochs = []
+    epoch_number = get_number_of_epochs(input_dir)
     for root, dirs, files in os.walk(input_dir):
         for subject_file in files:
             subject = subject_file.split('_')[1]
 
             print("Compute missing data ratio for subject: " + subject)
             input_file = os.path.join(root, subject_file)
-
-            for i in range(1,9):
+            # flexible range
+            for i in range(1, epoch_number + 1):
                 subject_epochs.append("subject_" + subject + "_" + str(i))
 
             result = computeMissingDataRatioImpl(input_file, settings.blockprepN)

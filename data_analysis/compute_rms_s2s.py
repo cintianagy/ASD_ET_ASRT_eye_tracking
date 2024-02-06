@@ -103,15 +103,27 @@ def computeRMSSampleToSampleImpl(input, preparatory_trial_number, fixation_durat
                     epoch_rmss[current_epoch] = [new_RMS]
 
     # We compute median RMS(S2S) for all epochs.
-    epoch_summary = numpy.zeros(8).tolist()
+    epoch_number = epoch_column.max()
+    epoch_summary = numpy.zeros(epoch_number).tolist()
     for epoch in epoch_rmss.keys():
         epoch_summary[epoch - 1] = floatToStr(numpy.median(epoch_rmss[epoch]))
 
-    if len(epoch_summary) != 8:
-        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
+    # if len(epoch_summary) != 8:
+    #     raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
 
     return epoch_summary
 
+def get_number_of_epochs(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+
+            input_file = os.path.join(input_dir, file)
+
+            input_data_table = pandas.read_csv(input_file, sep='\t')
+            epoch_column = input_data_table["epoch"]
+            epoch_number = epoch_column.max()
+
+    return epoch_number
 def computeRMSSampleToSample(input_dir, output_file):
     parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)
@@ -122,14 +134,15 @@ def computeRMSSampleToSample(input_dir, output_file):
 
     median_rmss = []
     subject_epochs = []
+    epoch_number = get_number_of_epochs(input_dir)
     for root, dirs, files in os.walk(input_dir):
         for subject_file in files:
             subject = subject_file.split('_')[1]
 
             print("Compute RMS(S2S) for subject: " + subject)
             input_file = os.path.join(root, subject_file)
-
-            for i in range(1,9):
+            # flexible range
+            for i in range(1, epoch_number):
                 subject_epochs.append("subject_" + subject + "_" + str(i))
 
             RMS = computeRMSSampleToSampleImpl(input_file, settings.blockprepN, settings.stim_fixation_threshold)

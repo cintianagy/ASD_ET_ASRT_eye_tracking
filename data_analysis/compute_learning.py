@@ -74,15 +74,25 @@ def calcEpochMedianRTsLearning(input_file, preparatory_trial_number):
         elif trial_type_column[i] == 'low':
             low_RT_list.append(strToFloat(RT_column[i]))
 
-    if len(low_median_array) != 8 or len(high_median_array) != 8:
-        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
+    # if len(low_median_array) != 8 or len(high_median_array) != 8:
+    #     raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
     return low_median_array, high_median_array
+def get_number_of_epochs(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+
+            input_file = os.path.join(input_dir, file)
+
+            input_data_table = pandas.read_csv(input_file, sep='\t')
+            epoch_column = input_data_table["epoch"]
+            epoch_number = epoch_column.max()
+
+    return epoch_number
 
 def computeStatisticalLearning(input_dir, output_file):
-    learning_data = pandas.DataFrame(columns=['subject', 'epoch_1_low', 'epoch_2_low', 'epoch_3_low', 'epoch_4_low',
-                                              'epoch_5_low', 'epoch_6_low', 'epoch_7_low', 'epoch_8_low',
-                                              'epoch_1_high', 'epoch_2_high', 'epoch_3_high', 'epoch_4_high',
-                                              'epoch_5_high', 'epoch_6_high', 'epoch_7_high', 'epoch_8_high'])
+    epoch_number = get_number_of_epochs(input_dir)
+    column_names = ['subject'] + [f'epoch_{i}_low' for i in range(1, epoch_number + 1)] + [f'epoch_{i}_high' for i in range(1, epoch_number + 1)]
+    learning_data = pandas.DataFrame(columns=column_names)
 
     parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)

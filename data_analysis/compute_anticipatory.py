@@ -40,6 +40,7 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
     all_anticipation = 0.0
     learnt_anticipation = 0.0
     current_epoch = epoch_column[0]
+    epoch_number = epoch_column.max()
     for i in range(len(anticipation_column) + 1):
         # end of the epoch -> calc summary data
         if i == len(anticipation_column) or current_epoch != epoch_column[i]:
@@ -73,14 +74,27 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
         if str(correct_anticipation_column[i]) == 'True':
             learnt_anticipation += 1
 
-    if len(learnt_anticipation_ratios) != 8:
-        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
-    return learnt_anticipation_ratios
+    # we do not need this
+    # if len(learnt_anticipation_ratios) != 8:
+    #     raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
+    return learnt_anticipation_ratios, epoch_number
+
+def get_number_of_epochs(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+
+            input_file = os.path.join(input_dir, file)
+
+            input_data_table = pandas.read_csv(input_file, sep='\t')
+            epoch_column = input_data_table["epoch"]
+            epoch_number = epoch_column.max()
+
+    return epoch_number
 
 def computeAnticipatoryData(input_dir, output_file):
-    anticipation_data = pandas.DataFrame(columns=['subject',
-                                                  'epoch_1_learnt_anticip_ratio', 'epoch_2_learnt_anticip_ratio', 'epoch_3_learnt_anticip_ratio', 'epoch_4_learnt_anticip_ratio',
-                                                  'epoch_5_learnt_anticip_ratio', 'epoch_6_learnt_anticip_ratio', 'epoch_7_learnt_anticip_ratio', 'epoch_8_learnt_anticip_ratio'])
+    epoch_number = get_number_of_epochs(input_dir)
+    column_names = ['subject'] + [f'epoch_{i}_learnt_anticip_ratio' for i in range(1, epoch_number + 1)]
+    anticipation_data = pandas.DataFrame(columns=column_names)
 
     parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)

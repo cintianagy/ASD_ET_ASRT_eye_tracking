@@ -68,14 +68,26 @@ def computeDistanceImpl(input, preparatory_trial_number):
                 epoch_distances[current_epoch] = [distance_cm]
 
     # Compute median distance of subject eyes for all epochs.
-    epoch_summary = numpy.zeros(8).tolist()
+    epoch_number = epoch_column.max()
+    epoch_summary = numpy.zeros(epoch_number).tolist()
     for epoch in epoch_distances.keys():
         epoch_summary[epoch - 1] = floatToStr(numpy.median(epoch_distances[epoch]))
 
-    if len(epoch_summary) != 8:
-        raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
+    # if len(epoch_summary) != 8:
+    #     raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
 
     return epoch_summary
+def get_number_of_epochs(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+
+            input_file = os.path.join(input_dir, file)
+
+            input_data_table = pandas.read_csv(input_file, sep='\t')
+            epoch_column = input_data_table["epoch"]
+            epoch_number = epoch_column.max()
+
+    return epoch_number
 
 def computeDistance(input_dir, output_file):
     parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -85,6 +97,7 @@ def computeDistance(input_dir, output_file):
     except:
         raise Exception('Error: Could not read settings file to get the number of preparatory trials.')
 
+    epoch_number = get_number_of_epochs(input_dir)
     median_distances = []
     subject_epochs = []
     for root, dirs, files in os.walk(input_dir):
@@ -93,8 +106,7 @@ def computeDistance(input_dir, output_file):
 
             print("Compute eye-screen distance data for subject: " + subject)
             input_file = os.path.join(root, subject_file)
-
-            for i in range(1,9):
+            for i in range(1, epoch_number + 1):
                 subject_epochs.append("subject_" + subject + "_" + str(i))
 
             epoch_medians = computeDistanceImpl(input_file, settings.blockprepN)

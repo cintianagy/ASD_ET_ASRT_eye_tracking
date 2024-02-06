@@ -33,7 +33,9 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
     repetition_column = input_data_table["repetition"]
     trill_column = input_data_table["trill"]
     epoch_column = input_data_table["epoch"]
+    session_column = input_data_table["session"]
     block_column = input_data_table["block"]
+    pcode_column = input_data_table["PCode"]
     trial_column = input_data_table["trial"]
     trial_type_column = input_data_table["high_low_learning"]
     trial_type_interference_column = input_data_table["triplet_type_hl"]
@@ -50,8 +52,17 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
         assert(repetition_column[i] == "False")
         assert(trill_column[i] == "False")
 
-        # we calculate only with the sevens epoch (interference epoch).
-        if epoch_column[i] == 7:
+        # we find the interference epochs
+        if session_column[i] == session_column.max():
+            sequence_B = pcode_column.unique()[0]
+
+            interference_epochs = []
+            if pcode_column[i] == sequence_B:
+                if epoch_column[i] not in interference_epochs:
+                    interference_epochs.append(epoch_column[i])
+
+        # we calculate only with the seventh epoch (interference epoch).
+        if epoch_column[i] in interference_epochs:
             if trial_type_column[i] == 'high' and trial_type_interference_column[i] == 'low':
                 high_low_list.append(strToFloat(RT_column[i]))
             elif trial_type_column[i] == 'low' and trial_type_interference_column[i] == 'low':
@@ -70,8 +81,33 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
 
     return numpy.median(high_low_list), numpy.median(low_low_list), numpy.median(low_high_list)
 
+def get_interference_epochs(input_dir):
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+
+            input_file = os.path.join(input_dir, file)
+
+            input_data_table = pandas.read_csv(input_file, sep='\t')
+
+            RT_column = input_data_table["RT (ms)"]
+            epoch_column = input_data_table["epoch"]
+            session_column = input_data_table["session"]
+            pcode_column = input_data_table["PCode"]
+
+            for i in range(len(RT_column)):
+                if session_column[i] == session_column.max():
+                    sequence_B = pcode_column.unique()[0]
+
+                    interference_epochs = []
+                    if pcode_column[i] == sequence_B:
+                        if epoch_column[i] not in interference_epochs:
+                            interference_epochs.append(epoch_column[i])
+
+    return interference_epochs
 def computeInterferenceData(input_dir, output_file):
-    learning_data = pandas.DataFrame(columns=['subject', 'epoch_7_high_low', 'epoch_7_low_low', 'epoch_7_low_high'])
+    interference_epochs = get_interference_epochs(input_dir)
+    column_names = ['subject'] + [f'epoch_{i}_high_low' for i in interference_epochs] + [f'epoch_{i}_low_low' for i in interference_epochs] + [f'epoch_{i}_low_high' for i in interference_epochs]
+    learning_data = pandas.DataFrame(columns=column_names)
 
     parent_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     settings = ExperimentSettings(os.path.join(parent_folder, 'settings', 'settings'), "", True)
