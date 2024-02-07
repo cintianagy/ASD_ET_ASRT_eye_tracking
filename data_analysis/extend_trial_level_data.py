@@ -70,22 +70,40 @@ def computeHighLowBasedOnLearningSequence(data_table):
     high_low_column = []
     stimulus_column = data_table["stimulus"]
     trial_column = data_table["trial"]
+    session_column = data_table["session"]
+    pcode_column = data_table["PCode"]
 
-    # get the learning sequence
-    learning_sequence = findLearningSequence(data_table)
-    learning_sequence += learning_sequence[0]
+    if session_column.nunique() == 1:
+        # get the learning sequence
+        learning_sequence = findLearningSequence(data_table)
+        learning_sequence += learning_sequence[0]
 
-    # We calculate wether the current triplet is a high or low triplet based on the learning sequence.
-    for i in range(len(stimulus_column)):
-        # Can't calculate for the first two trials of the block, because there is no triplet we can use.
-        if trial_column[i] <= 2:
-            high_low_column.append('none')
-        elif (str(stimulus_column[i - 2]) + str(stimulus_column[i])) in learning_sequence:
-            high_low_column.append('high')
-        else:
-            high_low_column.append('low')
+        # We calculate whether the current triplet is a high or low triplet based on the learning sequence.
+        for i in range(len(stimulus_column)):
+            # Can't calculate for the first two trials of the block, because there is no triplet we can use.
+            if trial_column[i] <= 2:
+                high_low_column.append('none')
+            elif (str(stimulus_column[i - 2]) + str(stimulus_column[i])) in learning_sequence:
+                high_low_column.append('high')
+            else:
+                high_low_column.append('low')
 
-    return high_low_column
+        return high_low_column
+    elif session_column.nunique() > 1:
+        # get the learning sequence
+        learning_sequence = pcode_column.unique()[1]
+
+        # We calculate whether the current triplet is a high or low triplet based on the learning sequence.
+        for i in range(len(stimulus_column)):
+            # Can't calculate for the first two trials of the block, because there is no triplet we can use.
+            if trial_column[i] <= 2:
+                high_low_column.append('none')
+            elif (str(stimulus_column[i - 2]) + str(stimulus_column[i])) in learning_sequence:
+                high_low_column.append('high')
+            else:
+                high_low_column.append('low')
+
+        return high_low_column
 
 def computeAnticipationColumn(data_table):
     anticipation_column = []

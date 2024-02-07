@@ -62,7 +62,7 @@ I. Trial level data
       So for the first two trials of all block this field contains a "none" value. Otherwise this field can be "low" or "high". "low" means
       low probability triplet and "high" means high probability triplet. This probabilities should be interpreted according to the given epoch.
       In the learning epochs this probability are calculated according to the learning sequence, while in the interference epoch (epoch 7), this is computed
-      based on the interference sequence. It's alway calculated based on the sequence of the given epoch (see PCode field). In the first epoch,
+      based on the interference sequence. It's always calculated based on the sequence of the given epoch (see PCode field). In the first epoch,
       where there were no sequence, this field has always "none" value.
 
     - stimulus: The place, where the stimulus was showed in the given trial. It's value in [1-4] interval. 1 - top-left position, 2 - top-right position,
