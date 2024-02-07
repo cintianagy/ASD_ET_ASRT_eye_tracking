@@ -53,7 +53,7 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
         assert(trill_column[i] == "False")
 
         # we find the interference epochs
-        if session_column[i] == session_column.max():
+        if pcode_column.nunique() > 1 & session_column[i] == session_column.max():
             sequence_B = pcode_column.unique()[0]
 
             interference_epochs = []
