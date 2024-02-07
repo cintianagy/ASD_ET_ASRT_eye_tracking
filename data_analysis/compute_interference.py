@@ -125,7 +125,7 @@ def computeInterferenceData(input_dir, output_file):
             print("Compute interference measures for subject: " + subject)
 
             high_low_median, low_low_median, low_high_median = computeInterferenceOneSubject(input_file, settings.blockprepN)
-            learning_data.loc[len(learning_data)] = [subject, floatToStr(high_low_median), floatToStr(low_low_median), floatToStr(low_high_median)]
+            learning_data.loc[len(learning_data)] = [subject] + [floatToStr(high_low_median) for _ in interference_epochs] + [floatToStr(low_low_median) for _ in interference_epochs] + [floatToStr(low_high_median) for _ in interference_epochs]
         break
 
     learning_data.to_csv(output_file, sep='\t', index=False)
