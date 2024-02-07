@@ -61,23 +61,23 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
                 if epoch_column[i] not in interference_epochs:
                     interference_epochs.append(epoch_column[i])
 
-        # we calculate only with the seventh epoch (interference epoch).
-        if epoch_column[i] in interference_epochs:
-            if trial_type_column[i] == 'high' and trial_type_interference_column[i] == 'low':
-                high_low_list.append(strToFloat(RT_column[i]))
-            elif trial_type_column[i] == 'low' and trial_type_interference_column[i] == 'low':
-                low_low_list.append(strToFloat(RT_column[i]))
-            elif trial_type_column[i] == 'low' and trial_type_interference_column[i] == 'high':
-                low_high_list.append(strToFloat(RT_column[i]))
+            # we calculate only with the interference epoch.
+            if epoch_column[i] in interference_epochs:
+                if trial_type_column[i] == 'high' and trial_type_interference_column[i] == 'low':
+                    high_low_list.append(strToFloat(RT_column[i]))
+                elif trial_type_column[i] == 'low' and trial_type_interference_column[i] == 'low':
+                    low_low_list.append(strToFloat(RT_column[i]))
+                elif trial_type_column[i] == 'low' and trial_type_interference_column[i] == 'high':
+                    low_high_list.append(strToFloat(RT_column[i]))
 
-    if len(high_low_list) == 0:
-        raise Exception('Error: No HL data were found!')
-
-    if len(low_low_list) == 0:
-        raise Exception('Error: No LL data were found!')
-
-    if len(low_high_list) == 0:
-        raise Exception('Error: No LH data were found!')
+    # if len(high_low_list) == 0:
+    #     raise Exception('Error: No HL data were found!')
+    #
+    # if len(low_low_list) == 0:
+    #     raise Exception('Error: No LL data were found!')
+    #
+    # if len(low_high_list) == 0:
+    #     raise Exception('Error: No LH data were found!')
 
     return numpy.median(high_low_list), numpy.median(low_low_list), numpy.median(low_high_list)
 

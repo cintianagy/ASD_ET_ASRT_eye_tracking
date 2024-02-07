@@ -142,7 +142,7 @@ def computeRMSSampleToSample(input_dir, output_file):
             print("Compute RMS(S2S) for subject: " + subject)
             input_file = os.path.join(root, subject_file)
             # flexible range
-            for i in range(1, epoch_number):
+            for i in range(1, epoch_number + 1):
                 subject_epochs.append("subject_" + subject + "_" + str(i))
 
             RMS = computeRMSSampleToSampleImpl(input_file, settings.blockprepN, settings.stim_fixation_threshold)

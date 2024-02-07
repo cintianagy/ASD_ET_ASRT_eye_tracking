@@ -77,7 +77,7 @@ def computeAnticipationDataForOneSubject(input_file, preparatory_trial_number):
     # we do not need this
     # if len(learnt_anticipation_ratios) != 8:
     #     raise Exception("Error: The input data should contain exactly 8 epochs for this data analysis.")
-    return learnt_anticipation_ratios, epoch_number
+    return learnt_anticipation_ratios
 
 def get_number_of_epochs(input_dir):
     for root, dirs, files in os.walk(input_dir):
