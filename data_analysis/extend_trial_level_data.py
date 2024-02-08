@@ -91,7 +91,7 @@ def computeHighLowBasedOnLearningSequence(data_table):
         return high_low_column
     elif session_column.nunique() > 1:
         # get the learning sequence
-        learning_sequence = pcode_column.unique()[1]
+        learning_sequence = str(pcode_column.unique()[1])
 
         # We calculate whether the current triplet is a high or low triplet based on the learning sequence.
         for i in range(len(stimulus_column)):

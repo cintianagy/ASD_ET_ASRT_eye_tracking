@@ -53,7 +53,7 @@ def computeInterferenceOneSubject(input_file, preparatory_trial_number):
         assert(trill_column[i] == "False")
 
         # we find the interference epochs
-        if pcode_column.nunique() > 1 & session_column[i] == session_column.max():
+        if pcode_column.nunique() > 1 and session_column[i] == session_column.max():
             sequence_B = pcode_column.unique()[0]
 
             interference_epochs = []
@@ -94,11 +94,12 @@ def get_interference_epochs(input_dir):
             session_column = input_data_table["session"]
             pcode_column = input_data_table["PCode"]
 
+            interference_epochs = []
             for i in range(len(RT_column)):
                 if session_column[i] == session_column.max():
                     sequence_B = pcode_column.unique()[0]
 
-                    interference_epochs = []
+
                     if pcode_column[i] == sequence_B:
                         if epoch_column[i] not in interference_epochs:
                             interference_epochs.append(epoch_column[i])
