@@ -187,6 +187,22 @@ class ExperimentSettings:
                     self.whether_warning = settings_file['whether_warning']
                     self.speed_warning = settings_file['speed_warning']
                     self.acc_warning = settings_file['acc_warning']
+
+                if self.experiment_type == 'ET_RT_transfer':
+                    self.AOI_size = settings_file['AOI_size']
+                    self.stim_fixation_threshold = settings_file['stim_fixation_threshold']
+                    self.instruction_fixation_threshold = settings_file['instruction_fixation_threshold']
+                    self.dispersion_threshold = settings_file['dispersion_threshold']
+                    self.validation_trialN = settings_file['validation_trialN']
+                    self.key1 = settings_file['key1']
+                    self.key2 = settings_file['key2']
+                    self.key3 = settings_file['key3']
+                    self.key4 = settings_file['key4']
+                    self.key_quit = settings_file['key_quit']
+                    self.whether_warning = settings_file['whether_warning']
+                    self.speed_warning = settings_file['speed_warning']
+                    self.acc_warning = settings_file['acc_warning']
+
                 elif self.experiment_type == 'eye-tracking':
                     self.key_quit = 'q'
         except Exception as exception:
@@ -226,6 +242,21 @@ class ExperimentSettings:
                 settings_file['validation_trialN'] = self.validation_trialN
 
             if self.experiment_type == 'reaction-time':
+                settings_file['key1'] = self.key1
+                settings_file['key2'] = self.key2
+                settings_file['key3'] = self.key3
+                settings_file['key4'] = self.key4
+                settings_file['key_quit'] = self.key_quit
+                settings_file['whether_warning'] = self.whether_warning
+                settings_file['speed_warning'] = self.speed_warning
+                settings_file['acc_warning'] = self.acc_warning
+
+            if self.experiment_type == 'ET_RT_transfer':
+                settings_file['AOI_size'] = self.AOI_size
+                settings_file['stim_fixation_threshold'] = self.stim_fixation_threshold
+                settings_file['instruction_fixation_threshold'] = self.instruction_fixation_threshold
+                settings_file['dispersion_threshold'] = self.dispersion_threshold
+                settings_file['validation_trialN'] = self.validation_trialN
                 settings_file['key1'] = self.key1
                 settings_file['key2'] = self.key2
                 settings_file['key3'] = self.key3
@@ -285,6 +316,32 @@ class ExperimentSettings:
                             'A settings/settings fájl kitörlésével a beállítások megváltoztathatóak; ugyanakkor a fájl\n' +
                             'törlése a későbbi átláthatóság miatt nem javasolt. Ha mégis a törlés mellett döntenél,\n' +
                             'jelen .txt fájlt előtte másold le, hogy a korábbi beállításokra is emlékezhess, ha szükséges lesz.\n')
+
+            if self.experiment_type == 'ET_RT_transfer':
+                reminder += str('Response keys: ' + '\t' + self.key1 + ', ' + self.key2 + ', ' + self.key3 + ', ' + self.key4 + '.' + '\n' +
+                                'Quit key: ' + '\t' + self.key_quit + '\n' +
+                                'Warning (speed, accuracy): ' + '\t' + str(self.whether_warning) + '\n' +
+                                'Speed warning at:' + '\t' + str(self.speed_warning) + '\n' +
+                                'Acc warning at:' + '\t' + str(self.acc_warning) + '\n')
+
+            reminder += str('Groups:' + '\t' + str(self.groups)[1:-1].replace("u'", '').replace("'", '') + '\n' +
+                            'Sessions:' + '\t' + str(self.numsessions) + '\n' +
+                            'Epochs in sessions:' + '\t' + str(self.epochs)[1:-1].replace("u'", '').replace("'", '') + '\n' +
+                            'Blocks in epochs:' + '\t' + str(self.block_in_epochN) + '\n' +
+                            'Preparatory Trials\\Block:' + '\t' + str(self.blockprepN) + '\n' +
+                            'Trials\\Block:' + '\t' + str(self.blocklengthN) + '\n' +
+                            'RSI:' + '\t' + str(self.RSI_time).replace('.', ',') + '\n' +
+                            'Asrt stim distance:' + '\t' + str(self.asrt_distance).replace('.', ',') + '\n' +
+                            'Asrt stim size:' + '\t' + str(self.asrt_size).replace('.', ',') + '\n' +
+                            'Asrt stim color (implicit):' + '\t' + self.asrt_rcolor + '\n' +
+                            'Asrt stim color (explicit, cued):' + '\t' + self.asrt_pcolor + '\n' +
+                            'Background color:' + '\t' + self.asrt_background + '\n')
+
+            reminder += str('AOI size:' + '\t' + str(self.AOI_size).replace('.', ',') + '\n' +
+                                'Fixation threshold for stimulus:' + '\t' + str(self.stim_fixation_threshold) + '\n' +
+                                'Fixation threshold for instructions:' + '\t' + str(self.instruction_fixation_threshold) + '\n' +
+                                'Dispersion threshold:' + '\t' + str(self.dispersion_threshold).replace('.', ',') + '\n' +
+                                'Nr of validation trials:' + '\t' + str(self.validation_trialN).replace('.', ',') + '\n')
 
             reminder_file.write(reminder)
 
@@ -380,6 +437,8 @@ class ExperimentSettings:
             return [self.key1, self.key2, self.key3, self.key4, self.key_quit]
         elif self.experiment_type == 'eye-tracking':
             return [self.key_quit]
+        if self.experiment_type == 'ET_RT_transfer':
+            return [self.key1, self.key2, self.key3, self.key4, self.key_quit]
         else:
             return None
 
@@ -390,7 +449,7 @@ class ExperimentSettings:
         settings_dialog.addText(
             u'Még nincsenek beállítások mentve ehhez a kísérlethez...')
         settings_dialog.addField(u'Kísérlet típusa:', choices=[
-                                 'reakció idő', 'eye-tracking'], initial="reakció idő")
+                                 'reakció idő', 'eye-tracking', 'ET_RT_transfer'], initial="reakció idő")
         settings_dialog.addText(
             u'A logfile optimalizálása érdekében kérjük add meg, hányféle csoporttal tervezed az adatfelvételt.')
         settings_dialog.addField(
@@ -402,6 +461,8 @@ class ExperimentSettings:
             self.numsessions = returned_data[2]
             if returned_data[0] == 'reakció idő':
                 self.experiment_type = 'reaction-time'
+            elif returned_data[0] == 'ET_RT_transfer':
+                self.experiment_type = 'ET_RT_transfer'
             else:
                 self.experiment_type = 'eye-tracking'
                 if not g_tobii_available:
@@ -481,7 +542,7 @@ class ExperimentSettings:
             core.quit()
 
     def show_computer_and_display_settings_dialog(self):
-        """Ask the user specific infromation about the computer and also change display settings."""
+        """Ask the user specific information about the computer and also change display settings."""
 
         possible_colors = ["AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "DarkOrange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen", "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey", "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray", "LightGrey", "LightGreen",
                            "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin", "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "RebeccaPurple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke", "Yellow", "YellowGreen"]
@@ -493,6 +554,8 @@ class ExperimentSettings:
         settings_dialog.addText(u'Megjelenés..')
 
         if self.experiment_type == 'reaction-time':
+            settings_dialog.addField(u'Ingerek tavolsaga (kozeppontok kozott) (cm)', 3.0)
+        elif self.experiment_type == 'ET_RT_transfer':
             settings_dialog.addField(u'Ingerek tavolsaga (kozeppontok kozott) (cm)', 3.0)
         else:  # 'eye-tracking'
             settings_dialog.addField(u'Ingerek tavolsaga (kozeppontok kozott) (cm)', 10.0)
@@ -507,10 +570,19 @@ class ExperimentSettings:
 
         if self.experiment_type == 'reaction-time':
             settings_dialog.addField(u'RSI (ms)', 120)
+        elif self.experiment_type == 'ET_RT_transfer':
+            settings_dialog.addField(u'RSI (ms)', 120)
         else:  # 'eye-tracking'
             settings_dialog.addField(u'RSI (ms)', 500)
 
         if self.experiment_type == 'eye-tracking':
+            settings_dialog.addText(u'Eye-tracking paraméterek...')
+            settings_dialog.addField(u'AOI négyzetek oldahossza (cm):', 3.0)
+            settings_dialog.addField(u'Stimulusnál használt fixációs küszöbérték (mintavételek száma):', 12)
+            settings_dialog.addField(u'Instrukcióknál használt fixációs küszöbérték (mintavételek száma):', 36)
+            settings_dialog.addField(u'Diszperzió küszöbérték (cm):', 2.0)
+
+        elif self.experiment_type == 'ET_RT_transfer':
             settings_dialog.addText(u'Eye-tracking paraméterek...')
             settings_dialog.addField(u'AOI négyzetek oldahossza (cm):', 3.0)
             settings_dialog.addField(u'Stimulusnál használt fixációs küszöbérték (mintavételek száma):', 12)
@@ -534,6 +606,12 @@ class ExperimentSettings:
                 self.instruction_fixation_threshold = returned_data[10]
                 self.dispersion_threshold = returned_data[11]
 
+            if self.experiment_type == 'ET_RT_transfer':
+                self.AOI_size = returned_data[8]
+                self.stim_fixation_threshold = returned_data[9]
+                self.instruction_fixation_threshold = returned_data[10]
+                self.dispersion_threshold = returned_data[11]
+
         else:
             core.quit()
 
@@ -543,6 +621,13 @@ class ExperimentSettings:
 
         settings_dialog = gui.Dlg(title=u'Beállítások')
         if self.experiment_type == 'reaction-time':
+            settings_dialog.addText(u'Válaszbillentyűk')
+            settings_dialog.addField(u'Bal szelso:', 'y')
+            settings_dialog.addField(u'Bal kozep', 'c')
+            settings_dialog.addField(u'Jobb kozep', 'b')
+            settings_dialog.addField(u'Jobb szelso', 'm')
+            settings_dialog.addField(u'Kilepes', 'q')
+        if self.experiment_type == 'ET_RT_transfer':
             settings_dialog.addText(u'Válaszbillentyűk')
             settings_dialog.addField(u'Bal szelso:', 'y')
             settings_dialog.addField(u'Bal kozep', 'c')
@@ -620,7 +705,7 @@ class InstructionHelper:
 
     def validate_instructions(self, settings):
         '''Do a minimal validation of the read instructions to get error messages early,
-           before a missing string actualy causes an issue.'''
+           before a missing string actually causes an issue.'''
 
         if len(self.insts) == 0:
             print("Starting instruction was not specified!")
@@ -654,7 +739,7 @@ class InstructionHelper:
 
     def __show_message(self, instruction_list, experiment):
         """Display simple instructions on the screen."""
-
+        # TODO: should I modify this?
         # There can be more instructions to display successively
         for inst in instruction_list:
             if experiment.settings.experiment_type == 'reaction-time':
@@ -688,7 +773,7 @@ class InstructionHelper:
 
            The feedback string contains placeholders for reaction time and accuracy.
            Based on the settings the feedback might contain extra warning
-           about the speed or accuray.
+           about the speed or accuracy.
         """
 
         for l in self.feedback_exp:
@@ -719,7 +804,7 @@ class InstructionHelper:
 
            The feedback string contains placeholders for reaction time and accuracy.
            Based on the settings the feedback might contain extra warning
-           about the speed or accuray.
+           about the speed or accuracy.
         """
         for i in self.feedback_imp:
             i = i.replace('*MEANRT*', rt_mean)
@@ -745,7 +830,7 @@ class InstructionHelper:
     def feedback_ET(self, experiment):
         """Display feedback screen in the end of the block.
 
-           For eye tracking we display the last five blocks' avarage reaction times.
+           For eye tracking we display the last five blocks' average reaction times.
         """
         feedback = "Most pihenhetsz egy kicsit.\n\n"
         feedback += "Az előző blokkokban mért átlagos reakcióidők:\n\n"
@@ -806,7 +891,7 @@ class PersonDataHandler:
         self.output_file_path = output_file_path
         # type of the experiment indicating the output variables ('reaction-time' or 'eye-tracking')
         self.output_file_type = output_file_type
-        # we store all neccessary data in this list of lists to be able to generate the output at the end of all blocks
+        # we store all necessary data in this list of lists to be able to generate the output at the end of all blocks
         self.output_data_buffer = []
         # output text files for the measured data during jacobi test
         self.jacobi_ET_output_file_path = jacobi_ET_output_file_path
@@ -922,7 +1007,7 @@ class PersonDataHandler:
                 output_file.write(string_to_append)
 
     def flush_RT_data_to_output(self, experiment):
-        """ Write out the ouptut date of the current trial into the output text file (reaction-time exp. type)."""
+        """ Write out the output date of the current trial into the output text file (reaction-time exp. type)."""
         assert self.output_file_type == 'reaction-time'
 
         output_buffer = StringIO()
@@ -977,7 +1062,7 @@ class PersonDataHandler:
         self.output_data_buffer.clear()
 
     def add_RT_heading_to_output(self, output_file):
-        """Add the first line to the ouput with the names of the different variables (reaction-time exp. type)."""
+        """Add the first line to the output with the names of the different variables (reaction-time exp. type)."""
         assert self.output_file_type == 'reaction-time'
 
         heading_list = ['computer_name',
@@ -1015,7 +1100,7 @@ class PersonDataHandler:
             output_file.write(h + '\t')
 
     def flush_ET_data_to_output(self, experiment):
-        """ Write out the ouptut data of the current trial into the output text file (eye-tracking exp. type)."""
+        """ Write out the output data of the current trial into the output text file (eye-tracking exp. type)."""
         assert self.output_file_type == 'eye-tracking'
 
         output_buffer = StringIO()
@@ -1127,7 +1212,7 @@ class PersonDataHandler:
         self.output_data_buffer.clear()
 
     def add_ET_heading_to_output(self, output_file):
-        """Add the first line to the ouput with the names of the different variables (eye-tracking exp. type)."""
+        """Add the first line to the output with the names of the different variables (eye-tracking exp. type)."""
         assert self.output_file_type == 'eye-tracking'
 
         heading_list = ['computer_name',
@@ -1186,7 +1271,7 @@ class PersonDataHandler:
             output_file.write(h + '\t')
 
     def flush_jacobi_ET_data_to_output(self, experiment):
-        """ Write out the ouptut data of the current trial into the output text file (eye-tracking exp. type)."""
+        """ Write out the output data of the current trial into the output text file (eye-tracking exp. type)."""
         assert(self.output_file_type == 'eye-tracking')
         assert(experiment.settings.epochN >= 2)
 
@@ -1281,12 +1366,12 @@ class PersonDataHandler:
             output_file.write(output_buffer.getvalue())
 
         output_buffer.close()
-        # make sure we don't get more data here durig writing it out
+        # make sure we don't get more data here during writing it out
         assert data_len == len(self.output_data_buffer)
         self.output_data_buffer.clear()
 
     def add_jacobi_ET_heading_to_output(self, output_file):
-        """Add the first line to the ouput with the names of the different variables (eye-tracking exp. type)."""
+        """Add the first line to the output with the names of the different variables (eye-tracking exp. type)."""
         assert self.output_file_type == 'eye-tracking'
 
         heading_list = ['computer_name',
@@ -1338,7 +1423,7 @@ class PersonDataHandler:
             output_file.write(h + '\t')
 
     def add_jacobi_heading_to_output(self, output_file):
-        """Add the first line to the ouput with the names of the different variables (eye-tracking exp. type)."""
+        """Add the first line to the output with the names of the different variables (eye-tracking exp. type)."""
         assert self.output_file_type == 'eye-tracking'
 
         heading_list = ['computer_name',
@@ -1413,7 +1498,228 @@ class PersonDataHandler:
 
         output_buffer.close()
         self.jacobi_output_data_buffer.clear()
+    def flush_ET_RT_data_to_output(self, experiment):
+        """ Write out the output data of the current trial into the output text file (eye-tracking exp. type)."""
+        assert self.output_file_type == 'ET_RT_transfer'
 
+        output_buffer = StringIO()
+        max_trial = experiment.settings.get_maxtrial()
+        data_len = len(self.output_data_buffer)
+        for data in self.output_data_buffer:
+
+            N = data[0] + 1
+            if N > max_trial:
+                break
+            epoch = experiment.stimepoch[N]
+            PCode = experiment.which_code(epoch)
+            asrt_type = experiment.settings.asrt_types[epoch]
+            if experiment.stimpr[N] == 'pattern':
+                if experiment.settings.asrt_types[epoch] == 'explicit':
+                    stimcolor = experiment.colors['stimp']
+                else:
+                    stimcolor = experiment.colors['stimr']
+            else:
+                stimcolor = experiment.colors['stimr']
+
+            trial_type_high_low = experiment.calulate_trial_type_high_low(N)
+            left_gaze_data_ADCS = data[3]['left_gaze_point_on_display_area']
+            right_gaze_data_ADCS = data[3]['right_gaze_point_on_display_area']
+            left_eye_distance = data[3]['left_gaze_origin_in_user_coordinate_system'][2]
+            right_eye_distance = data[3]['right_gaze_origin_in_user_coordinate_system'][2]
+            left_gaze_validity = bool(data[3]['left_gaze_point_validity'])
+            right_gaze_validity = bool(data[3]['right_gaze_point_validity'])
+
+            if left_gaze_validity:
+                left_gaze_data_PCMCS = experiment.ADCS_to_PCMCS(left_gaze_data_ADCS)
+            else:
+                left_gaze_data_PCMCS = (float('nan'), float('nan'))
+
+            if right_gaze_validity:
+                right_gaze_data_PCMCS = experiment.ADCS_to_PCMCS(right_gaze_data_ADCS)
+            else:
+                right_gaze_data_PCMCS = (float('nan'), float('nan'))
+
+            left_pupil_diameter = data[3]['left_pupil_diameter']
+            right_pupil_diameter = data[3]['right_pupil_diameter']
+            left_pupil_validity = bool(data[3]['left_pupil_validity'])
+            right_pupil_validity = bool(data[3]['right_pupil_validity'])
+
+            output_data = [experiment.settings.computer_name,
+                           experiment.mymonitor.getSizePix()[0],
+                           experiment.mymonitor.getSizePix()[1],
+                           experiment.subject_group,
+                           experiment.subject_number,
+                           experiment.subject_sex,
+                           experiment.subject_age,
+                           asrt_type,
+                           PCode,
+
+                           experiment.stim_sessionN[N],
+                           experiment.stimepoch[N],
+                           experiment.stimblock[N],
+                           experiment.stimtrial[N],
+
+                           data[1],
+                           experiment.frame_rate,
+                           experiment.frame_time,
+                           experiment.frame_sd,
+                           data[3],
+
+                           stimcolor,
+                           experiment.stimpr[N],
+                           trial_type_high_low,
+                           experiment.stimlist[N],
+                           data[2],
+                           left_gaze_data_ADCS[0],
+                           left_gaze_data_ADCS[1],
+                           right_gaze_data_ADCS[0],
+                           right_gaze_data_ADCS[1],
+                           left_gaze_data_PCMCS[0],
+                           left_gaze_data_PCMCS[1],
+                           right_gaze_data_PCMCS[0],
+                           right_gaze_data_PCMCS[1],
+                           left_eye_distance,
+                           right_eye_distance,
+                           left_gaze_validity,
+                           right_gaze_validity,
+                           left_pupil_diameter,
+                           right_pupil_diameter,
+                           left_pupil_validity,
+                           right_pupil_validity,
+                           data[4],
+                           experiment.dict_pos[1][0],
+                           experiment.dict_pos[1][1],
+                           experiment.dict_pos[2][0],
+                           experiment.dict_pos[2][1],
+                           experiment.dict_pos[3][0],
+                           experiment.dict_pos[3][1],
+                           experiment.dict_pos[4][0],
+                           experiment.dict_pos[4][1],
+
+                           # from RT function
+                           data[8],
+
+                           experiment.stim_sessionN[N],
+                           experiment.stimepoch[N],
+                           experiment.stimblock[N],
+                           experiment.stimtrial[N],
+
+                           data[1],
+                           experiment.frame_rate,
+                           experiment.frame_time,
+                           experiment.frame_sd,
+                           data[2],
+                           data[3],
+
+                           data[7],
+                           experiment.stimpr[N],
+                           trial_type_high_low,
+                           data[4],
+                           data[5],
+
+                           experiment.stimlist[N],
+                           data[6]]
+
+
+
+            output_buffer.write("\n")
+            for data in output_data:
+                if isinstance(data, numbers.Number):
+                    data = str(data)
+                    data = data.replace('.', ',')
+                else:
+                    data = str(data)
+                output_buffer.write(data + '\t')
+
+        self.append_to_output_file(output_buffer.getvalue())
+        output_buffer.close()
+        # make sure we don't get more data here during writing it out
+        assert data_len == len(self.output_data_buffer)
+        self.output_data_buffer.clear()
+
+    def add_ET_RT_heading_to_output(self, output_file):
+        """Add the first line to the output with the names of the different variables (eye-tracking exp. type)."""
+        assert self.output_file_type == 'ET_RT_transfer'
+
+        heading_list = ['computer_name',
+                        'monitor_width_pixel',
+                        'monitor_height_pixel',
+                        'subject_group',
+                        'subject_number',
+                        'subject_sex',
+                        'subject_age',
+                        'asrt_type',
+                        'PCode',
+
+                        'session',
+                        'epoch',
+                        'block',
+                        'trial',
+
+                        'RSI_time',
+                        'frame_rate',
+                        'frame_time',
+                        'frame_sd',
+
+                        'stimulus_color',
+                        'trial_type_pr',
+                        'triplet_type_hl',
+                        'stimulus',
+                        'trial_phase',
+                        'left_gaze_data_X_ADCS',
+                        'left_gaze_data_Y_ADCS',
+                        'right_gaze_data_X_ADCS',
+                        'right_gaze_data_Y_ADCS',
+                        'left_gaze_data_X_PCMCS',
+                        'left_gaze_data_Y_PCMCS',
+                        'right_gaze_data_X_PCMCS',
+                        'right_gaze_data_Y_PCMCS',
+                        'left_eye_distance',
+                        'right_eye_distance',
+                        'left_gaze_validity',
+                        'right_gaze_validity',
+                        'left_pupil_diameter',
+                        'right_pupil_diameter',
+                        'left_pupil_validity',
+                        'right_pupil_validity',
+                        'gaze_data_time_stamp',
+                        'stimulus_1_position_X_PCMCS',
+                        'stimulus_1_position_Y_PCMCS',
+                        'stimulus_2_position_X_PCMCS',
+                        'stimulus_2_position_Y_PCMCS',
+                        'stimulus_3_position_X_PCMCS',
+                        'stimulus_3_position_Y_PCMCS',
+                        'stimulus_4_position_X_PCMCS',
+                        'stimulus_4_position_Y_PCMCS',
+                        'quit_log',
+
+                        # from RT function
+                        'output_line',
+
+                        'session',
+                        'epoch',
+                        'block',
+                        'trial',
+
+                        'RSI_time',
+                        'frame_rate',
+                        'frame_time',
+                        'frame_sd',
+                        'date',
+                        'time',
+
+                        'stimulus_color',
+                        'trial_type_pr',
+                        'triplet_type_hl',
+                        'RT',
+                        'error',
+                        'stimulus',
+                        'response',
+                        'quit_log'
+                        ]
+
+        for h in heading_list:
+            output_file.write(h + '\t')
 
 class Experiment:
     """ Class for running the ASRT experiment."""
@@ -1518,6 +1824,8 @@ class Experiment:
 
             # get keyboard settings (reaction keys and quit key) and also feedback settings (accuracy and speed feedback, etc)
             if self.settings.experiment_type == 'reaction-time':
+                self.settings.show_key_and_feedback_settings_dialog()
+            elif self.settings.experiment_type == 'ET_RT_transfer':
                 self.settings.show_key_and_feedback_settings_dialog()
 
             # save the settings
@@ -1982,7 +2290,7 @@ class Experiment:
         if valid_after >= len(gaze_data_list):
             return None
 
-        # We calulate distances in sample count
+        # We calculate distances in sample count
         full_distance = valid_after - valid_before
         before_distance = invalid_index - valid_before
         after_distance = valid_after - invalid_index
@@ -2202,8 +2510,16 @@ class Experiment:
 
         return 'continue'
 
+    # TODO: wait for which response?
     def wait_for_response(self, expected_response, response_clock):
         if self.settings.experiment_type == 'reaction-time':
+            press = event.waitKeys(keyList=self.settings.get_key_list(),
+                                   timeStamped=response_clock)
+            if press[0][0] == 'q':
+                return (-1, press[0][1])
+            return (self.pressed_dict[press[0][0]], press[0][1])
+
+        elif self.settings.experiment_type == 'ET_RT_transfer':
             press = event.waitKeys(keyList=self.settings.get_key_list(),
                                    timeStamped=response_clock)
             if press[0][0] == 'q':
@@ -2239,6 +2555,14 @@ class Experiment:
         stimbg = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
                                fillColor=None, lineColor=self.colors['linecolor'])
         if self.settings.experiment_type == 'eye-tracking':
+            # place the fixation cross to the bottom-right corner of the screen
+            aspect_ratio = self.mymonitor.getSizePix()[1] / self.mymonitor.getSizePix()[0]
+            monitor_width_cm = self.settings.monitor_width
+            monitor_height_cm = monitor_width_cm * aspect_ratio
+            self.fixation_cross_pos = (monitor_width_cm / 2 - 3, -(monitor_height_cm / 2 - 3))
+            self.fixation_cross = visual.TextStim(win=self.mywindow, text="+", height=3, units="cm", color='black', pos=self.fixation_cross_pos)
+
+        elif self.settings.experiment_type == 'ET_RT_transfer':
             # place the fixation cross to the bottom-right corner of the screen
             aspect_ratio = self.mymonitor.getSizePix()[1] / self.mymonitor.getSizePix()[0]
             monitor_width_cm = self.settings.monitor_width
@@ -2405,6 +2729,13 @@ class Experiment:
 
                 if self.settings.experiment_type == 'reaction-time':
                     self.person_data.flush_RT_data_to_output(self)
+                elif self.settings.experiment_type == 'ET_RT_transfer':
+                    # stop registering more eye-tracking data
+                    self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
+                    self.person_data.flush_ET_RT_data_to_output(self)
+                    # continue eye-tracking
+                    self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback,
+                                                  as_dictionary=True)
                 else:
                     # stop registering more eye-tracking data
                     self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
@@ -2429,6 +2760,9 @@ class Experiment:
                     if self.settings.experiment_type == 'reaction-time':
                         whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
                                                         accs_in_block, RT_all_list, RT_pattern_list)
+                    elif self.settings.experiment_type == 'ET_RT_transfer':
+                        whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
+                                                        accs_in_block, RT_all_list, RT_pattern_list)
                     else:
                         whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts()) #end of epoch here
 
@@ -2451,7 +2785,7 @@ class Experiment:
 
             # end of the sessions (one run of the experiment script stops at the end of the current session)
             if N == self.end_at[N - 1]:
-                # stop recoring gaze data
+                # stop recording gaze data
                 if self.eye_tracker is not None:
                     self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
                 break
@@ -2746,6 +3080,12 @@ class Experiment:
 
         # reaction-time exp: stimulus circles placed in one line
         if self.settings.experiment_type == 'reaction-time':
+            self.dict_pos = {1: (float(self.settings.asrt_distance) * (-1.5), 0),
+                             2: (float(self.settings.asrt_distance) * (-0.5), 0),
+                             3: (float(self.settings.asrt_distance) * 0.5, 0),
+                             4: (float(self.settings.asrt_distance) * 1.5, 0)}
+        # TODO: which layout?
+        elif self.settings.experiment_type == 'ET_RT_transfer':
             self.dict_pos = {1: (float(self.settings.asrt_distance) * (-1.5), 0),
                              2: (float(self.settings.asrt_distance) * (-0.5), 0),
                              3: (float(self.settings.asrt_distance) * 0.5, 0),
