@@ -2604,6 +2604,7 @@ class Experiment:
             self.instructions.show_unexp_quit(self)
 
         RSI.start(self.settings.RSI_time)
+        # TODO: change this for the perceptual version
         while True:
             # four empty circles where the actual stimulus can be placed
             self.stim_bg(stimbg)
