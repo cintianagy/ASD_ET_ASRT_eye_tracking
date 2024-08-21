@@ -1,32 +1,35 @@
 ﻿inst#
 
-Üdvözlünk a feladatban!
+Ebben a feladatban négy kört fogsz látni a képernyő közepén.
+ 
+Balról jobbra az 'Y', 'C', 'B' és 'M' billentyűk tartoznak a négy körhöz.
 
-A képernyőn négy a közepén üres kört fogsz látni, az egyik kör időnként kap egy töltő színt.
+Időről időre az egyik kör kapni fog egy kitöltő színt.
 
-Az a feladatod, hogy a beszínezett kör megjelenési helyének megfelelő helyre vidd a tekinteted.
-
-Minél pontosabban és gyorsabban kövesd a szemeddel a megjelenő ingereket!
-
-A beszínezett kör egymás után többször ugyanazon a helyen is megjelenhet.
-
-A további instrukciók megtekintéséhez néz a sarokban taláható keresztre!
-
+A feladatod az lesz, hogy az inger megjelenési helyéhez tartozó gombot minél pontosabb és minél gyorsabban nyomd le.
 
 ***
 
 inst#
 
-Kb. percenként fogsz visszajelzést kapni arról,
-hogy mennyire voltál gyors az előző blokkokban, ez alapján tudsz módosítani.
+A feladat során néhány percenként lesz egy rövid szünet, amikor megmutatjuk számodra az átlagos pontosságod és reakcióidődet, amit felhasználhatsz a tejesítményed javításához.
 
-A feladat indításához néz a keresztre!
+A továbblépéshez nyomd meg bármelyik gombot.
+
+***
+
+inst#
+
+Most egy rövid gyakorlás következik
+
+A továbblépéshez nyomd meg bármelyik gombot.
 
 ***
 
 ending#
 
 Vége a kísérletnek!
+
 Köszönjük a részvételt!
 
 ***
@@ -35,4 +38,26 @@ unexpected quit#
 
 Váratlan kilépés történt a feladatból. Folytatás onnan, ahol abbahagytuk...
 
-A feladat indításához néz a keresztre.
+***
+
+feedback implicit#
+
+Az átlagos reakcióidőd: *MEANRT* ms.
+
+Az átlagos pontosságod: *PERCACC* %.
+
+Szép munka!
+
+***
+
+speed#
+
+Kérlek, próbálj meg gyorsabb lenni!
+
+
+***
+
+accuracy#
+
+Kérlek, próbálj meg pontosabb lenni!
+
