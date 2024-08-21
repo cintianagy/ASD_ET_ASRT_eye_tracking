@@ -130,7 +130,7 @@ class ExperimentSettings:
         self.sessionstarts = None
         # list of trial numbers indicating the first trials of the different blocks (calulcated number, e.g [1, 86, 171])
         self.blockstarts = None
-        #for validation: list of trial nr indicating the first ele of each epoch e.g [1, 86, 171])
+        # for validation: list of trial nr indicating the first ele of each epoch e.g [1, 86, 171])
         self.epochstarts = None
 
         # settings shelve file's path
@@ -188,7 +188,7 @@ class ExperimentSettings:
                     self.speed_warning = settings_file['speed_warning']
                     self.acc_warning = settings_file['acc_warning']
 
-                if self.experiment_type == 'ET_RT_transfer':
+                if self.experiment_type == 'perceptuo_motor':
                     self.AOI_size = settings_file['AOI_size']
                     self.stim_fixation_threshold = settings_file['stim_fixation_threshold']
                     self.instruction_fixation_threshold = settings_file['instruction_fixation_threshold']
@@ -251,7 +251,7 @@ class ExperimentSettings:
                 settings_file['speed_warning'] = self.speed_warning
                 settings_file['acc_warning'] = self.acc_warning
 
-            if self.experiment_type == 'ET_RT_transfer':
+            if self.experiment_type == 'perceptuo_motor':
                 settings_file['AOI_size'] = self.AOI_size
                 settings_file['stim_fixation_threshold'] = self.stim_fixation_threshold
                 settings_file['instruction_fixation_threshold'] = self.instruction_fixation_threshold
@@ -317,7 +317,7 @@ class ExperimentSettings:
                             'törlése a későbbi átláthatóság miatt nem javasolt. Ha mégis a törlés mellett döntenél,\n' +
                             'jelen .txt fájlt előtte másold le, hogy a korábbi beállításokra is emlékezhess, ha szükséges lesz.\n')
 
-            if self.experiment_type == 'ET_RT_transfer':
+            if self.experiment_type == 'perceptuo_motor':
                 reminder += str('Response keys: ' + '\t' + self.key1 + ', ' + self.key2 + ', ' + self.key3 + ', ' + self.key4 + '.' + '\n' +
                                 'Quit key: ' + '\t' + self.key_quit + '\n' +
                                 'Warning (speed, accuracy): ' + '\t' + str(self.whether_warning) + '\n' +
@@ -437,7 +437,7 @@ class ExperimentSettings:
             return [self.key1, self.key2, self.key3, self.key4, self.key_quit]
         elif self.experiment_type == 'eye-tracking':
             return [self.key_quit]
-        if self.experiment_type == 'ET_RT_transfer':
+        if self.experiment_type == 'perceptuo_motor':
             return [self.key1, self.key2, self.key3, self.key4, self.key_quit]
         else:
             return None
@@ -449,20 +449,20 @@ class ExperimentSettings:
         settings_dialog.addText(
             u'Még nincsenek beállítások mentve ehhez a kísérlethez...')
         settings_dialog.addField(u'Kísérlet típusa:', choices=[
-                                 'reakció idő', 'eye-tracking', 'ET_RT_transfer'], initial="reakció idő")
+                                 'reakció idő', 'eye-tracking', 'perceptuo_motor'], initial="reakció idő")
         settings_dialog.addText(
             u'A logfile optimalizálása érdekében kérjük add meg, hányféle csoporttal tervezed az adatfelvételt.')
         settings_dialog.addField(
-            u'Kiserleti + Kontrollcsoportok szama osszesen', 2)
+            u'Kiserleti + Kontrollcsoportok szama osszesen', 1)
         settings_dialog.addText(u'Hány ülés (session) lesz a kísérletben?')
-        settings_dialog.addField(u'Ulesek szama', 2)
+        settings_dialog.addField(u'Ulesek szama', 1)
         returned_data = settings_dialog.show()
         if settings_dialog.OK:
             self.numsessions = returned_data[2]
             if returned_data[0] == 'reakció idő':
                 self.experiment_type = 'reaction-time'
-            elif returned_data[0] == 'ET_RT_transfer':
-                self.experiment_type = 'ET_RT_transfer'
+            elif returned_data[0] == 'perceptuo_motor':
+                self.experiment_type = 'perceptuo_motor'
             else:
                 self.experiment_type = 'eye-tracking'
                 if not g_tobii_available:
@@ -504,12 +504,12 @@ class ExperimentSettings:
         settings_dialog = gui.Dlg(title=u'Beállítások')
         settings_dialog.addText(u'Kísérlet felépítése ')
         settings_dialog.addField(u'Randomok gyakorlaskent a blokk elejen (ennyi db):', 5)
-        settings_dialog.addField(u'Eles probak a blokkban:', 80)
+        settings_dialog.addField(u'Eles probak a blokkban:', 20)
         settings_dialog.addField(u'Blokkok szama egy epochban:', 5)
         for i in range(self.numsessions):
-            settings_dialog.addField(u'Session ' + str(i + 1) + u' epochok szama', 5)
+            settings_dialog.addField(u'Session ' + str(i + 1) + u' epochok szama', 4)
         for i in range(self.numsessions):
-            settings_dialog.addField(u'Session ' + str(i + 1) + u' kezdő random epochok száma', 1)
+            settings_dialog.addField(u'Session ' + str(i + 1) + u' kezdő random epochok száma', 0)
         for i in range(self.numsessions):
             settings_dialog.addField(u'Session ' + str(i + 1) + u' ASRT tipusa',
                                      choices=["implicit", "explicit", "noASRT"])
@@ -517,9 +517,9 @@ class ExperimentSettings:
         returned_data = settings_dialog.show()
         print(returned_data)
         if settings_dialog.OK:
-            self.blockprepN = returned_data[0]
-            self.blocklengthN = returned_data[1]
-            self.block_in_epochN = returned_data[2]
+            self.blockprepN = int(returned_data[0])
+            self.blocklengthN = int(returned_data[1])
+            self.block_in_epochN = int(returned_data[2])
             self.epochN = 0
             self.epochs = []
             self.asrt_types = {}
@@ -555,7 +555,7 @@ class ExperimentSettings:
 
         if self.experiment_type == 'reaction-time':
             settings_dialog.addField(u'Ingerek tavolsaga (kozeppontok kozott) (cm)', 3.0)
-        elif self.experiment_type == 'ET_RT_transfer':
+        elif self.experiment_type == 'perceptuo_motor':
             settings_dialog.addField(u'Ingerek tavolsaga (kozeppontok kozott) (cm)', 3.0)
         else:  # 'eye-tracking'
             settings_dialog.addField(u'Ingerek tavolsaga (kozeppontok kozott) (cm)', 10.0)
@@ -563,14 +563,14 @@ class ExperimentSettings:
         settings_dialog.addField(u'Ingerek sugara (cm)', 1.0)
 
         settings_dialog.addField(u'ASRT inger szine (elsodleges, R)',
-                                 choices=possible_colors, initial="DarkBlue")
+                                 choices=possible_colors, initial="Gold")
         settings_dialog.addField(
             u'ASRT inger szine (masodlagos, P, explicit asrtnel)', choices=possible_colors, initial="Green")
-        settings_dialog.addField(u'Hatter szine', choices=possible_colors, initial="Ivory")
+        settings_dialog.addField(u'Hatter szine', choices=possible_colors, initial="Black")
 
         if self.experiment_type == 'reaction-time':
             settings_dialog.addField(u'RSI (ms)', 120)
-        elif self.experiment_type == 'ET_RT_transfer':
+        elif self.experiment_type == 'perceptuo_motor':
             settings_dialog.addField(u'RSI (ms)', 120)
         else:  # 'eye-tracking'
             settings_dialog.addField(u'RSI (ms)', 500)
@@ -582,7 +582,7 @@ class ExperimentSettings:
             settings_dialog.addField(u'Instrukcióknál használt fixációs küszöbérték (mintavételek száma):', 36)
             settings_dialog.addField(u'Diszperzió küszöbérték (cm):', 2.0)
 
-        elif self.experiment_type == 'ET_RT_transfer':
+        elif self.experiment_type == 'perceptuo_motor':
             settings_dialog.addText(u'Eye-tracking paraméterek...')
             settings_dialog.addField(u'AOI négyzetek oldahossza (cm):', 3.0)
             settings_dialog.addField(u'Stimulusnál használt fixációs küszöbérték (mintavételek száma):', 12)
@@ -606,7 +606,7 @@ class ExperimentSettings:
                 self.instruction_fixation_threshold = returned_data[10]
                 self.dispersion_threshold = returned_data[11]
 
-            if self.experiment_type == 'ET_RT_transfer':
+            if self.experiment_type == 'perceptuo_motor':
                 self.AOI_size = returned_data[8]
                 self.stim_fixation_threshold = returned_data[9]
                 self.instruction_fixation_threshold = returned_data[10]
@@ -617,7 +617,6 @@ class ExperimentSettings:
 
     def show_key_and_feedback_settings_dialog(self):
         """Ask the user to specify the keys used during the experiement and also set options related to the displayed feedback."""
-        #todo this function is not really set to RT/ET: it won't even be used if it's ET. Do sg about it
 
         settings_dialog = gui.Dlg(title=u'Beállítások')
         if self.experiment_type == 'reaction-time':
@@ -627,7 +626,7 @@ class ExperimentSettings:
             settings_dialog.addField(u'Jobb kozep', 'b')
             settings_dialog.addField(u'Jobb szelso', 'm')
             settings_dialog.addField(u'Kilepes', 'q')
-        if self.experiment_type == 'ET_RT_transfer':
+        if self.experiment_type == 'perceptuo_motor':
             settings_dialog.addText(u'Válaszbillentyűk')
             settings_dialog.addField(u'Bal szelso:', 'y')
             settings_dialog.addField(u'Bal kozep', 'c')
@@ -636,8 +635,8 @@ class ExperimentSettings:
             settings_dialog.addField(u'Kilepes', 'q')
         settings_dialog.addField(u'Figyelmeztetes pontossagra/sebessegre:', True)
         settings_dialog.addText(u'Ha be van kapcsolva a figyelmeztetés, akkor...:')
-        settings_dialog.addField(u'Figyelmeztetes sebessegre ezen pontossag felett (%):', 93)
-        settings_dialog.addField(u'Figyelmeztetes pontosságra ezen pontossag alatt (%):', 91)
+        settings_dialog.addField(u'Figyelmeztetes sebessegre ezen sebesség felett :', 350)
+        settings_dialog.addField(u'Figyelmeztetes pontosságra ezen pontossag alatt (%):', 90)
         returned_data = settings_dialog.show()
         print(returned_data)
         if settings_dialog.OK:
@@ -647,8 +646,8 @@ class ExperimentSettings:
             self.key4 = returned_data[3]
             self.key_quit = returned_data[4]
             self.whether_warning = returned_data[5]
-            self.speed_warning = returned_data[6]
-            self.acc_warning = returned_data[7]
+            self.speed_warning = int(returned_data[6])
+            self.acc_warning = int(returned_data[7])
         else:
             core.quit()
 
@@ -733,13 +732,12 @@ class InstructionHelper:
     def __print_to_screen(self, mytext, mywindow):
         """Display given string in the given window."""
 
-        text_stim = visual.TextStim(mywindow, text=mytext, units='cm', height=0.8, wrapWidth=20, color='black')
+        text_stim = visual.TextStim(mywindow, text=mytext, units='cm', height=0.8, wrapWidth=20, color='white')
         text_stim.draw()
         mywindow.flip()
 
     def __show_message(self, instruction_list, experiment):
         """Display simple instructions on the screen."""
-        # TODO: should I modify this?
         # There can be more instructions to display successively
         for inst in instruction_list:
             if experiment.settings.experiment_type == 'reaction-time':
@@ -747,7 +745,7 @@ class InstructionHelper:
                 tempkey = event.waitKeys(keyList=experiment.settings.get_key_list())
                 if experiment.settings.key_quit in tempkey:
                     core.quit()
-            else:  # 'eye-tracking'
+            elif experiment.settings.experiment_type == 'eye-tracking':
                 experiment.fixation_cross.draw()
                 self.__print_to_screen(inst, experiment.mywindow)
                 core.wait(2.0)
@@ -799,30 +797,32 @@ class InstructionHelper:
         else:
             return 'continue'
 
-    def feedback_implicit_RT(self, rt_mean, acc_for_the_whole, acc_for_the_whole_str, mywindow, expriment_settings):
+    def feedback_implicit_RT(self, rt_mean, rt_mean_str, acc_for_the_whole, acc_for_the_whole_str, mywindow, experiment_settings):
         """Display feedback screen in case of an implicit ASRT.
 
            The feedback string contains placeholders for reaction time and accuracy.
            Based on the settings the feedback might contain extra warning
            about the speed or accuracy.
         """
-        for i in self.feedback_imp:
-            i = i.replace('*MEANRT*', rt_mean)
-            i = i.replace('*PERCACC*', acc_for_the_whole_str)
 
-            if expriment_settings.whether_warning is True:
-                if acc_for_the_whole > expriment_settings.speed_warning:
-                    i = i.replace('*SPEEDACC*', self.feedback_speed[0])
-                elif acc_for_the_whole < expriment_settings.acc_warning:
-                    i = i.replace('*SPEEDACC*', self.feedback_accuracy[0])
-                else:
-                    i = i.replace('*SPEEDACC*', '')
-            else:
-                i = i.replace('*SPEEDACC*', '')
+        for feedback in self.feedback_imp:
+            feedback = feedback.replace('*MEANRT*', rt_mean_str)
+            feedback = feedback.replace('*PERCACC*', acc_for_the_whole_str)
 
-            self.__print_to_screen(i, mywindow)
-            tempkey = event.waitKeys(keyList=expriment_settings.get_key_list())
-        if expriment_settings.key_quit in tempkey:
+            warning_message = ''
+
+            if experiment_settings.whether_warning is True:
+                if rt_mean > experiment_settings.speed_warning:
+                    warning_message = self.feedback_speed[0]
+                elif acc_for_the_whole < experiment_settings.acc_warning:
+                    warning_message = self.feedback_accuracy[0]
+
+            feedback = feedback.replace('*SPEEDACC*', warning_message)
+
+            self.__print_to_screen(feedback, mywindow)
+
+            tempkey = event.waitKeys(keyList=experiment_settings.get_key_list())
+        if experiment_settings.key_quit in tempkey:
             return 'quit'
         else:
             return 'continue'
@@ -844,9 +844,11 @@ class InstructionHelper:
     def feedback_ET_validation(self, experiment, extreme_RT_count):
         """Display feedback screen in the end of validation block.
         """
+
         feedback = "A teszt blokknak vége. Szólj a kísérletvezetőnek!\n\n"
         feedback += "A blokkban mért extrém reakciódidők száma: " + str(extreme_RT_count) + ".\n\n"
         feedback += "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q)." + "\n"
+
 
         self.__print_to_screen(feedback, experiment.mywindow)
 
@@ -859,7 +861,6 @@ class InstructionHelper:
     def feedback_ET_endepoch_validation(self, experiment, endepoch_extreme_RT_count):
         """Display feedback screen in the end of validation block.
         """
-
         feedback = "Az epoch végén mért extrém reakciódidők száma: " + str(endepoch_extreme_RT_count) + ".\n\n"
         feedback += "Kísérletvezető: folytatás (c) vagy újrakalibráció (r/q)." + "\n"
 
@@ -1500,7 +1501,7 @@ class PersonDataHandler:
         self.jacobi_output_data_buffer.clear()
     def flush_ET_RT_data_to_output(self, experiment):
         """ Write out the output data of the current trial into the output text file (eye-tracking exp. type)."""
-        assert self.output_file_type == 'ET_RT_transfer'
+        assert self.output_file_type == 'perceptuo_motor'
 
         output_buffer = StringIO()
         max_trial = experiment.settings.get_maxtrial()
@@ -1639,7 +1640,7 @@ class PersonDataHandler:
 
     def add_ET_RT_heading_to_output(self, output_file):
         """Add the first line to the output with the names of the different variables (eye-tracking exp. type)."""
-        assert self.output_file_type == 'ET_RT_transfer'
+        assert self.output_file_type == 'perceptuo_motor'
 
         heading_list = ['computer_name',
                         'monitor_width_pixel',
@@ -1825,7 +1826,7 @@ class Experiment:
             # get keyboard settings (reaction keys and quit key) and also feedback settings (accuracy and speed feedback, etc)
             if self.settings.experiment_type == 'reaction-time':
                 self.settings.show_key_and_feedback_settings_dialog()
-            elif self.settings.experiment_type == 'ET_RT_transfer':
+            elif self.settings.experiment_type == 'perceptuo_motor':
                 self.settings.show_key_and_feedback_settings_dialog()
 
             # save the settings
@@ -1899,8 +1900,8 @@ class Experiment:
 
             settings_dialog = gui.Dlg(title=u'Beállítások')
             settings_dialog.addText('')
-            settings_dialog.addField(u'Nem', choices=["férfi", "nő", "más"])
-            settings_dialog.addField(u'Életkor', "25")
+            settings_dialog.addField(u'Nem', choices=["nő", "férfi", "más"])
+            settings_dialog.addField(u'Életkor', "20")
             settings_dialog.addField(u'Első PCode', choices=['1st', '2nd', '3rd', '4th', '5th', '6th'])
             settings_dialog.addField(u'Második PCode', choices=['1st', '2nd', '3rd', '4th', '5th', '6th'])
 
@@ -2399,7 +2400,7 @@ class Experiment:
     def print_to_screen(self, mytext):
         """Display any string on the screen."""
 
-        xtext = visual.TextStim(self.mywindow, text=mytext, units="cm", height=0.8, wrapWidth=20, color="black")
+        xtext = visual.TextStim(self.mywindow, text=mytext, units="cm", height=0.8, wrapWidth=20, color="white")
         xtext.draw()
         self.mywindow.flip()
 
@@ -2451,7 +2452,7 @@ class Experiment:
                 rt_mean_str, rt_mean_p_str, acc_for_patterns_str, acc_for_the_whole, acc_for_the_whole_str, self.mywindow, self.settings)
         else:
             whatnow = self.instructions.feedback_implicit_RT(
-                rt_mean_str, acc_for_the_whole, acc_for_the_whole_str, self.mywindow, self.settings)
+                rt_mean, rt_mean_str, acc_for_the_whole, acc_for_the_whole_str, self.mywindow, self.settings)
 
         return whatnow
 
@@ -2510,7 +2511,6 @@ class Experiment:
 
         return 'continue'
 
-    # TODO: wait for which response?
     def wait_for_response(self, expected_response, response_clock):
         if self.settings.experiment_type == 'reaction-time':
             press = event.waitKeys(keyList=self.settings.get_key_list(),
@@ -2519,7 +2519,7 @@ class Experiment:
                 return (-1, press[0][1])
             return (self.pressed_dict[press[0][0]], press[0][1])
 
-        elif self.settings.experiment_type == 'ET_RT_transfer':
+        elif self.settings.experiment_type == 'perceptuo_motor':
             press = event.waitKeys(keyList=self.settings.get_key_list(),
                                    timeStamped=response_clock)
             if press[0][0] == 'q':
@@ -2548,86 +2548,42 @@ class Experiment:
         """The real experiment happens here. This method displays the stimulus window and records the reactions."""
 
         # init presented objects
-        stimP = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
-                              fillColor=self.colors['stimp'], lineColor=self.colors['linecolor'], pos=self.dict_pos[1])
-        stimR = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
-                              fillColor=self.colors['stimr'], lineColor=self.colors['linecolor'], pos=self.dict_pos[1])
-        stimbg = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
-                               fillColor=None, lineColor=self.colors['linecolor'])
-        if self.settings.experiment_type == 'eye-tracking':
-            # place the fixation cross to the bottom-right corner of the screen
-            aspect_ratio = self.mymonitor.getSizePix()[1] / self.mymonitor.getSizePix()[0]
-            monitor_width_cm = self.settings.monitor_width
-            monitor_height_cm = monitor_width_cm * aspect_ratio
-            self.fixation_cross_pos = (monitor_width_cm / 2 - 3, -(monitor_height_cm / 2 - 3))
-            self.fixation_cross = visual.TextStim(win=self.mywindow, text="+", height=3, units="cm", color='black', pos=self.fixation_cross_pos)
+        if self.settings.experiment_type == 'perceptuo_motor':
+            stim_images = {
+                1: 'stim_images/left.jpg',
+                2: 'stim_images/up.jpg',
+                3: 'stim_images/down.jpg',
+                4: 'stim_images/right.jpg'
+            }
 
-        elif self.settings.experiment_type == 'ET_RT_transfer':
-            # place the fixation cross to the bottom-right corner of the screen
-            aspect_ratio = self.mymonitor.getSizePix()[1] / self.mymonitor.getSizePix()[0]
-            monitor_width_cm = self.settings.monitor_width
-            monitor_height_cm = monitor_width_cm * aspect_ratio
-            self.fixation_cross_pos = (monitor_width_cm / 2 - 3, -(monitor_height_cm / 2 - 3))
-            self.fixation_cross = visual.TextStim(win=self.mywindow, text="+", height=3, units="cm", color='black', pos=self.fixation_cross_pos)
+            stim_RSI = 0.0
+            N = self.last_N + 1
 
-        stim_RSI = 0.0
-        N = self.last_N + 1
+            responses_in_block = 0
+            accs_in_block = []
 
-        responses_in_block = 0
-        accs_in_block = []
+            patternERR = 0
+            number_of_patterns = 0
 
-        patternERR = 0
-        number_of_patterns = 0
+            RT_pattern_list = []
+            RT_all_list = []
 
-        RT_pattern_list = []
-        RT_all_list = []
+            RSI = core.StaticPeriod(screenHz=self.frame_rate)
+            RSI_clock = core.Clock()
+            trial_clock = core.Clock()
 
-        RSI = core.StaticPeriod(screenHz=self.frame_rate)
-        RSI_clock = core.Clock()
-        trial_clock = core.Clock()
+            first_trial_in_block = True
 
-        first_trial_in_block = True
+            self.trial_phase = "before_stimulus"
+            self.last_RSI = -1
 
-        self.trial_phase = "before_stimulus"
-        self.last_RSI = -1
+            if N in self.settings.get_session_starts():
+                self.instructions.show_instructions(self)
 
-        # start recording gaze data
-        if self.eye_tracker is not None:
-            self.current_sampling_window = self.settings.instruction_fixation_threshold
-            self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback, as_dictionary=True)
-
-        # show instructions or continuation message
-        if N in self.settings.get_session_starts():
-            self.instructions.show_instructions(self)
-
-        else:
-            self.instructions.show_unexp_quit(self)
-
-        RSI.start(self.settings.RSI_time)
-        # TODO: change this for the perceptual version
-        while True:
-            # four empty circles where the actual stimulus can be placed
-            self.stim_bg(stimbg)
-            self.mywindow.flip()
-            with self.shared_data_lock:
-                if self.eye_tracker is not None:
-                    self.current_sampling_window = self.settings.stim_fixation_threshold
-                    self.gaze_data_list.clear()
-                self.last_N = N - 1
-                self.trial_phase = "before_stimulus"
-                self.last_RSI = -1
-
-            # set the actual stimulus' position and fill color
-            if self.stimpr[N] == 'pattern':
-                if self.settings.asrt_types[self.stimepoch[N]] == 'explicit':
-                    stimP.fillColor = self.colors['stimp']
-                else:
-                    stimP.fillColor = self.colors['stimr']
-                stimcolor = stimP.fillColor
-                stimP.setPos(self.dict_pos[self.stimlist[N]])
             else:
-                stimcolor = self.colors['stimr']
-                stimR.setPos(self.dict_pos[self.stimlist[N]])
+                self.instructions.show_unexp_quit(self)
+
+            RSI.start(self.settings.RSI_time)
 
             # wait before the next stimulus to have the set RSI
             RSI.complete()
@@ -2636,13 +2592,19 @@ class Experiment:
 
             while True:
                 cycle += 1
-                self.stim_bg(stimbg)
+                # Get the appropriate image based on self.stimlist[N]
+                stim_image_path = stim_images.get(self.stimlist[N], 'stim_images/left.png')
 
-                # display the actual stimulus
-                if self.stimpr[N] == 'pattern':
-                    stimP.draw()
-                else:
-                    stimR.draw()
+                # Create the image stimulus centered in the window
+                stimulus = visual.ImageStim(
+                    win=self.mywindow,
+                    image=stim_image_path,  # Path to the selected image
+                    pos=(0, 0),  # Center the image
+                    size=(100, 100)  # Set the size of the image; adjust as necessary
+                )
+
+                # Draw the image stimulus on the window
+                stimulus.draw()
                 self.mywindow.flip()
 
                 # we measure the actual RSI
@@ -2709,7 +2671,12 @@ class Experiment:
                 # save data of the last trial (for ET we save data for every sample)
                 if self.settings.experiment_type == 'reaction-time':
                     self.person_data.output_data_buffer.append([N, stim_RSI, stim_RT_time, stim_RT_date,
-                                                                stimRT, stimACC, response, stimcolor, self.stim_output_line])
+                                                                stimRT, stimACC, response, stimcolor,
+                                                                self.stim_output_line])
+                elif self.settings.experiment_type == 'perceptuo_motor':
+                    self.person_data.output_data_buffer.append([N, stim_RSI, stim_RT_time, stim_RT_date,
+                                                                stimRT, stimACC, response, stimcolor,
+                                                                self.stim_output_line])
 
                 if stimACC == 0:
                     N += 1
@@ -2730,42 +2697,29 @@ class Experiment:
 
                 if self.settings.experiment_type == 'reaction-time':
                     self.person_data.flush_RT_data_to_output(self)
-                elif self.settings.experiment_type == 'ET_RT_transfer':
-                    # stop registering more eye-tracking data
-                    self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
-                    self.person_data.flush_ET_RT_data_to_output(self)
-                    # continue eye-tracking
-                    self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback,
-                                                  as_dictionary=True)
+                elif self.settings.experiment_type == 'perceptuo_motor':
+                    self.person_data.flush_RT_data_to_output(self)
                 else:
                     # stop registering more eye-tracking data
                     self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
                     self.person_data.flush_ET_data_to_output(self)
                     # continue eye-tracking
-                    self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback, as_dictionary=True)
+                    self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback,
+                                                  as_dictionary=True)
 
-                if self.project_ET_zero:
-                    validation_block = self.stimblock[self.last_N - 1] == 0
-                    if validation_block:
-                        whatnow = self.show_feedback_ET_validation(RT_all_list, N == self.end_at[N - 1])
-                        if whatnow == 'quit':
-                            index = self.settings.get_block_starts().index(N)
-                            self.last_N = self.settings.get_block_starts()[index - 1] - 1
-                    self.person_data.save_person_settings(self)
-                    if not validation_block:
-                        print(f'Epoch ends {self.settings.get_epoch_starts()}, epoch_end is {N in self.settings.get_epoch_starts()}')
-                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts())
 
-                else:  # keep original code
-                    self.person_data.save_person_settings(self)
-                    if self.settings.experiment_type == 'reaction-time':
-                        whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
+
+
+                self.person_data.save_person_settings(self)
+                if self.settings.experiment_type == 'reaction-time':
+                    whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
                                                         accs_in_block, RT_all_list, RT_pattern_list)
-                    elif self.settings.experiment_type == 'ET_RT_transfer':
-                        whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
+                elif self.settings.experiment_type == 'perceptuo_motor':
+                    whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
                                                         accs_in_block, RT_all_list, RT_pattern_list)
-                    else:
-                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts()) #end of epoch here
+                else:
+                    whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1],
+                                                        N in self.settings.get_epoch_starts())  # end of epoch here
 
                 if whatnow == 'quit':
                     if N >= 1:
@@ -2789,7 +2743,243 @@ class Experiment:
                 # stop recording gaze data
                 if self.eye_tracker is not None:
                     self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
-                break
+                #break
+
+        else:
+            stimP = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
+                              fillColor=self.colors['stimp'], lineColor=self.colors['linecolor'], pos=self.dict_pos[1])
+            stimR = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
+                              fillColor=self.colors['stimr'], lineColor=self.colors['linecolor'], pos=self.dict_pos[1])
+            stimbg = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
+                               fillColor=None, lineColor=self.colors['linecolor'])
+            if self.settings.experiment_type == 'eye-tracking':
+                # place the fixation cross to the bottom-right corner of the screen
+                aspect_ratio = self.mymonitor.getSizePix()[1] / self.mymonitor.getSizePix()[0]
+                monitor_width_cm = self.settings.monitor_width
+                monitor_height_cm = monitor_width_cm * aspect_ratio
+                self.fixation_cross_pos = (monitor_width_cm / 2 - 3, -(monitor_height_cm / 2 - 3))
+                self.fixation_cross = visual.TextStim(win=self.mywindow, text="+", height=3, units="cm", color='black', pos=self.fixation_cross_pos)
+
+            stim_RSI = 0.0
+            N = self.last_N + 1
+
+            responses_in_block = 0
+            accs_in_block = []
+
+            patternERR = 0
+            number_of_patterns = 0
+
+            RT_pattern_list = []
+            RT_all_list = []
+
+            RSI = core.StaticPeriod(screenHz=self.frame_rate)
+            RSI_clock = core.Clock()
+            trial_clock = core.Clock()
+
+            first_trial_in_block = True
+
+            self.trial_phase = "before_stimulus"
+            self.last_RSI = -1
+
+            # start recording gaze data
+            if self.eye_tracker is not None:
+                self.current_sampling_window = self.settings.instruction_fixation_threshold
+                self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback, as_dictionary=True)
+
+            # show instructions or continuation message
+            if N in self.settings.get_session_starts():
+                self.instructions.show_instructions(self)
+
+            else:
+                self.instructions.show_unexp_quit(self)
+
+            RSI.start(self.settings.RSI_time)
+
+            while True:
+                # four empty circles where the actual stimulus can be placed
+                self.stim_bg(stimbg)
+                self.mywindow.flip()
+                with self.shared_data_lock:
+                    if self.eye_tracker is not None:
+                        self.current_sampling_window = self.settings.stim_fixation_threshold
+                        self.gaze_data_list.clear()
+                    self.last_N = N - 1
+                    self.trial_phase = "before_stimulus"
+                    self.last_RSI = -1
+
+                # set the actual stimulus' position and fill color
+                if self.stimpr[N] == 'pattern':
+                    if self.settings.asrt_types[self.stimepoch[N]] == 'explicit':
+                        stimP.fillColor = self.colors['stimp']
+                    else:
+                        stimP.fillColor = self.colors['stimr']
+                    stimcolor = stimP.fillColor
+                    stimP.setPos(self.dict_pos[self.stimlist[N]])
+                else:
+                    stimcolor = self.colors['stimr']
+                    stimR.setPos(self.dict_pos[self.stimlist[N]])
+
+                # wait before the next stimulus to have the set RSI
+                RSI.complete()
+
+                cycle = 0
+
+                while True:
+                    cycle += 1
+                    self.stim_bg(stimbg)
+
+                    # display the actual stimulus
+                    if self.stimpr[N] == 'pattern':
+                        stimP.draw()
+                    else:
+                        stimR.draw()
+                    self.mywindow.flip()
+
+                    # we measure the actual RSI
+                    if cycle == 1:
+                        if first_trial_in_block:
+                            stim_RSI = 0.0
+                        else:
+                            stim_RSI = RSI_clock.getTime()
+
+                    with self.shared_data_lock:
+                        self.trial_phase = "stimulus_on_screen"
+                        self.last_RSI = stim_RSI
+
+                    if cycle == 1:
+                        trial_clock.reset()
+                    (response, time_stamp) = self.wait_for_response(self.stimlist[N], trial_clock)
+
+                    with self.shared_data_lock:
+                        self.trial_phase = "after_reaction"
+
+                    # start of the RSI timer
+                    RSI_clock.reset()
+                    RSI.start(self.settings.RSI_time)
+
+                    now = datetime.now()
+                    stim_RT_time = now.strftime('%H:%M:%S.%f')
+                    stim_RT_date = now.strftime('%d/%m/%Y')
+                    stimRT = time_stamp
+
+                    self.stim_output_line += 1
+                    responses_in_block += 1
+
+                    # quit during the experiment
+                    if response == -1:
+                        self.stim_output_line -= 1
+
+                        if N >= 1:
+                            with self.shared_data_lock:
+                                self.last_N = N - 1
+
+                        self.quit_presentation()
+
+                    # right response
+                    elif response == self.stimlist[N]:
+                        stimACC = 0
+                        accs_in_block.append(0)
+
+                        if self.stimpr[N] == 'pattern':
+                            number_of_patterns += 1
+                            RT_pattern_list.append(stimRT)
+                        RT_all_list.append(stimRT)
+
+                    # wrong response -> let's wait for the next response
+                    else:
+                        stimACC = 1
+                        accs_in_block.append(1)
+
+                        if self.stimpr[N] == 'pattern':
+                            patternERR += 1
+                            number_of_patterns += 1
+                            RT_pattern_list.append(stimRT)
+                        RT_all_list.append(stimRT)
+
+                    # save data of the last trial (for ET we save data for every sample)
+                    if self.settings.experiment_type == 'reaction-time':
+                        self.person_data.output_data_buffer.append([N, stim_RSI, stim_RT_time, stim_RT_date,
+                                                                    stimRT, stimACC, response, stimcolor, self.stim_output_line])
+
+                    if stimACC == 0:
+                        N += 1
+                        first_trial_in_block = False
+                        break
+
+                # end of the block (show feedback and reinit variables for the next block)
+                if N in self.settings.get_block_starts():
+
+                    self.print_to_screen(u"Adatok mentése és visszajelzés előkészítése...")
+                    with self.shared_data_lock:
+                        self.last_N = N - 1
+                        self.trial_phase = "before_stimulus"
+                        self.last_RSI = -1
+                        if self.eye_tracker is not None:
+                            self.current_sampling_window = self.settings.instruction_fixation_threshold
+                            self.gaze_data_list.clear()
+
+                    if self.settings.experiment_type == 'reaction-time':
+                        self.person_data.flush_RT_data_to_output(self)
+                    elif self.settings.experiment_type == 'perceptuo_motor':
+                        # stop registering more eye-tracking data
+                        self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
+                        self.person_data.flush_ET_RT_data_to_output(self)
+                        # continue eye-tracking
+                        self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback,
+                                                      as_dictionary=True)
+                    else:
+                        # stop registering more eye-tracking data
+                        self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
+                        self.person_data.flush_ET_data_to_output(self)
+                        # continue eye-tracking
+                        self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback, as_dictionary=True)
+
+                    if self.settings.experiment_type == 'eye-tracking':
+                        validation_block = self.stimblock[self.last_N - 1] == 0
+                        if validation_block:
+                            whatnow = self.show_feedback_ET_validation(RT_all_list, N == self.end_at[N - 1])
+                            if whatnow == 'quit':
+                                index = self.settings.get_block_starts().index(N)
+                                self.last_N = self.settings.get_block_starts()[index - 1] - 1
+                        self.person_data.save_person_settings(self)
+                        if not validation_block:
+                            print(f'Epoch ends {self.settings.get_epoch_starts()}, epoch_end is {N in self.settings.get_epoch_starts()}')
+                            whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts())
+
+                    else:  # keep original code
+                        self.person_data.save_person_settings(self)
+                        if self.settings.experiment_type == 'reaction-time':
+                            whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
+                                                            accs_in_block, RT_all_list, RT_pattern_list)
+                        elif self.settings.experiment_type == 'perceptuo_motor':
+                            whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
+                                                            accs_in_block, RT_all_list, RT_pattern_list)
+                        else:
+                            whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1], N in self.settings.get_epoch_starts()) #end of epoch here
+
+                    if whatnow == 'quit':
+                        if N >= 1:
+                            with self.shared_data_lock:
+                                self.last_N = N - 1
+
+                        self.quit_presentation()
+
+                    patternERR = 0
+                    responses_in_block = 0
+
+                    RT_pattern_list = []
+                    RT_all_list = []
+
+                    accs_in_block = []
+
+                    first_trial_in_block = True
+
+                # end of the sessions (one run of the experiment script stops at the end of the current session)
+                if N == self.end_at[N - 1]:
+                    # stop recording gaze data
+                    if self.eye_tracker is not None:
+                        self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
+                    break
 
     def jacobi_ET_presentation(self):
         """Doing jacobi method for checking the implicit learning."""
@@ -3073,7 +3263,7 @@ class Experiment:
         self.all_settings_def()
 
         # specify predefined dictionaries
-        self.colors = {'wincolor': self.settings.asrt_background, 'linecolor': 'black',
+        self.colors = {'wincolor': self.settings.asrt_background, 'linecolor': 'Gold',
                        'stimp': self.settings.asrt_pcolor, 'stimr': self.settings.asrt_rcolor}
 
         self.pressed_dict = {self.settings.key1: 1, self.settings.key2: 2,
@@ -3086,7 +3276,7 @@ class Experiment:
                              3: (float(self.settings.asrt_distance) * 0.5, 0),
                              4: (float(self.settings.asrt_distance) * 1.5, 0)}
         # TODO: which layout?
-        elif self.settings.experiment_type == 'ET_RT_transfer':
+        elif self.settings.experiment_type == 'perceptuo_motor':
             self.dict_pos = {1: (float(self.settings.asrt_distance) * (-1.5), 0),
                              2: (float(self.settings.asrt_distance) * (-0.5), 0),
                              3: (float(self.settings.asrt_distance) * 0.5, 0),
