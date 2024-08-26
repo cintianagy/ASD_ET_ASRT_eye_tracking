@@ -507,19 +507,19 @@ class ExperimentSettings:
         settings_dialog.addField(u'Eles probak a blokkban:', 20)
         settings_dialog.addField(u'Blokkok szama egy epochban:', 5)
         for i in range(self.numsessions):
-            settings_dialog.addField(u'Session ' + str(i + 1) + u' epochok szama', 4)
+            settings_dialog.addField(u'Session ' + str(i + 1) + u' epochok szama', 0)
         for i in range(self.numsessions):
-            settings_dialog.addField(u'Session ' + str(i + 1) + u' kezdő random epochok száma', 0)
+            settings_dialog.addField(u'Session ' + str(i + 1) + u' kezdő random blokkok száma', 0)
         for i in range(self.numsessions):
             settings_dialog.addField(u'Session ' + str(i + 1) + u' ASRT tipusa',
                                      choices=["implicit", "explicit", "noASRT"])
-        settings_dialog.addField(u'Hány validation triallel ellenőrizzük a kalibrációt?', 20)
+        settings_dialog.addField(u'Hány validation triallel ellenőrizzük a kalibrációt?', 0)
         returned_data = settings_dialog.show()
         print(returned_data)
         if settings_dialog.OK:
-            self.blockprepN = int(returned_data[0])
-            self.blocklengthN = int(returned_data[1])
-            self.block_in_epochN = int(returned_data[2])
+            self.blockprepN = returned_data[0]
+            self.blocklengthN = returned_data[1]
+            self.block_in_epochN = returned_data[2]
             self.epochN = 0
             self.epochs = []
             self.asrt_types = {}
@@ -582,12 +582,6 @@ class ExperimentSettings:
             settings_dialog.addField(u'Instrukcióknál használt fixációs küszöbérték (mintavételek száma):', 36)
             settings_dialog.addField(u'Diszperzió küszöbérték (cm):', 2.0)
 
-        elif self.experiment_type == 'perceptuo_motor':
-            settings_dialog.addText(u'Eye-tracking paraméterek...')
-            settings_dialog.addField(u'AOI négyzetek oldahossza (cm):', 3.0)
-            settings_dialog.addField(u'Stimulusnál használt fixációs küszöbérték (mintavételek száma):', 12)
-            settings_dialog.addField(u'Instrukcióknál használt fixációs küszöbérték (mintavételek száma):', 36)
-            settings_dialog.addField(u'Diszperzió küszöbérték (cm):', 2.0)
 
         returned_data = settings_dialog.show()
         if settings_dialog.OK:
@@ -601,12 +595,6 @@ class ExperimentSettings:
             self.RSI_time = float(returned_data[7]) / 1000
 
             if self.experiment_type == 'eye-tracking':
-                self.AOI_size = returned_data[8]
-                self.stim_fixation_threshold = returned_data[9]
-                self.instruction_fixation_threshold = returned_data[10]
-                self.dispersion_threshold = returned_data[11]
-
-            if self.experiment_type == 'perceptuo_motor':
                 self.AOI_size = returned_data[8]
                 self.stim_fixation_threshold = returned_data[9]
                 self.instruction_fixation_threshold = returned_data[10]
@@ -628,14 +616,14 @@ class ExperimentSettings:
             settings_dialog.addField(u'Kilepes', 'q')
         if self.experiment_type == 'perceptuo_motor':
             settings_dialog.addText(u'Válaszbillentyűk')
-            settings_dialog.addField(u'Bal szelso:', 'y')
-            settings_dialog.addField(u'Bal kozep', 'c')
-            settings_dialog.addField(u'Jobb kozep', 'b')
-            settings_dialog.addField(u'Jobb szelso', 'm')
+            settings_dialog.addField(u'Bal:', 'left')
+            settings_dialog.addField(u'Fel', 'up')
+            settings_dialog.addField(u'Le', 'down')
+            settings_dialog.addField(u'Jobb', 'right')
             settings_dialog.addField(u'Kilepes', 'q')
         settings_dialog.addField(u'Figyelmeztetes pontossagra/sebessegre:', True)
         settings_dialog.addText(u'Ha be van kapcsolva a figyelmeztetés, akkor...:')
-        settings_dialog.addField(u'Figyelmeztetes sebessegre ezen sebesség felett :', 350)
+        settings_dialog.addField(u'Figyelmeztetes sebessegre ezen reakcióidő felett:', 350.0)
         settings_dialog.addField(u'Figyelmeztetes pontosságra ezen pontossag alatt (%):', 90)
         returned_data = settings_dialog.show()
         print(returned_data)
@@ -646,8 +634,8 @@ class ExperimentSettings:
             self.key4 = returned_data[3]
             self.key_quit = returned_data[4]
             self.whether_warning = returned_data[5]
-            self.speed_warning = int(returned_data[6])
-            self.acc_warning = int(returned_data[7])
+            self.speed_warning = returned_data[6]
+            self.acc_warning = returned_data[7]
         else:
             core.quit()
 
@@ -745,6 +733,11 @@ class InstructionHelper:
                 tempkey = event.waitKeys(keyList=experiment.settings.get_key_list())
                 if experiment.settings.key_quit in tempkey:
                     core.quit()
+            elif experiment.settings.experiment_type == 'perceptuo_motor':
+                self.__print_to_screen(inst, experiment.mywindow)
+                tempkey = event.waitKeys(keyList=experiment.settings.get_key_list())
+                if experiment.settings.key_quit in tempkey:
+                    core.quit()
             elif experiment.settings.experiment_type == 'eye-tracking':
                 experiment.fixation_cross.draw()
                 self.__print_to_screen(inst, experiment.mywindow)
@@ -761,6 +754,8 @@ class InstructionHelper:
 
     def show_ending(self, experiment):
         if experiment.settings.experiment_type == 'reaction-time':
+            self.__show_message(self.ending, experiment)
+        if experiment.settings.experiment_type == 'perceptuo_motor':
             self.__show_message(self.ending, experiment)
         else:
             self.__print_to_screen(self.ending[0], experiment.mywindow)
@@ -805,22 +800,21 @@ class InstructionHelper:
            about the speed or accuracy.
         """
 
-        for feedback in self.feedback_imp:
-            feedback = feedback.replace('*MEANRT*', rt_mean_str)
-            feedback = feedback.replace('*PERCACC*', acc_for_the_whole_str)
-
-            warning_message = ''
+        for i in self.feedback_imp:
+            i = i.replace('*MEANRT*', rt_mean_str)
+            i = i.replace('*PERCACC*', acc_for_the_whole_str)
 
             if experiment_settings.whether_warning is True:
-                if rt_mean > experiment_settings.speed_warning:
-                    warning_message = self.feedback_speed[0]
+                if rt_mean*1000 > experiment_settings.speed_warning:
+                    i = i.replace('*SPEEDACC*', self.feedback_speed[0])
                 elif acc_for_the_whole < experiment_settings.acc_warning:
-                    warning_message = self.feedback_accuracy[0]
+                    i = i.replace('*SPEEDACC*', self.feedback_accuracy[0])
+                else:
+                    i = i.replace('*SPEEDACC*', 'Szép munka!')
+            else:
+                i = i.replace('*SPEEDACC*', 'Szép munka!')
 
-            feedback = feedback.replace('*SPEEDACC*', warning_message)
-
-            self.__print_to_screen(feedback, mywindow)
-
+            self.__print_to_screen(i, mywindow)
             tempkey = event.waitKeys(keyList=experiment_settings.get_key_list())
         if experiment_settings.key_quit in tempkey:
             return 'quit'
@@ -879,7 +873,7 @@ class PersonDataHandler:
     """Class for handle subject related settings and data."""
 
     def __init__(self, subject_id, all_settings_file_path, all_IDs_file_path, subject_list_file_path, output_file_path,
-                 output_file_type, jacobi_output_file_path, jacobi_ET_output_file_path):
+                 output_file_type, jacobi_output_file_path, jacobi_ET_output_file_path, mw_output_file_path):
         # generated, unique ID of the subject (consist of a name, a number and an optional group name
         self.subject_id = subject_id
         # path to the settings file of the current subject storing the state of the experiment
@@ -892,13 +886,15 @@ class PersonDataHandler:
         self.output_file_path = output_file_path
         # type of the experiment indicating the output variables ('reaction-time' or 'eye-tracking')
         self.output_file_type = output_file_type
-        # we store all necessary data in this list of lists to be able to generate the output at the end of all blocks
+        # we store all necessary data in this list of lists to be able to generate the output at the end
         self.output_data_buffer = []
+        # mind wondering data buffer
+        self.mw_output_data_buffer = []
         # output text files for the measured data during jacobi test
         self.jacobi_ET_output_file_path = jacobi_ET_output_file_path
         self.jacobi_output_file_path = jacobi_output_file_path
-        # output buffer used to store data during jacobi test
-        self.jacobi_output_data_buffer = []
+        # output text files for the measured min wandering data
+        self.mw_output_file_path = mw_output_file_path
 
     def load_person_settings(self, experiment):
         """Open settings file of the current subject and read the current state."""
@@ -1000,6 +996,8 @@ class PersonDataHandler:
             with codecs.open(self.output_file_path, 'w', encoding='utf-8') as output_file:
                 if self.output_file_type == 'reaction-time':
                     self.add_RT_heading_to_output(output_file)
+                elif self.output_file_type == 'perceptuo_motor':
+                    self.add_RT_heading_to_output(output_file)
                 else:
                     self.add_ET_heading_to_output(output_file)
                 output_file.write(string_to_append)
@@ -1007,9 +1005,60 @@ class PersonDataHandler:
             with codecs.open(self.output_file_path, 'a+', encoding='utf-8') as output_file:
                 output_file.write(string_to_append)
 
+    def append_to_mw_output_file(self, string_to_append):
+        """ Append a string to the end on the output text file."""
+
+        if not os.path.isfile(self.mw_output_file_path):
+            with codecs.open(self.mw_output_file_path, 'w', encoding='utf-8') as mw_output_file:
+                self.add_mw_heading_to_output(mw_output_file)
+                mw_output_file.write(string_to_append)
+        else:
+            with codecs.open(self.mw_output_file_path, 'a+', encoding='utf-8') as mw_output_file:
+                mw_output_file.write(string_to_append)
+
+    def add_mw_heading_to_output(self, output_file):
+        """Add the first line to the ouput with the names of the different variables (reaction-time exp. type)."""
+        heading_list = ['trial',
+                        'subject_number',
+                        'session',
+                        'epoch',
+                        'block',
+
+                        'MW_1',
+                        'MW_2',
+                        'MW_3']
+
+        for h in heading_list:
+            output_file.write(h + '\t')
+        output_file.write('\n')
+
+    def flush_mw_data_to_output(self, experiment):
+        """ Write out the output date of the current trial into the output text file (reaction-time exp. type)."""
+        output_buffer = StringIO()
+        for data in self.mw_output_data_buffer:
+            N = int(data[0]) + 1
+            output_data = [data[0],
+                           experiment.subject_number,
+                           experiment.stim_sessionN[N],
+                           experiment.stimepoch[N],
+                           experiment.stimblock[N],
+
+                           data[-3],
+                           data[-2],
+                           data[-1]]
+
+            output_buffer.write("\n")
+            for data in output_data:
+                data = str(data)
+                output_buffer.write(data + '\t')
+
+        self.append_to_mw_output_file(output_buffer.getvalue())
+        output_buffer.close()
+        self.mw_output_data_buffer.clear()
+
     def flush_RT_data_to_output(self, experiment):
         """ Write out the output date of the current trial into the output text file (reaction-time exp. type)."""
-        assert self.output_file_type == 'reaction-time'
+        assert (self.output_file_type == 'reaction-time') or (self.output_file_type == 'perceptuo_motor')
 
         output_buffer = StringIO()
         for data in self.output_data_buffer:
@@ -1064,7 +1113,7 @@ class PersonDataHandler:
 
     def add_RT_heading_to_output(self, output_file):
         """Add the first line to the output with the names of the different variables (reaction-time exp. type)."""
-        assert self.output_file_type == 'reaction-time'
+        assert (self.output_file_type == 'reaction-time') or (self.output_file_type == 'perceptuo_motor')
 
         heading_list = ['computer_name',
                         'subject_group',
@@ -1499,228 +1548,6 @@ class PersonDataHandler:
 
         output_buffer.close()
         self.jacobi_output_data_buffer.clear()
-    def flush_ET_RT_data_to_output(self, experiment):
-        """ Write out the output data of the current trial into the output text file (eye-tracking exp. type)."""
-        assert self.output_file_type == 'perceptuo_motor'
-
-        output_buffer = StringIO()
-        max_trial = experiment.settings.get_maxtrial()
-        data_len = len(self.output_data_buffer)
-        for data in self.output_data_buffer:
-
-            N = data[0] + 1
-            if N > max_trial:
-                break
-            epoch = experiment.stimepoch[N]
-            PCode = experiment.which_code(epoch)
-            asrt_type = experiment.settings.asrt_types[epoch]
-            if experiment.stimpr[N] == 'pattern':
-                if experiment.settings.asrt_types[epoch] == 'explicit':
-                    stimcolor = experiment.colors['stimp']
-                else:
-                    stimcolor = experiment.colors['stimr']
-            else:
-                stimcolor = experiment.colors['stimr']
-
-            trial_type_high_low = experiment.calulate_trial_type_high_low(N)
-            left_gaze_data_ADCS = data[3]['left_gaze_point_on_display_area']
-            right_gaze_data_ADCS = data[3]['right_gaze_point_on_display_area']
-            left_eye_distance = data[3]['left_gaze_origin_in_user_coordinate_system'][2]
-            right_eye_distance = data[3]['right_gaze_origin_in_user_coordinate_system'][2]
-            left_gaze_validity = bool(data[3]['left_gaze_point_validity'])
-            right_gaze_validity = bool(data[3]['right_gaze_point_validity'])
-
-            if left_gaze_validity:
-                left_gaze_data_PCMCS = experiment.ADCS_to_PCMCS(left_gaze_data_ADCS)
-            else:
-                left_gaze_data_PCMCS = (float('nan'), float('nan'))
-
-            if right_gaze_validity:
-                right_gaze_data_PCMCS = experiment.ADCS_to_PCMCS(right_gaze_data_ADCS)
-            else:
-                right_gaze_data_PCMCS = (float('nan'), float('nan'))
-
-            left_pupil_diameter = data[3]['left_pupil_diameter']
-            right_pupil_diameter = data[3]['right_pupil_diameter']
-            left_pupil_validity = bool(data[3]['left_pupil_validity'])
-            right_pupil_validity = bool(data[3]['right_pupil_validity'])
-
-            output_data = [experiment.settings.computer_name,
-                           experiment.mymonitor.getSizePix()[0],
-                           experiment.mymonitor.getSizePix()[1],
-                           experiment.subject_group,
-                           experiment.subject_number,
-                           experiment.subject_sex,
-                           experiment.subject_age,
-                           asrt_type,
-                           PCode,
-
-                           experiment.stim_sessionN[N],
-                           experiment.stimepoch[N],
-                           experiment.stimblock[N],
-                           experiment.stimtrial[N],
-
-                           data[1],
-                           experiment.frame_rate,
-                           experiment.frame_time,
-                           experiment.frame_sd,
-                           data[3],
-
-                           stimcolor,
-                           experiment.stimpr[N],
-                           trial_type_high_low,
-                           experiment.stimlist[N],
-                           data[2],
-                           left_gaze_data_ADCS[0],
-                           left_gaze_data_ADCS[1],
-                           right_gaze_data_ADCS[0],
-                           right_gaze_data_ADCS[1],
-                           left_gaze_data_PCMCS[0],
-                           left_gaze_data_PCMCS[1],
-                           right_gaze_data_PCMCS[0],
-                           right_gaze_data_PCMCS[1],
-                           left_eye_distance,
-                           right_eye_distance,
-                           left_gaze_validity,
-                           right_gaze_validity,
-                           left_pupil_diameter,
-                           right_pupil_diameter,
-                           left_pupil_validity,
-                           right_pupil_validity,
-                           data[4],
-                           experiment.dict_pos[1][0],
-                           experiment.dict_pos[1][1],
-                           experiment.dict_pos[2][0],
-                           experiment.dict_pos[2][1],
-                           experiment.dict_pos[3][0],
-                           experiment.dict_pos[3][1],
-                           experiment.dict_pos[4][0],
-                           experiment.dict_pos[4][1],
-
-                           # from RT function
-                           data[8],
-
-                           experiment.stim_sessionN[N],
-                           experiment.stimepoch[N],
-                           experiment.stimblock[N],
-                           experiment.stimtrial[N],
-
-                           data[1],
-                           experiment.frame_rate,
-                           experiment.frame_time,
-                           experiment.frame_sd,
-                           data[2],
-                           data[3],
-
-                           data[7],
-                           experiment.stimpr[N],
-                           trial_type_high_low,
-                           data[4],
-                           data[5],
-
-                           experiment.stimlist[N],
-                           data[6]]
-
-
-
-            output_buffer.write("\n")
-            for data in output_data:
-                if isinstance(data, numbers.Number):
-                    data = str(data)
-                    data = data.replace('.', ',')
-                else:
-                    data = str(data)
-                output_buffer.write(data + '\t')
-
-        self.append_to_output_file(output_buffer.getvalue())
-        output_buffer.close()
-        # make sure we don't get more data here during writing it out
-        assert data_len == len(self.output_data_buffer)
-        self.output_data_buffer.clear()
-
-    def add_ET_RT_heading_to_output(self, output_file):
-        """Add the first line to the output with the names of the different variables (eye-tracking exp. type)."""
-        assert self.output_file_type == 'perceptuo_motor'
-
-        heading_list = ['computer_name',
-                        'monitor_width_pixel',
-                        'monitor_height_pixel',
-                        'subject_group',
-                        'subject_number',
-                        'subject_sex',
-                        'subject_age',
-                        'asrt_type',
-                        'PCode',
-
-                        'session',
-                        'epoch',
-                        'block',
-                        'trial',
-
-                        'RSI_time',
-                        'frame_rate',
-                        'frame_time',
-                        'frame_sd',
-
-                        'stimulus_color',
-                        'trial_type_pr',
-                        'triplet_type_hl',
-                        'stimulus',
-                        'trial_phase',
-                        'left_gaze_data_X_ADCS',
-                        'left_gaze_data_Y_ADCS',
-                        'right_gaze_data_X_ADCS',
-                        'right_gaze_data_Y_ADCS',
-                        'left_gaze_data_X_PCMCS',
-                        'left_gaze_data_Y_PCMCS',
-                        'right_gaze_data_X_PCMCS',
-                        'right_gaze_data_Y_PCMCS',
-                        'left_eye_distance',
-                        'right_eye_distance',
-                        'left_gaze_validity',
-                        'right_gaze_validity',
-                        'left_pupil_diameter',
-                        'right_pupil_diameter',
-                        'left_pupil_validity',
-                        'right_pupil_validity',
-                        'gaze_data_time_stamp',
-                        'stimulus_1_position_X_PCMCS',
-                        'stimulus_1_position_Y_PCMCS',
-                        'stimulus_2_position_X_PCMCS',
-                        'stimulus_2_position_Y_PCMCS',
-                        'stimulus_3_position_X_PCMCS',
-                        'stimulus_3_position_Y_PCMCS',
-                        'stimulus_4_position_X_PCMCS',
-                        'stimulus_4_position_Y_PCMCS',
-                        'quit_log',
-
-                        # from RT function
-                        'output_line',
-
-                        'session',
-                        'epoch',
-                        'block',
-                        'trial',
-
-                        'RSI_time',
-                        'frame_rate',
-                        'frame_time',
-                        'frame_sd',
-                        'date',
-                        'time',
-
-                        'stimulus_color',
-                        'trial_type_pr',
-                        'triplet_type_hl',
-                        'RT',
-                        'error',
-                        'stimulus',
-                        'response',
-                        'quit_log'
-                        ]
-
-        for h in heading_list:
-            output_file.write(h + '\t')
 
 class Experiment:
     """ Class for running the ASRT experiment."""
@@ -2142,10 +1969,11 @@ class Experiment:
         output_file_path = os.path.join(self.workdir_path, "logs", subject_id + '_log.txt')
         jacobi_output_file_path = os.path.join(self.workdir_path, "logs", subject_id + '_jacobi_log.txt')
         jacobi_ET_output_file_path = os.path.join(self.workdir_path, "logs", subject_id + '_jacobi_ET_log.txt')
+        mw_output_file_path = os.path.join(self.workdir_path, "logs", subject_id + '_mw_log.txt')
         self.person_data = PersonDataHandler(subject_id, all_settings_file_path,
                                              all_IDs_file_path, subject_list_file_path,
                                              output_file_path, self.settings.experiment_type,
-                                             jacobi_output_file_path, jacobi_ET_output_file_path)
+                                             jacobi_output_file_path, jacobi_ET_output_file_path, mw_output_file_path)
 
         # try to load settings and progress for the given subject ID
         self.person_data.load_person_settings(self)
@@ -2423,6 +2251,12 @@ class Experiment:
             stimbg.pos = self.dict_pos[i]
             stimbg.draw()
 
+    def stim_cross(self, stimbg):
+        """Draw fixation cross."""
+
+        stimbg.pos = (0,0)
+        stimbg.draw()
+
     def show_feedback_RT(self, N, number_of_patterns, patternERR, responses_in_block, accs_in_block, RT_all_list, RT_pattern_list):
         """ Display feedback in the end of the blocks, showing some data about speed and accuracy."""
 
@@ -2544,10 +2378,24 @@ class Experiment:
         core.wait(3.0)
         core.quit()
 
+    def mind_wandering(self, question):
+        likert_text = visual.TextStim(self.mywindow, text=question, pos=(0, 1), units = "cm", color='white')
+        likert_scale = visual.TextStim(self.mywindow, text="1   2   3   4", pos=(0, -4), color = 'white')
+
+        likert_text.draw()
+        likert_scale.draw()
+        self.mywindow.flip()
+
+        response = None
+        while response not in ['1', '2', '3', '4']:
+            response = event.waitKeys(keyList=['1', '2', '3', '4'])[0]
+
+        return int(response)
+
     def presentation(self):
         """The real experiment happens here. This method displays the stimulus window and records the reactions."""
 
-        # init presented objects
+        # Initialize presented objects
         if self.settings.experiment_type == 'perceptuo_motor':
             stim_images = {
                 1: 'stim_images/left.jpg',
@@ -2556,6 +2404,7 @@ class Experiment:
                 4: 'stim_images/right.jpg'
             }
 
+            stimcross = visual.TextStim(win=self.mywindow, text="+", height=3, units="cm", color='Gold', pos=(0, 0))
             stim_RSI = 0.0
             N = self.last_N + 1
 
@@ -2577,173 +2426,210 @@ class Experiment:
             self.trial_phase = "before_stimulus"
             self.last_RSI = -1
 
+            # Show instructions at the start of the session
             if N in self.settings.get_session_starts():
                 self.instructions.show_instructions(self)
-
             else:
                 self.instructions.show_unexp_quit(self)
 
             RSI.start(self.settings.RSI_time)
 
-            # wait before the next stimulus to have the set RSI
-            RSI.complete()
-
-            cycle = 0
-
             while True:
-                cycle += 1
-                # Get the appropriate image based on self.stimlist[N]
-                stim_image_path = stim_images.get(self.stimlist[N], 'stim_images/left.png')
-
-                # Create the image stimulus centered in the window
-                stimulus = visual.ImageStim(
-                    win=self.mywindow,
-                    image=stim_image_path,  # Path to the selected image
-                    pos=(0, 0),  # Center the image
-                    size=(100, 100)  # Set the size of the image; adjust as necessary
-                )
-
-                # Draw the image stimulus on the window
-                stimulus.draw()
+                # Four empty circles where the actual stimulus can be placed
+                self.stim_cross(stimcross)
                 self.mywindow.flip()
 
-                # we measure the actual RSI
-                if cycle == 1:
-                    if first_trial_in_block:
-                        stim_RSI = 0.0
-                    else:
-                        stim_RSI = RSI_clock.getTime()
-
+                # Clear gaze data if eye tracker is active
                 with self.shared_data_lock:
-                    self.trial_phase = "stimulus_on_screen"
-                    self.last_RSI = stim_RSI
-
-                if cycle == 1:
-                    trial_clock.reset()
-                (response, time_stamp) = self.wait_for_response(self.stimlist[N], trial_clock)
-
-                with self.shared_data_lock:
-                    self.trial_phase = "after_reaction"
-
-                # start of the RSI timer
-                RSI_clock.reset()
-                RSI.start(self.settings.RSI_time)
-
-                now = datetime.now()
-                stim_RT_time = now.strftime('%H:%M:%S.%f')
-                stim_RT_date = now.strftime('%d/%m/%Y')
-                stimRT = time_stamp
-
-                self.stim_output_line += 1
-                responses_in_block += 1
-
-                # quit during the experiment
-                if response == -1:
-                    self.stim_output_line -= 1
-
-                    if N >= 1:
-                        with self.shared_data_lock:
-                            self.last_N = N - 1
-
-                    self.quit_presentation()
-
-                # right response
-                elif response == self.stimlist[N]:
-                    stimACC = 0
-                    accs_in_block.append(0)
-
-                    if self.stimpr[N] == 'pattern':
-                        number_of_patterns += 1
-                        RT_pattern_list.append(stimRT)
-                    RT_all_list.append(stimRT)
-
-                # wrong response -> let's wait for the next response
-                else:
-                    stimACC = 1
-                    accs_in_block.append(1)
-
-                    if self.stimpr[N] == 'pattern':
-                        patternERR += 1
-                        number_of_patterns += 1
-                        RT_pattern_list.append(stimRT)
-                    RT_all_list.append(stimRT)
-
-                # save data of the last trial (for ET we save data for every sample)
-                if self.settings.experiment_type == 'reaction-time':
-                    self.person_data.output_data_buffer.append([N, stim_RSI, stim_RT_time, stim_RT_date,
-                                                                stimRT, stimACC, response, stimcolor,
-                                                                self.stim_output_line])
-                elif self.settings.experiment_type == 'perceptuo_motor':
-                    self.person_data.output_data_buffer.append([N, stim_RSI, stim_RT_time, stim_RT_date,
-                                                                stimRT, stimACC, response, stimcolor,
-                                                                self.stim_output_line])
-
-                if stimACC == 0:
-                    N += 1
-                    first_trial_in_block = False
-                    break
-
-            # end of the block (show feedback and reinit variables for the next block)
-            if N in self.settings.get_block_starts():
-
-                self.print_to_screen(u"Adatok mentése és visszajelzés előkészítése...")
-                with self.shared_data_lock:
-                    self.last_N = N - 1
-                    self.trial_phase = "before_stimulus"
-                    self.last_RSI = -1
                     if self.eye_tracker is not None:
-                        self.current_sampling_window = self.settings.instruction_fixation_threshold
+                        self.current_sampling_window = self.settings.stim_fixation_threshold
                         self.gaze_data_list.clear()
 
-                if self.settings.experiment_type == 'reaction-time':
-                    self.person_data.flush_RT_data_to_output(self)
-                elif self.settings.experiment_type == 'perceptuo_motor':
-                    self.person_data.flush_RT_data_to_output(self)
-                else:
-                    # stop registering more eye-tracking data
-                    self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
-                    self.person_data.flush_ET_data_to_output(self)
-                    # continue eye-tracking
-                    self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback,
-                                                  as_dictionary=True)
+                self.last_N = N - 1
+                self.trial_phase = "before_stimulus"
+                self.last_RSI = -1
 
+                # Wait for the RSI to complete before the next stimulus
+                RSI.complete()
 
+                cycle = 0
 
+                while True:
+                    cycle += 1
+                    # Get the appropriate image based on self.stimlist[N]
+                    stim_image_path = stim_images.get(self.stimlist[N], 'stim_images/left.png')
 
-                self.person_data.save_person_settings(self)
-                if self.settings.experiment_type == 'reaction-time':
-                    whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
+                    # Clear the window first
+                    self.mywindow.clearBuffer()
+
+                    # Draw the fixation cross (background) first
+                    stimcross.draw()
+
+                    # Create the image stimulus centered in the window
+                    stimulus = visual.ImageStim(
+                        win=self.mywindow,
+                        image=stim_image_path,  # Path to the selected image
+                        pos=(0, 0),  # Center the image
+                        size=(5, 5)  # Set the size of the image; adjust as necessary
+                    )
+
+                    # Draw the image stimulus on the window
+                    stimulus.draw()
+                    self.mywindow.flip()
+
+                    # Measure the actual RSI
+                    if cycle == 1:
+                        if first_trial_in_block:
+                            stim_RSI = 0.0
+                        else:
+                            stim_RSI = RSI_clock.getTime()
+
+                    with self.shared_data_lock:
+                        self.trial_phase = "stimulus_on_screen"
+                        self.last_RSI = stim_RSI
+
+                    if cycle == 1:
+                        trial_clock.reset()
+                    response, time_stamp = self.wait_for_response(self.stimlist[N], trial_clock)
+
+                    with self.shared_data_lock:
+                        self.trial_phase = "after_reaction"
+
+                    # Start the RSI timer
+                    RSI_clock.reset()
+                    RSI.start(self.settings.RSI_time)
+
+                    now = datetime.now()
+                    stim_RT_time = now.strftime('%H:%M:%S.%f')
+                    stim_RT_date = now.strftime('%d/%m/%Y')
+                    stimRT = time_stamp
+
+                    self.stim_output_line += 1
+                    responses_in_block += 1
+
+                    # Quit during the experiment
+                    if response == -1:
+                        self.stim_output_line -= 1
+
+                        if N >= 1:
+                            with self.shared_data_lock:
+                                self.last_N = N - 1
+
+                        self.quit_presentation()
+
+                    # Right response
+                    elif response == self.stimlist[N]:
+                        stimACC = 0
+                        accs_in_block.append(0)
+
+                        if self.stimpr[N] == 'pattern':
+                            number_of_patterns += 1
+                            RT_pattern_list.append(stimRT)
+                        RT_all_list.append(stimRT)
+
+                    # Wrong response -> wait for the next response
+                    else:
+                        stimACC = 1
+                        accs_in_block.append(1)
+
+                        if self.stimpr[N] == 'pattern':
+                            patternERR += 1
+                            number_of_patterns += 1
+                            RT_pattern_list.append(stimRT)
+                        RT_all_list.append(stimRT)
+
+                    # Save data of the last trial (for ET we save data for every sample)
+                    self.person_data.output_data_buffer.append([N, stim_RSI, stim_RT_time, stim_RT_date,
+                                                                    stimRT, stimACC, response, "Gold",
+                                                                    self.stim_output_line])
+
+                    if stimACC == 0:
+                        N += 1
+                        first_trial_in_block = False
+                        break
+
+                # for mind wandering
+                questions = [
+                    "Milyen mértékben fókuszált a feladatra ez előtt a kérdés előtt? (1 - Egyáltalán nem; 4 - Teljesen)",
+                    "Amikor nem a feladatra fókuszált, gondolt-e konkrétan valamire, vagy nem gondolt semmire sem? (1 - Egyáltalán nem; 4 - Teljesen)",
+                    "Szándékosan irányította a figyelmét (a feladatra vagy máshova), vagy ez spontán történt? (1 - Teljesen spontán voltam; 4 - Teljesen megfontolt voltam)"
+                ]
+
+                # End of the block (show feedback and reinit variables for the next block)
+                if N in self.settings.get_block_starts():
+                    ##bookmark mw
+
+                    responses_list = []
+
+                    for question in questions:
+                        response = self.mind_wandering(question)
+                        responses_list.append(response)
+                    print(responses_list)
+
+                    self.person_data.mw_output_data_buffer.append(
+                        [self.last_N, self.subject_number, experiment.stim_sessionN[self.last_N],
+                         experiment.stimepoch[self.last_N],
+                         experiment.stimblock[self.last_N], responses_list[0], responses_list[1], responses_list[2]])
+                    ##todo make it not hard coded and adjustable for any amount of questions (also to make it indexError-proof)
+                    ##todo the flushy headery things should be in a different class in fact, fix it when you have the patience
+                    self.person_data.flush_mw_data_to_output(self)
+
+                    self.print_to_screen(u"Adatok mentése és visszajelzés előkészítése...")
+                    with self.shared_data_lock:
+                        self.last_N = N - 1
+                        self.trial_phase = "before_stimulus"
+                        self.last_RSI = -1
+                        if self.eye_tracker is not None:
+                            self.current_sampling_window = self.settings.instruction_fixation_threshold
+                            self.gaze_data_list.clear()
+
+                    # Handle different experiment types
+                    if self.settings.experiment_type == 'reaction-time':
+                        self.person_data.flush_RT_data_to_output(self)
+                    elif self.settings.experiment_type == 'perceptuo_motor':
+                        self.person_data.flush_RT_data_to_output(self)
+                    else:
+                        # Stop registering more eye-tracking data
+                        self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
+                        self.person_data.flush_ET_data_to_output(self)
+                        # Continue eye-tracking
+                        self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback,
+                                                      as_dictionary=True)
+
+                    self.person_data.save_person_settings(self)
+
+                    # Show feedback based on experiment type
+                    if self.settings.experiment_type == 'reaction-time' or self.settings.experiment_type == 'perceptuo_motor':
+                        whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
                                                         accs_in_block, RT_all_list, RT_pattern_list)
-                elif self.settings.experiment_type == 'perceptuo_motor':
-                    whatnow = self.show_feedback_RT(N, number_of_patterns, patternERR, responses_in_block,
-                                                        accs_in_block, RT_all_list, RT_pattern_list)
-                else:
-                    whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1],
-                                                        N in self.settings.get_epoch_starts())  # end of epoch here
+                    else:
+                        whatnow = self.show_feedback_ET(RT_all_list, N == self.end_at[N - 1],
+                                                        N in self.settings.get_epoch_starts())
 
-                if whatnow == 'quit':
-                    if N >= 1:
-                        with self.shared_data_lock:
-                            self.last_N = N - 1
+                    if whatnow == 'quit':
+                        if N >= 1:
+                            with self.shared_data_lock:
+                                self.last_N = N - 1
 
-                    self.quit_presentation()
+                        self.quit_presentation()
 
-                patternERR = 0
-                responses_in_block = 0
+                    # Reset block variables
+                    patternERR = 0
+                    responses_in_block = 0
 
-                RT_pattern_list = []
-                RT_all_list = []
+                    RT_pattern_list = []
+                    RT_all_list = []
 
-                accs_in_block = []
+                    accs_in_block = []
 
-                first_trial_in_block = True
+                    first_trial_in_block = True
 
-            # end of the sessions (one run of the experiment script stops at the end of the current session)
-            if N == self.end_at[N - 1]:
-                # stop recording gaze data
-                if self.eye_tracker is not None:
-                    self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
-                #break
+                # End of the session (one run of the experiment script stops at the end of the current session)
+                if N == self.end_at[N - 1]:
+                    # Stop recording gaze data
+                    if self.eye_tracker is not None:
+                        self.eye_tracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback)
+                    break  # Added to actually end the loop at the session end
 
         else:
             stimP = visual.Circle(win=self.mywindow, radius=self.settings.asrt_size, units="cm",
@@ -2906,8 +2792,31 @@ class Experiment:
                         first_trial_in_block = False
                         break
 
+                # for mind wandering
+                questions = [
+                    "Milyen mértékben fókuszált a feladatra ez előtt a kérdés előtt? (1 - Egyáltalán nem; 4 - Teljesen)",
+                    "Amikor nem a feladatra fókuszált, gondolt-e konkrétan valamire, vagy nem gondolt semmire sem? (1 - Egyáltalán nem; 4 - Teljesen)",
+                    "Szándékosan irányította a figyelmét (a feladatra vagy máshova), vagy ez spontán történt? (1 - Teljesen spontán voltam; 4 - Teljesen megfontolt voltam)"
+                ]
+
                 # end of the block (show feedback and reinit variables for the next block)
                 if N in self.settings.get_block_starts():
+                    ##bookmark mw
+
+                    responses_list = []
+
+                    for question in questions:
+                        response = self.mind_wandering(question)
+                        responses_list.append(response)
+                    print(responses_list)
+
+                    self.person_data.mw_output_data_buffer.append(
+                        [self.last_N, self.subject_number, experiment.stim_sessionN[self.last_N],
+                         experiment.stimepoch[self.last_N],
+                         experiment.stimblock[self.last_N], responses_list[0], responses_list[1], responses_list[2]])
+                    ##todo make it not hard coded and adjustable for any amount of questions (also to make it indexError-proof)
+                    ##todo the flushy headery things should be in a different class in fact, fix it when you have the patience
+                    self.person_data.flush_mw_data_to_output(self)
 
                     self.print_to_screen(u"Adatok mentése és visszajelzés előkészítése...")
                     with self.shared_data_lock:
@@ -3007,6 +2916,7 @@ class Experiment:
         self.jacobi_test_phase = 'none'
         self.person_data.output_data_buffer.clear()
         self.person_data.jacobi_output_data_buffer.clear()
+        self.person_data.mw_output_data_buffer.clear()
         self.current_sampling_window = self.settings.instruction_fixation_threshold
         self.eye_tracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, self.eye_data_callback_jacobi, as_dictionary=True)
 

@@ -46,7 +46,7 @@ Az átlagos reakcióidőd: *MEANRT* ms.
 
 Az átlagos pontosságod: *PERCACC* %.
 
-Szép munka!
+*SPEEDACC*
 
 ***
 
@@ -61,3 +61,4 @@ accuracy#
 
 Kérlek, próbálj meg pontosabb lenni!
 
+***
